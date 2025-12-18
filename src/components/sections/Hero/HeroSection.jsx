@@ -15,7 +15,7 @@ const slides = [
     image: '/images/home/banner.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
   {
@@ -23,7 +23,7 @@ const slides = [
     image: '/images/pages/mission-baner.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
   {
@@ -31,7 +31,7 @@ const slides = [
     image: '/images/pages/mission-img.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
   {
@@ -39,7 +39,7 @@ const slides = [
     image: '/images/pages/contatti-baner.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
   {
@@ -47,7 +47,7 @@ const slides = [
     image: '/images/pages/mission-baner.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
 ];
@@ -58,7 +58,7 @@ export default function HeroSection() {
   const [swiper, setSwiper] = useState(null);
 
   return (
-    <section className="relative w-full bg-[bg-brand-light]">
+    <section className="relative w-full bg-brand-light overflow-x-hidden">
       <Swiper
         modules={[Navigation, Autoplay]}
         slidesPerView={1}

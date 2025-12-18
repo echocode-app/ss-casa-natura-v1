@@ -1,10 +1,10 @@
 import { Cart, User, Search } from '@/components/ui/Buttons';
 
 export default function HeaderIcons({ className = '', isMobile = false }) {
-  const size = isMobile ? 'w-5 h-5' : 'w-6 h-6';
+  const size = isMobile ? 'w-6 h-6' : 'w-2 h-2';
 
   return (
-    <div className={`flex items-center px-6 gap-6 ${className}`}>
+    <div className={`flex items-center px-1 md:px-6 gap-1 md:gap-6 ${className}`}>
       {!isMobile && (
         <Search
           className={`${size} hover:scale-105 focus:scale-105 transition-transform duration-300 will-change-transform`}

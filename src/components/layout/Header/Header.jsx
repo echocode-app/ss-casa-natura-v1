@@ -20,8 +20,14 @@ export default function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 bg-brand-light shadow-header">
-      <div className="mx-auto max-w-[1571px] px-2 md:px-4 md:py-2">
+    <header className="sticky top-0 z-50 bg-brand-light overflow-x-hidden shadow-header">
+      <div
+        className="
+            mx-auto max-w-[1570px] 
+            px-4 pb-4 pt-1
+            md:pl-20 xl:pl-24
+          "
+      >
         {/* ================= MOBILE ================= */}
         <div
           className="
@@ -34,16 +40,16 @@ export default function Header() {
           "
         >
           {/* LEFT: burger + search */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setMenuOpen(true)}
               aria-label="Open menu"
               className="hover:scale-105 transition-transform will-change-transform"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-2 h-2" />
             </button>
 
-            <Search className="w-5 h-5 hover:scale-105 transition-transform will-change-transform" />
+            <Search className="w-2 h-2 hover:scale-105 transition-transform will-change-transform" />
           </div>
 
           {/* CENTER: logo */}
@@ -64,7 +70,7 @@ export default function Header() {
           <Logo />
 
           {/* RIGHT: nav + icons */}
-          <div className="flex items-center align-baseline gap-[clamp(50px,2vw,80px)]">
+          <div className="flex items-center align-baseline gap-[clamp(20px,2vw,70px)]">
             <Nav />
             <HeaderIcons />
           </div>

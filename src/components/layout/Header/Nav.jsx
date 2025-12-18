@@ -3,7 +3,7 @@ import Link from 'next/link';
 export default function Nav({ className = '' }) {
   return (
     <nav
-      className={`uppercase font-raleway font-normal text-[clamp(1rem,1.5vw,1.125rem)] flex gap-[clamp(20px,2vw,30px)] ${className}`}
+      className={`uppercase font-raleway font-normal text-[clamp(0.75rem,1.5vw,1.125rem)] flex gap-[clamp(12px,2vw,30px)] ${className}`}
     >
       <Link
         href="/prodotti"
