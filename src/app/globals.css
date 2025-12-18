@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+}
+
+/* 
+| Tailw    | rem  | px   |
+| -------- | ---- | ---- |
+| w-1      | 0.25 | 4px  |
+| w-2      | 0.5  | 8px  |
+| w-4      | 1    | 16px |
+| w-6      | 1.5  | 24px |
+| w-8      | 2    | 32px |
+| w-12     | 3    | 48px |
+| w-16     | 4    | 64px |
+| w-20     | 5    | 80px |
+| w-24     | 6    | 96px | 
+*/
+
+html,
+body {
+  @apply bg-background-primary text-text-primary font-sans tracking-normal leading-normal;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.01);
+  }
+  70% {
+    transform: scale(0.99);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
