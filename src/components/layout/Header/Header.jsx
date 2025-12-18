@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-import Logo from "./Logo";
-import Nav from "./Nav";
-import HeaderIcons from "./HeaderIcons";
-import MobileMenu from "./MobileMenu";
+import Logo from './Logo';
+import Nav from './Nav';
+import HeaderIcons from './HeaderIcons';
+import MobileMenu from './MobileMenu';
 
-import { Menu, Search, User, Cart } from "@/components/ui/Buttons";
+import { Menu, Search, User, Cart } from '@/components/ui/Buttons';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
   }, [menuOpen]);
 
@@ -72,9 +72,7 @@ export default function Header() {
       </div>
 
       {/* ================= MOBILE MENU ================= */}
-      {menuOpen && (
-        <MobileMenu isOpen={menuOpen} closeMenu={() => setMenuOpen(false)} />
-      )}
+      {menuOpen && <MobileMenu isOpen={menuOpen} closeMenu={() => setMenuOpen(false)} />}
     </header>
   );
 }

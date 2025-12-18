@@ -1,17 +1,13 @@
-"use client";
+'use client';
 
-import PrimaryButton from "@/components/ui/Buttons/PrimaryButton";
+import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 
 export default function HeroSlide({ image, title, subtitle, cta }) {
   return (
     <div className="relative w-full min-h-[90svh] flex items-center">
       {/* Background */}
       <div className="absolute inset-0 bg-[#2B2929]" />
-      <img
-        src={image}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover opacity-90"
-      />
+      <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover opacity-90" />
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-[1440px] px-6 sm:px-10 lg:px-20 text-primary">

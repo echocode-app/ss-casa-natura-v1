@@ -1,11 +1,6 @@
-"use client";
+'use client';
 
-export default function PrimaryButton({
-  children,
-  onClick,
-  className = "",
-  type = "button",
-}) {
+export default function PrimaryButton({ children, onClick, className = '', type = 'button' }) {
   return (
     <button
       type={type}

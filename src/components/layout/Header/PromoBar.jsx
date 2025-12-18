@@ -1,10 +1,6 @@
-"use client";
+'use client';
 
-export default function PromoBar({
-  isVisible = true,
-  text = "",
-  bgColor = "#C3FF8A",
-}) {
+export default function PromoBar({ isVisible = true, text = '', bgColor = '#C3FF8A' }) {
   if (!isVisible) return null;
 
   return (
@@ -30,8 +26,8 @@ export default function PromoBar({
             focus-visible:animate-[pulse.8s_ease-out_1]
           "
         >
-          BLACK FRIDAY: fino al -30% 🔥 Il prezzo più basso dell’anno – non
-          lasciartelo scappare! {text}
+          BLACK FRIDAY: fino al -30% 🔥 Il prezzo più basso dell’anno – non lasciartelo scappare!{' '}
+          {text}
         </a>
       </div>
     </div>

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useSwiper } from "swiper/react";
+import { useSwiper } from 'swiper/react';
 
 export default function HeroProgress({ total }) {
   const swiper = useSwiper();
@@ -14,11 +14,7 @@ export default function HeroProgress({ total }) {
             className={`
               h-[3px] flex-1
               transition-all duration-300
-              ${
-                swiper?.activeIndex === index
-                  ? "bg-brand-accent"
-                  : "bg-white/40"
-              }
+              ${swiper?.activeIndex === index ? 'bg-brand-accent' : 'bg-white/40'}
             `}
           />
         ))}

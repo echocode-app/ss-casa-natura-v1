@@ -13,16 +13,10 @@ export const metadata: Metadata = {
   description: 'Cosmetics store', // Description for better SEO <====================
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it">
-      <body className={raleway.className}>
-        {children}
-      </body>
+      <body className={raleway.className}>{children}</body>
     </html>
   );
 }
