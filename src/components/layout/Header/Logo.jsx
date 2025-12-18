@@ -6,7 +6,7 @@ export default function Logo({ className = '' }) {
     <Link
       href="/"
       aria-label="Home"
-      className="relative w-[20vw] h-[110px] md:h-[120px] lg:h-[130px] xl:h-[140px] hover:scale-105 transition-transform duration-700 will-change-transform"
+      className="relative w-[20vw] h-[90px] md:h-[100px] lg:h-[110px] xl:h-[120px]"
     >
       <Image
         src="/images/parts/logo.svg"

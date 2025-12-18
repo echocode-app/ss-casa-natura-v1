@@ -22,8 +22,8 @@ export default function PromoBar({ isVisible = true, text = '', bgColor = '#C3FF
           className="
             inline-block
             transition-colors
-            group-hover:animate-[pulse.8s_ease-out_1]
-            focus-visible:animate-[pulse.8s_ease-out_1]
+            group-hover:animate-[pulse.9s_ease-out_1]
+            focus-visible:animate-[pulse.9s_ease-out_1]
           "
         >
           BLACK FRIDAY: fino al -30% 🔥 Il prezzo più basso dell’anno – non lasciartelo scappare!{' '}

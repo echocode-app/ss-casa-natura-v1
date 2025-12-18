@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -15,7 +15,7 @@ const slides = [
     image: '/images/home/banner.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
   {
@@ -23,7 +23,7 @@ const slides = [
     image: '/images/pages/mission-baner.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
   {
@@ -31,7 +31,7 @@ const slides = [
     image: '/images/pages/mission-img.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
   {
@@ -39,7 +39,7 @@ const slides = [
     image: '/images/pages/contatti-baner.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
   {
@@ -47,7 +47,7 @@ const slides = [
     image: '/images/pages/mission-baner.jpg',
     title: 'Freschezza Oceanica per la tua casa',
     subtitle:
-      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
+      'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti',
     cta: 'Scopri i prodotti',
   },
 ];
@@ -55,25 +55,21 @@ const slides = [
 export default function HeroSection() {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+  const [swiper, setSwiper] = useState(null);
 
   return (
-    <section className="relative w-full bg-[#2B2929]">
+    <section className="relative w-full bg-[bg-brand-light]">
       <Swiper
         modules={[Navigation, Autoplay]}
         slidesPerView={1}
         loop
-        autoplay={{
-          delay: 5000,
-          disableOnInteraction: false,
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        navigation={{ prevEl: prevRef.current, nextEl: nextRef.current }}
+        onBeforeInit={(swiperInstance) => {
+          swiperInstance.params.navigation.prevEl = prevRef.current;
+          swiperInstance.params.navigation.nextEl = nextRef.current;
         }}
-        onBeforeInit={(swiper) => {
-          swiper.params.navigation.prevEl = prevRef.current;
-          swiper.params.navigation.nextEl = nextRef.current;
-        }}
-        navigation={{
-          prevEl: prevRef.current,
-          nextEl: nextRef.current,
-        }}
+        onSwiper={(swiperInstance) => setSwiper(swiperInstance)}
         className="relative"
       >
         {slides.map((slide) => (
@@ -83,7 +79,7 @@ export default function HeroSection() {
         ))}
 
         <HeroNavigation prevRef={prevRef} nextRef={nextRef} />
-        <HeroProgress total={slides.length} />
+        {swiper && <HeroProgress swiper={swiper} total={slides.length} />}
       </Swiper>
     </section>
   );

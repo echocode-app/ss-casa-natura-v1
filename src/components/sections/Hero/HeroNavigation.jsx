@@ -1,34 +1,52 @@
 'use client';
 
-export default function HeroNavigation() {
+import Arrow from '@/components/ui/Buttons/Arrow';
+
+export default function HeroNavigation({ prevRef, nextRef }) {
   return (
     <>
       <button
+        ref={prevRef}
         className="
-          hero-prev
+          hidden md:flex
           absolute left-4 top-1/2 -translate-y-1/2 z-20
-          w-12 h-12 rounded-full
+          w-[60px] h-[60px] p-[16px]
+          lg:w-[68px] lg:h-[68px] lg:p-[18px]
+          xl:w-[74px] xl:h-[74px] xl:p-[20px]
+          rounded-full
           bg-brand-accent
-          flex items-center justify-center
-          hover:opacity-90 transition
+          items-center justify-center
+          transition-all duration-300
+          hover:shadow-header 
+        hover:opacity-90
+          focus:outline-none focus:shadow-header focus:ring-black
         "
         aria-label="Previous slide"
       >
-        ‹
+        <span className="rotate-180">
+          <Arrow />
+        </span>
       </button>
 
       <button
+        ref={nextRef}
         className="
-          hero-next
+          hidden md:flex
           absolute right-4 top-1/2 -translate-y-1/2 z-20
-          w-12 h-12 rounded-full
+          w-[60px] h-[60px] p-[16px]
+          lg:w-[68px] lg:h-[68px] lg:p-[18px]
+          xl:w-[74px] xl:h-[74px] xl:p-[20px]
+          rounded-full
           bg-brand-accent
-          flex items-center justify-center
-          hover:opacity-90 transition
+          items-center justify-center
+          transition-all duration-300
+          hover:shadow-header 
+        hover:opacity-90
+          focus:outline-none focus:shadow-header focus:ring-black
         "
         aria-label="Next slide"
       >
-        ›
+        <Arrow />
       </button>
     </>
   );
