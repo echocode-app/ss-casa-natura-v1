@@ -1,55 +1,61 @@
-import ProductCard from './ProductCard';
+import Link from 'next/link';
 import Image from 'next/image';
 
-export default function CategoriesSection() {
-  const products = ['Pulizia', 'Bucato', 'Cucina'];
-
+export default function ProductCard({ title }) {
   return (
-    <section className="py-4 md:py-6 xl:py-12">
-      <div className="mx-auto max-w-[1570px] px-6 md:px-8 lg:px-10 xl:px-12">
-        {/* Header */}
-        <div className="text-center max-w-[720px] mx-auto mb-8 md:mb-12 lg:mb-16">
-          <h2 className="text-[clamp(24px,2vw,40px)]">Benvenuti nel mondo di Casa Natura</h2>
-          <p className="font-bold text-[clamp(24px,2vw,40px)]">Scopri i nostri prodotti</p>
-        </div>
-
-        {/* Cards */}
+    <Link
+      href="/products"
+      className=" group flex flex-col items-center text-center cursor-pointer "
+    >
+      {/* Image wrapper */}
+      <div className="relative flex items-center justify-center p-0 md:p-4">
+        {/* Circle */}
         <div
-          className="
-            flex flex-nowrap justify-center
-            gap-0 md:gap-4 lg:gap-8
-            overflow-x-auto snap-x snap-mandatory pb-4
-
-            lg:grid lg:grid-cols-3 lg:justify-items-center lg:overflow-visible lg:snap-none lg:pb-0
-          "
-        >
-          {products.map((title, index) => (
-            <div key={title} className="snap-start shrink-0 lg:shrink relative">
-              {/* Leaf for first and last card */}
-              {index === 0 && (
-                <Image
-                  src="/images/home/leaf.png"
-                  alt="Leaf"
-                  width={150}
-                  height={150}
-                  className="absolute -top-8 -left-8 lg:w-[190px] xl:w-[280px] lg:-top-10 lg:-left-10 xl:-top-12 xl:-left-12"
-                />
-              )}
-              {index === products.length - 1 && (
-                <Image
-                  src="/images/home/leaf.png"
-                  alt="Leaf"
-                  width={150}
-                  height={150}
-                  className="absolute -top-8 -right-8 lg:w-[190px] xl:w-[280px] lg:-top-10 lg:-right-10 xl:-top-12 xl:-right-12 scale-x-[-1]"
-                />
-              )}
-
-              <ProductCard title={title} />
-            </div>
-          ))}
-        </div>
+          className=" absolute rounded-full z-1 
+          bg-brand-accent overflow-hidden 
+        transition-all duration-300
+        group-hover:shadow-header
+        group-focus:outline-none group-focus:shadow-header
+        w-[220px] lg:w-[260px] xl:w-[326px]
+        h-[220px] lg:h-[260px] xl:h-[326px]"
+          style={{
+            top: '60%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+        {/* Image */}
+        <Image
+          src="/images/home/products.png"
+          alt={title}
+          width={256}
+          height={342}
+          className=" relative z-2 
+          w-[180px] lg:w-[220px] xl:w-[256px] 
+          h-auto"
+        />
       </div>
-    </section>
+      {/* Title + Arrow */}
+      <div className="mt-6 flex items-center gap-5 z-5">
+        <span className="text-[clamp(18px,2vw,30px)]">{title}</span>
+        <span
+          className=" relative z-6 flex items-center justify-center
+        bg-brand-accent rounded-full 
+        p-[clamp(6px,2vw,8px)] 
+        group-hover:translate-x-2
+        transition-all duration-300
+        group-hover:shadow-header group-hover:opacity-90
+        group-focus:outline-none group-focus:shadow-header "
+        >
+          <Image
+            src="/images/parts/arrow.svg"
+            alt="Arrow"
+            width={20}
+            height={20}
+            className=" w-[clamp(14px,4vw,18px)] h-[clamp(14px,4vw,18px)] xl:w-[20px] xl:h-[20px] "
+          />
+        </span>
+      </div>
+    </Link>
   );
 }
