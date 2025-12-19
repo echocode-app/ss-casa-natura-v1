@@ -42,7 +42,7 @@ export default function ProductCard({ title }) {
           className=" relative z-6 flex items-center justify-center
         bg-brand-accent rounded-full 
         p-[clamp(6px,2vw,8px)] 
-        group-hover:translate-x-2
+        md:group-hover:translate-x-2
         transition-all duration-300
         group-hover:shadow-header group-hover:opacity-90
         group-focus:outline-none group-focus:shadow-header "

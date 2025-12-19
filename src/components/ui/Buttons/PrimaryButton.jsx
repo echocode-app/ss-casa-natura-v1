@@ -18,7 +18,7 @@ export default function PrimaryButton({ children, onClick, className = '', type 
         transition-all duration-300
         hover:shadow-header 
         hover:opacity-90
-        focus:outline-none focus:shadow-header focus:ring-black
+        focus:outline-none focus:shadow-header
         ${className}
       `}
     >

@@ -54,10 +54,11 @@ export default function Footer() {
         <div className="bg-[#767676] overflow-x-hidden">
           <div
             className="
-              mx-auto
-              max-w-[1570px]
-              px-6 md:px-8 lg:px-10 xl:px-12
-              py-2  md:py-3
+            mx-auto
+            max-w-[1570px]
+            pr-6 md:pr-8 lg:pr-10 xl:pr-12
+            py-6 md:py-4
+            pl-6 md:pl-20 lg:pl-24 xl:pl-26
             "
           >
             <Privacy />
