@@ -10,7 +10,9 @@ export default function CategoriesSection() {
         {/* Header */}
         <div className="text-center max-w-[720px] mx-auto">
           <h2 className="text-[clamp(24px,2vw,40px)]">Benvenuti nel mondo di Casa Natura</h2>
-          <p className="font-bold leading-[1.1] text-[clamp(24px,2vw,40px)]">Scopri i nostri prodotti</p>
+          <p className="font-bold leading-[1.1] text-[clamp(24px,2vw,40px)]">
+            Scopri i nostri prodotti
+          </p>
         </div>
 
         {/* Cards */}

@@ -1,1 +1,1 @@
-export { default as TopProductsSection } from './TopProductsSection'
+export { default as TopProductsSection } from './TopProductsSection';
