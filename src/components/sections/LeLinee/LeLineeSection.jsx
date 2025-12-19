@@ -13,7 +13,7 @@ export default function LeLineeSection() {
       className="py-4 lg:py-6
     pb-4 md:pb-6 xl:pb-12"
     >
-      <div className="mx-auto max-w-[1570px] px-6 md:px-8 lg:px-10 xl:px-12">
+      <div className="mx-auto md:max-w-[1570px] px-0 md:px-8 lg:px-10 xl:px-12">
         {/* Title */}
         <h2
           className="

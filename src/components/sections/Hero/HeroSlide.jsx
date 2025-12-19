@@ -37,7 +37,15 @@ export default function HeroSlide({ image, title, subtitle, cta }) {
           </p>
 
           <div className="mt-8 sm:mt-10">
-            <PrimaryButton>{cta}</PrimaryButton>
+            <PrimaryButton
+              className="        
+              px-6 py-3
+        md:px-8 md:py-4
+        lg:px-12 lg:py-5
+        xl:px-16 xl:py-6"
+            >
+              {cta}
+            </PrimaryButton>
           </div>
         </div>
       </div>
