@@ -18,7 +18,7 @@ export default function LeLineeSection() {
         <h2
           className="
             text-center
-            text-[32px] md:text-[40px] xl:text-[47px]
+            text-[clamp(28px,2vw,47px)]
             leading-[1.1]
             mb-6 xl:mb-[50px]
           "

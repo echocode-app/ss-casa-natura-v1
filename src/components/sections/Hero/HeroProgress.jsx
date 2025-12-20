@@ -12,7 +12,6 @@ export default function HeroProgress({ swiper, total }) {
 
     swiper.on('slideChange', updateIndex);
 
-    // при монтуванні синхронізуємо
     setActiveIndex(swiper.realIndex);
 
     return () => {
