@@ -5,8 +5,10 @@ export default function Mission() {
         La nostra <span className="heading-accent">mission</span>
       </h3>
 
-      <p className="heading-sm lg:heading-lg xl:heading-xl 
-      mb-6 xl:mb-12">
+      <p
+        className="heading-sm lg:heading-lg xl:heading-xl 
+      mb-6 xl:mb-12"
+      >
         La purezza della natura,
         <br />
         nella tua casa

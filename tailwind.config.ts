@@ -27,28 +27,32 @@ const config: Config = {
         lg: 'var(--space-lg)',
       },
       fontSize: {
-        'h-xl': [ // heading-xl
+        'h-xl': [
+          // heading-xl
           '47px',
           {
             lineHeight: '36px',
             fontWeight: '400',
           },
         ],
-        'h-lg': [ // heading-lg
+        'h-lg': [
+          // heading-lg
           '40px',
           {
             lineHeight: '36px',
             fontWeight: '400',
           },
         ],
-        'h-sm': [ // heading-sm
+        'h-sm': [
+          // heading-sm
           '30px',
           {
             lineHeight: '36px',
             fontWeight: '400',
           },
         ],
-        'h-accent': [ // heading-accent
+        'h-accent': [
+          // heading-accent
           'inherit',
           {
             lineHeight: '43px',
@@ -77,6 +81,7 @@ const config: Config = {
 
         background: {
           primary: '#FFFFFF', // основні світлі бекграунди - bg-background-primary
+          grizzly: '#F4F4F4', // bg-background-grizzly
         },
       },
 
