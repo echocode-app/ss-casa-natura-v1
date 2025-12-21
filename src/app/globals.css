@@ -29,6 +29,24 @@ body {
   @apply bg-background-primary text-text-primary font-sans tracking-normal leading-normal;
 }
 
+@layer components {
+  .heading-xl {
+    @apply text-h-xl text-center font-regular;
+  }
+
+  .heading-lg {
+    @apply text-h-lg text-center font-regular;
+  }
+
+  .heading-sm {
+    @apply text-h-sm text-center font-regular;
+  }
+
+  .heading-accent {
+    @apply text-h-accent font-semibold;
+  }
+}
+
 @keyframes pulse {
   0% {
     transform: scale(1);

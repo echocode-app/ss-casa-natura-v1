@@ -9,9 +9,8 @@ export default function TopProductsSection() {
       <WaveBackground color="#F9F8D6" />
 
       <div className="relative z-10 mx-auto max-w-[1570px] px-2 md:px-8 lg:px-10 xl:px-12">
-        <h2 className="text-[clamp(28px,2vw,47px)] leading-[1.1] text-center mb-12 md:mb-16 xl:mb-20">
-          I nostri prodotti più{' '}
-          <span className="font-bold text-[clamp(28px,2vw,47px)] leading-[1.1]">amati</span>
+        <h2 className="heading-sm lg:heading-lg xl:heading-xl mb-12 md:mb-16 xl:mb-20">
+          I nostri prodotti più <span className="heading-accent">amati</span>
         </h2>
 
         {/* Grid */}

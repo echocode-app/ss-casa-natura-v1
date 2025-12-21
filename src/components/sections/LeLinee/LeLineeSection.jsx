@@ -17,9 +17,7 @@ export default function LeLineeSection() {
         {/* Title */}
         <h2
           className="
-            text-center
-            text-[clamp(28px,2vw,47px)]
-            leading-[1.1]
+            heading-sm lg:heading-lg xl:heading-xl
             mb-6 xl:mb-[50px]
           "
         >

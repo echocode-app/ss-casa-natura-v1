@@ -26,6 +26,36 @@ const config: Config = {
         md: 'var(--space-md)',
         lg: 'var(--space-lg)',
       },
+      fontSize: {
+        'h-xl': [ // heading-xl
+          '47px',
+          {
+            lineHeight: '36px',
+            fontWeight: '400',
+          },
+        ],
+        'h-lg': [ // heading-lg
+          '40px',
+          {
+            lineHeight: '36px',
+            fontWeight: '400',
+          },
+        ],
+        'h-sm': [ // heading-sm
+          '30px',
+          {
+            lineHeight: '36px',
+            fontWeight: '400',
+          },
+        ],
+        'h-accent': [ // heading-accent
+          'inherit',
+          {
+            lineHeight: '43px',
+            fontWeight: '600',
+          },
+        ],
+      },
 
       boxShadow: {
         header: '0px 5px 5.2px rgba(0,0,0,0.25)', // тінь хедера - shadow-header
@@ -42,6 +72,7 @@ const config: Config = {
         text: {
           primary: '#000000', // основний текст - text-text-primary
           inverse: '#FFFFFF', // текст на темному фоні - text-text-inverse
+          gray: '#555555', // text-text-gray
         },
 
         background: {
