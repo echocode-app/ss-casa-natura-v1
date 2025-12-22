@@ -59,6 +59,7 @@ export default function PromocodeSection() {
               src="/images/home/leafs.png"
               alt="Leafs"
               fill
+              loading="eager"
               sizes="(max-width: 768px) 300px, (max-width: 1024px) 380px, 420px"
               className="object-cover rounded-[60px] xl:rounded-[120px]"
             />
