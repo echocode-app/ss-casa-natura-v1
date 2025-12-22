@@ -11,7 +11,7 @@ export default function LeLineeSection() {
   return (
     <section
       className="py-4 lg:py-6
-    pb-4 md:pb-6 xl:pb-12"
+    pb-4 md:pb-6 xl:pb-12 overflow-x-hidden"
     >
       <div className="mx-auto md:max-w-[1570px] px-0 md:px-8 lg:px-10 xl:px-12">
         {/* Title */}

@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function PromocodeSection() {
   return (
-    <section className="relative overflow-hidden py-40 xl:pt-48">
+    <section className="relative overflow-x-hidden py-40 xl:pt-48">
       {/* CONTAINER */}
       <div className="relative mx-auto max-w-[768px] lg:max-w-[1024px] xl:max-w-[1440px] px-4 md:px-8 lg:px-10 xl:px-12">
         {/* DECOR IMAGES */}
@@ -17,18 +17,14 @@ export default function PromocodeSection() {
               absolute
               top-[-30%]
               left-[-20%]   
-
               lg:top-[-100px]
               lg:left-[20px]   
-
               xl:top-[-60px]
               xl:left-[20px]
-
               w-[300px] h-[270px]
               md:w-[340px] md:h-[300px]
               lg:w-[380px] lg:h-[340px]
               xl:w-[420px] xl:h-[380px]
-
               z-0 md:z-0 xl:z-20
             "
           >
@@ -36,6 +32,7 @@ export default function PromocodeSection() {
               src="/images/home/foam.jpg"
               alt="Foam"
               fill
+              sizes="(max-width: 768px) 300px, (max-width: 1024px) 380px, 420px"
               className="object-cover rounded-[60px] xl:rounded-[120px]"
               priority
             />
@@ -47,18 +44,14 @@ export default function PromocodeSection() {
               absolute
               top-[50%] 
               left-[75%]   
-
               lg:top-[180px]
               lg:left-[630px]
-
               xl:top-[160px]
               xl:left-[160px]
-
               w-[300px] h-[270px]
               md:w-[340px] md:h-[300px]
               lg:w-[380px] lg:h-[340px]
               xl:w-[420px] xl:h-[380px]
-
               z-0 md:z-0 xl:z-30
             "
           >
@@ -66,6 +59,7 @@ export default function PromocodeSection() {
               src="/images/home/leafs.png"
               alt="Leafs"
               fill
+              sizes="(max-width: 768px) 300px, (max-width: 1024px) 380px, 420px"
               className="object-cover rounded-[60px] xl:rounded-[120px]"
             />
           </div>
@@ -80,15 +74,12 @@ export default function PromocodeSection() {
               md:max-w-[700px]
               lg:max-w-[800px]
               xl:max-w-[1000px]
-
               bg-opacity-80
               transition-all duration-300 ease-out
               hover:bg-opacity-100
               xl:bg-opacity-100
-
               bg-background-grizzly
               rounded-[60px] lg:rounded-[120px] xl:rounded-[223px]
-
               p-8 md:p-10 lg:p-12 lg:pb-10
             "
           >

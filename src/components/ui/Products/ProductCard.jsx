@@ -36,16 +36,17 @@ export default function ProductCard({
           width={180}
           height={240}
           className="
-            object-contain
-            transition-transform duration-300 ease-out
-            md:group-hover:scale-110
-          "
+    object-contain
+    w-auto h-auto
+    transition-transform duration-300 ease-out
+    md:group-hover:scale-110
+  "
         />
       </div>
 
       {/* Text info */}
       <div className="flex flex-col gap-[clamp(6px,2vw,10px)] flex-1">
-        <h3 className="font-semibold text-[clamp(16px,2vw,26px)]">{title}</h3>
+        <h3 className="font-semibold text-[clamp(12px,2vw,26px)]">{title}</h3>
 
         {/* Volume + Price + Button */}
         <div className="flex flex-col lg:flex-col gap-1 mt-2">

@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import ProductCard from './ProductCard';
-import Leaf from '/public/images/home/leaf.png';
-import LeafR from '/public/images/home/leaf-right.png';
+const Leaf = '/images/home/leaf.png';
+const LeafR = '/images/home/leaf-right.png';
 
 export default function CategoriesSection() {
   return (
-    <section className="py-8 xl:py-12 relative overflow-hidden">
+    <section className="py-8 xl:py-12 relative overflow-x-hidden">
       <div className="mx-auto max-w-[1570px] px-6 md:px-8 lg:px-10 xl:px-12">
         {/* Header */}
         <div className="text-center max-w-[720px] mx-auto">

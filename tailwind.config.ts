@@ -2,9 +2,9 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: [
-    './src/app/**/*.{ts,tsx,jsx}',
-    './src/components/**/*.{ts,tsx,jsx}',
-    './src/lib/**/*.{ts,tsx,jsx}',
+    './src/app/**/*.{ts,tsx,jsx,js}',
+    './src/components/**/*.{ts,tsx,jsx,js}',
+    './src/lib/**/*.{ts,tsx,jsx,js}',
   ],
 
   experimental: {
@@ -20,12 +20,6 @@ const config: Config = {
     },
 
     extend: {
-      spacing: {
-        xs: 'var(--space-xs)',
-        sm: 'var(--space-sm)',
-        md: 'var(--space-md)',
-        lg: 'var(--space-lg)',
-      },
       fontSize: {
         'h-xl': [
           // heading-xl

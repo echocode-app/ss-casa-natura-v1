@@ -18,8 +18,8 @@ export default function LeLineeItem({ title, imageSrc }) {
           src={imageSrc}
           alt={title}
           fill
-          className="object-cover transition-transform 
-          duration-700 group-hover:scale-110"
+          sizes="(max-width: 768px) 240px, (max-width: 1024px) 320px, 400px"
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
         />
 
         <div

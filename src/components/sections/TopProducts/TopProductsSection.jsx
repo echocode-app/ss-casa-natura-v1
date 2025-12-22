@@ -8,7 +8,7 @@ export default function TopProductsSection() {
     return null;
   }
   return (
-    <section className="py-16 xl:py-20 relative overflow-hidden ">
+    <section className="py-16 xl:py-20 relative overflow-x-hidden">
       <WavesImage color="#F9F8D6" />
 
       <div className="relative z-10 mx-auto max-w-[1570px] px-2 md:px-8 lg:px-10 xl:px-12">
