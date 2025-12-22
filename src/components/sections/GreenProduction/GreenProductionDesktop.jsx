@@ -6,7 +6,7 @@ import GreenPlanet from '@/components/ui/Parts/GreenPlanet';
 import Arrow from '@/components/ui/Parts/Arrow';
 export default function GreenProductionDesktop() {
   return (
-    <div className=" hidden md:grid grid-cols-[auto_1fr_auto] grid-rows-[min-content_auto_min-content_min-content] gap-4 md:gap-6 items-center justify-items-center md:[grid-template-rows:auto_minmax(140px,1fr)_minmax(56px,0.4fr)_auto] xl:[grid-template-rows:auto_minmax(160px,1.1fr)_minmax(48px,0.35fr)_auto] ">
+    <div className=" hidden md:grid grid-cols-[auto_1fr_auto] grid-rows-[min-content_auto_min-content_min-content] gap-2 lg:gap-4 items-center justify-items-center md:[grid-template-rows:auto_minmax(140px,1fr)_minmax(56px,0.4fr)_auto] xl:[grid-template-rows:auto_minmax(160px,1.1fr)_minmax(48px,0.35fr)_auto] ">
       {/* top arrow */} <div />
       <div className="flex">
         <Arrow className="rotate-0 w-[120px] lg:w-[160px] h-auto mb-4 lg:mb-6" />
@@ -38,7 +38,7 @@ export default function GreenProductionDesktop() {
         <Arrow className="rotate-[135deg] w-[120px] lg:w-[160px] h-auto" />
       </div>
       {/* bottom */}
-      <div className="group row-start-4 col-start-2 flex flex-col items-center gap-4 lg:gap-6 mt-4 lg:mt-6 max-w-[300px]">
+      <div className="group row-start-4 col-start-2 flex flex-col items-center gap-4 lg:gap-6 mt-4 lg:mt-0 max-w-[300px]">
         <span className="rounded-full bg-brand-accent p-3 lg:p-5 transition-all opacity-80 group-hover:opacity-100">
           <Testing width={100} height={100} />
         </span>

@@ -16,7 +16,7 @@ export default function LeLineeSection() {
       <div className="mx-auto md:max-w-[1570px] px-0 md:px-8 lg:px-10 xl:px-12">
         {/* Title */}
         <h2
-          className="
+          className="heading-default 
             heading-sm lg:heading-lg xl:heading-xl
             mb-6 xl:mb-[50px]
           "

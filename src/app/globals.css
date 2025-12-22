@@ -42,10 +42,15 @@ body {
     @apply text-h-sm text-center font-regular;
   }
 
+  .heading-default {
+    @apply text-h-default text-center font-regular;
+  }
+
   .heading-accent {
     @apply text-h-accent font-semibold;
   }
 }
+
 
 @keyframes pulse {
   0% {
@@ -57,4 +62,19 @@ body {
   100% {
     transform: scale(1);
   }
+}
+
+
+@keyframes planet-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-planet {
+  animation: planet-rotate 60s linear infinite;
+  will-change: transform;
 }

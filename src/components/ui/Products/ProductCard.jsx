@@ -6,8 +6,8 @@ import Link from 'next/link';
 
 export default function ProductCard({
   title = 'Sgrassatore naturale Agrumi di Sicilia',
-  volume = 'ml 1000',
-  price = '€ 1000.00',
+  volume = 'ml 750',
+  price = '€ 10.00',
   imageSrc = '/images/home/product.png',
   onAddClick,
 }) {

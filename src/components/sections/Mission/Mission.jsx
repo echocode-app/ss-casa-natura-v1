@@ -1,12 +1,12 @@
 export default function Mission() {
   return (
     <div className="mx-auto max-w-[820px]">
-      <h3 className="heading-sm lg:heading-lg xl:heading-xl mb-4 md:mb-8 xl:mb-10">
+      <h3 className="heading-default heading-sm lg:heading-lg xl:heading-xl mb-4 md:mb-8 xl:mb-10">
         La nostra <span className="heading-accent">mission</span>
       </h3>
 
       <p
-        className="heading-sm lg:heading-lg xl:heading-xl 
+        className="heading-default heading-sm lg:heading-lg xl:heading-xl 
       mb-6 xl:mb-12"
       >
         La purezza della natura,

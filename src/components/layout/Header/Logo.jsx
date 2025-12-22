@@ -12,11 +12,11 @@ export default function Logo({ isScrolled = false, className = '' }) {
 
         w-[88px] h-[61px]
 
-        md:w-[121px] ${isScrolled ? 'md:h-[56px]' : 'md:h-[84px]'}
+        md:w-[121px] ${isScrolled ? 'md:h-[50px]' : 'md:h-[84px]'}
 
-        lg:w-[198px] ${isScrolled ? 'lg:h-[86px]' : 'lg:h-[138px]'}
+        lg:w-[198px] ${isScrolled ? 'lg:h-[80px]' : 'lg:h-[138px]'}
 
-        xl:w-[220px] ${isScrolled ? 'xl:h-[96px]' : 'xl:h-[153px]'}
+        xl:w-[220px] ${isScrolled ? 'xl:h-[90px]' : 'xl:h-[153px]'}
 
         ${className}
       `}

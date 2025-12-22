@@ -23,10 +23,28 @@ export default function Header() {
 
   // scroll shrink (md+ only)
   useEffect(() => {
+    if (window.innerWidth < 768) return;
+
+    let ticking = false;
+
+    const shrinkAt = window.innerHeight * 0.1; // 15%
+    const expandAt = window.innerHeight * 0.05; // 8%
+
     const onScroll = () => {
-      if (window.innerWidth >= 768) {
-        setIsScrolled(window.scrollY > 10);
-      }
+      if (ticking) return;
+
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+
+        setIsScrolled((prev) => {
+          if (!prev && y > shrinkAt) return true;
+          if (prev && y < expandAt) return false;
+          return prev;
+        });
+
+        ticking = false;
+      });
     };
 
     window.addEventListener('scroll', onScroll);
@@ -38,10 +56,9 @@ export default function Header() {
       <div
         className={`
           mx-auto max-w-[1570px]
-          px-4
-          transition-[padding] duration-300 ease-out
+          p-2
+          transition-all duration-300 ease-out
           md:pl-20 xl:pl-24
-          ${isScrolled ? 'pt-1 pb-1' : 'pt-4 pb-4'}
         `}
       >
         {/* ================= MOBILE ================= */}
@@ -71,7 +88,7 @@ export default function Header() {
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center justify-end gap-6">
+          <div className="flex items-center justify-end gap-3">
             <User className="w-5 h-5" />
             <Cart className="w-5 h-5" />
           </div>

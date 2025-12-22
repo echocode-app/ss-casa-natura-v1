@@ -1,5 +1,6 @@
 export { default as WaveBackground } from './WaveBackground';
 export { default as GreenBackground } from './GreenBackground';
+export { default as WavesImage } from './WavesImage';
 
 export { default as Arrow } from './Arrow';
 

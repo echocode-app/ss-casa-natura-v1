@@ -51,6 +51,14 @@ const config: Config = {
             fontWeight: '400',
           },
         ],
+        'h-default': [
+          // heading
+          '26px',
+          {
+            lineHeight: '36px',
+            fontWeight: '400',
+          },
+        ],
         'h-accent': [
           // heading-accent
           'inherit',
