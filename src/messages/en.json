@@ -27,22 +27,14 @@
     "items": ["Lavender", "Sea Breeze", "Sicilian Citrus", "Lotus Flower", "Marseille", "Neutral"]
   },
   "topProducts": {
-    "title": "Our most loved products",
-    "products": [
-      {
-        "name": "Natural degreaser Sicilian Citrus",
-        "size": "ml 750",
-        "price": "$10.00",
-        "button": "Add"
-      }
-    ]
+    "title": "Our most loved products"
   },
   "greenProduction": {
     "title": "Why are we green?",
     "items": [
       { "name": "Plant-based", "description": "Only plant ingredients" },
       { "name": "Green Planet", "description": "" },
-      { "name": "Qualityd", "description": "100% Made in Italy quality" },
+      { "name": "Quality", "description": "100% Made in Italy quality" },
       { "name": "Testing", "description": "Products made without animal testing" }
     ]
   },
