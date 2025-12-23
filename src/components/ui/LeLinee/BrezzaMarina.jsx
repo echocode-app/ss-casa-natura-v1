@@ -7,6 +7,7 @@ export default function BrezzaMarina({ variant }) {
       title="Brezza Marina"
       imageSrc="/images/home/brezza-marina.jpg"
       variant={variant}
+      loading="eager"
     />
   );
 }

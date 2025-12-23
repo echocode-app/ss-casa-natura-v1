@@ -1,6 +1,7 @@
 import '@/app/globals.css';
 import type { Metadata } from 'next';
 import { Raleway } from 'next/font/google';
+import ClientLoader from '@/components/layout/ClientLoader';
 
 const raleway = Raleway({
   subsets: ['latin'],
@@ -10,13 +11,15 @@ const raleway = Raleway({
 
 export const metadata: Metadata = {
   title: 'CASA NATURA',
-  description: 'Cosmetics store', // Description for better SEO <====================
+  description: 'Cosmetics store',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it">
-      <body className={raleway.className}>{children}</body>
+      <body className={raleway.className}>
+        <ClientLoader>{children}</ClientLoader>
+      </body>
     </html>
   );
 }
