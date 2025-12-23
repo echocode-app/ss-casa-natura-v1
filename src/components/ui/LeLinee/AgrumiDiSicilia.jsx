@@ -7,6 +7,7 @@ export default function AgrumiDiSicilia({ variant }) {
       title="Agrumi di Sicilia"
       imageSrc="/images/home/agrumi-di-sicilia.jpg"
       variant={variant}
+      slug="agrumi-di-sicilia"
     />
   );
 }

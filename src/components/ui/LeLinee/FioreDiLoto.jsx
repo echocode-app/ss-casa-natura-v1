@@ -8,6 +8,7 @@ export default function FioreDiLoto({ variant }) {
       title="Fiore di Loto"
       imageSrc="/images/home/fiore-di-loto.jpg"
       variant={variant}
+      slug="fiore-di-loto"
     />
   );
 }

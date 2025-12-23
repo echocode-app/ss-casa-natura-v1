@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import { lineeConfig } from '@/lib/lineeConfig';
+
 export default function Line() {
   return (
     <div>
@@ -6,14 +9,14 @@ export default function Line() {
       </h4>
 
       <ul className="flex flex-col">
-        {['Lavanda', 'Brezza Marina', 'Agrumi di Sicilia', 'Fior di Loto', 'Neutro'].map((item) => (
-          <li key={item} className="mb-2">
-            <a
-              href="#"
+        {Object.values(lineeConfig).map((line) => (
+          <li key={line.slug} className="mb-2">
+            <Link
+              href={`/linee/${line.slug}`}
               className="font-normal text-[14px] md:text-[16px] xl:text-[18px] hover:underline"
             >
-              {item}
-            </a>
+              {line.title}
+            </Link>
           </li>
         ))}
       </ul>

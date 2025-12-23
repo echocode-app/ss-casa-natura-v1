@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function LeLineeItem({ title, imageSrc, variant = 'slider' }) {
+export default function LeLineeItem({ title, imageSrc, slug, variant = 'slider' }) {
   const isPage = variant === 'page';
 
   return (
-    <Link href="/" className="group block w-full">
+    <Link href={`/linee/${slug}`} className="group block w-full">
       <div
         className={`
           relative

@@ -3,6 +3,7 @@ export { default as GreenBackground } from './GreenBackground';
 export { default as WavesImage } from './WavesImage';
 
 export { default as Arrow } from './Arrow';
+export { default as Wave } from './Wave';
 
 export { default as Quality } from './Quality';
 export { default as Testing } from './Testing';
