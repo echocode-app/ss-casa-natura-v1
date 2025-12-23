@@ -5,7 +5,6 @@ import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 export default function HeroSlide({ image, title, subtitle, cta }) {
   return (
     <div className="relative w-full min-h-[78svh] flex items-center overflow-x-hidden">
-      {/* Background */}
       <div className="absolute inset-0" />
       <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />
 

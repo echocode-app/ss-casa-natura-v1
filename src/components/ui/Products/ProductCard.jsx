@@ -44,17 +44,18 @@ export default function ProductCard({
       {/* Image */}
       <div className="w-full flex justify-center rounded-[16px] relative">
         {imageLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+          <div className="absolute inset-0 flex items-center justify-center">
             <Spinner size="sm" colorScheme="muted" />
           </div>
         )}
+
         <Image
           src={imageSrc}
           alt={title}
           width={180}
           height={240}
-          className={`object-contain w-auto h-auto transition-transform duration-300 ease-out md:group-hover:scale-110`}
-          onLoadingComplete={handleImageLoaded}
+          className={`object-contain w-auto h-auto transition-transform duration-300 ease-out md:group-hover:scale-110 ${imageLoading ? 'opacity-0' : ''}`}
+          onLoad={handleImageLoaded}
         />
       </div>
 
@@ -72,7 +73,7 @@ export default function ProductCard({
             </div>
 
             {/* Button */}
-            <div className="mt-0 lg:mt-2">
+            <div className="mt-0 lg:mt-3">
               <PrimaryButton
                 onClick={handleAddClick}
                 disabled={adding}
