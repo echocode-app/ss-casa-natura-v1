@@ -2,6 +2,6 @@
 
 import LeLineeItem from './LeLineeItem';
 
-export default function Neutro() {
-  return <LeLineeItem title="Neutro" imageSrc="/images/home/neutro.jpg" />;
+export default function Neutro({ variant }) {
+  return <LeLineeItem title="Neutro" imageSrc="/images/home/neutro.jpg" variant={variant} />;
 }
