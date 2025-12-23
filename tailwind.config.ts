@@ -25,7 +25,7 @@ const config: Config = {
           // heading-xl
           '47px',
           {
-            lineHeight: '36px',
+            lineHeight: '50px',
             fontWeight: '400',
           },
         ],
@@ -33,7 +33,7 @@ const config: Config = {
           // heading-lg
           '40px',
           {
-            lineHeight: '36px',
+            lineHeight: '50px',
             fontWeight: '400',
           },
         ],
@@ -41,7 +41,7 @@ const config: Config = {
           // heading-sm
           '30px',
           {
-            lineHeight: '36px',
+            lineHeight: '50px',
             fontWeight: '400',
           },
         ],
@@ -49,7 +49,7 @@ const config: Config = {
           // heading
           '26px',
           {
-            lineHeight: '36px',
+            lineHeight: '50px',
             fontWeight: '400',
           },
         ],

@@ -13,7 +13,6 @@ export default function LeLineeItem({ title, imageSrc, variant = 'slider' }) {
           overflow-hidden
           rounded-full
           mx-auto
-
           ${
             isPage
               ? `
@@ -34,6 +33,7 @@ export default function LeLineeItem({ title, imageSrc, variant = 'slider' }) {
           }
         `}
       >
+        {/* IMAGE */}
         <Image
           src={imageSrc}
           alt={title}
@@ -43,12 +43,31 @@ export default function LeLineeItem({ title, imageSrc, variant = 'slider' }) {
               ? '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 340px'
               : '(max-width: 768px) 240px, (max-width: 1024px) 320px, 400px'
           }
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          className="
+            object-cover
+            transition-transform
+            duration-700
+            md:group-hover:scale-110
+          "
         />
 
+        {/* OVERLAY (md+) */}
         <div
           className="
+            pointer-events-none
             absolute inset-0
+            bg-white/70
+            opacity-0
+            transition-opacity
+            duration-500
+            md:group-hover:opacity-100
+          "
+        />
+
+        {/* TITLE */}
+        <div
+          className="
+            absolute inset-0 z-10
             flex items-center justify-center
             text-text-inverse
             font-semibold
@@ -56,6 +75,9 @@ export default function LeLineeItem({ title, imageSrc, variant = 'slider' }) {
             leading-[1.2]
             text-center
             px-4
+            transition-colors
+            duration-300
+            md:group-hover:text-[#5A5A5A]
           "
         >
           {title}

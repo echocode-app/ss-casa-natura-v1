@@ -81,13 +81,11 @@ export default function PromocodeSection() {
               xl:bg-opacity-100
               bg-background-grizzly
               rounded-[60px] lg:rounded-[120px] xl:rounded-[223px]
-              p-8 md:p-10 lg:p-12 lg:pb-10
+              p-8 md:p-12 lg:p-20 lg:pb-10
             "
           >
-            <h3 className="heading-default heading-sm heading-lg font-semibold mb-2 text-center">
-              Unisciti alla nostra community e ricevi subito
-              <br className="hidden md:block" />
-              il 10% di sconto!
+            <h3 className="text-[clamp(24px,4vw,40px)] font-semibold mb-3 text-center mx-auto lg:max-w-[800px]">
+              Unisciti alla nostra community e ricevi subito il 10% di sconto!
             </h3>
 
             <p className="text-[clamp(16px,2vw,24px)] leading-[1.2] text-center mb-4 lg:mb-8">
