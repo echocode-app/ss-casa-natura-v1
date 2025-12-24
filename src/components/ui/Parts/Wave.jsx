@@ -5,12 +5,10 @@ import React from 'react';
 export default function Wave({ color = '#F9F8D6', className = '', ...props }) {
   return (
     <svg
-      width="2049"
-      height="791"
       viewBox="0 0 2049 791"
-      fill="none"
+      preserveAspectRatio="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      className={`w-full h-full ${className}`}
       {...props}
     >
       <path

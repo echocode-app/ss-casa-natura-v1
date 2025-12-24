@@ -61,7 +61,7 @@ export const lineeConfig: Record<string, LineConfigItem> = {
       'Nel 1994, in provincia di lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualità utilizzando ingredienti selezionati emetodi tradizionali.Siamo diventati un punto di riferimento nel panoramanazionale della cosmesi naturale, rifornendo punti vendita in tutta italia.Il nostro impegno per lʼartigianato e la sostenibilità ci guida nella scelta dimaterie prime eccellenti, garantendo prodotti efficaci rispettando lʼambiente.Oggi, continuiamo a scrivere la nostra storia con passione, portando ilprofumo e la purezza dei nostri saponia in ogni angolo del paese.Benvenuti nel mondo delta green, dove tradizione e innovazione si incontrano.',
     categoryId: 'fiore',
     productsImage: '/images/pages/lavanda-products.jpg',
-    bgColor: '#F5EFFF',
+    bgColor: '#FFEEF2',
     subtitle: 'La purezza della natura, nella tua casa',
   },
   marsiglia: {

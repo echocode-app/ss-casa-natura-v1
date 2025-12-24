@@ -1,10 +1,10 @@
 'use client';
 
+import React from 'react';
 import ProductCard from '@/components/ui/Products/ProductCard';
-// import Wave from '@/components/ui/Parts/Wave';
+import WaveBackground from '@/components/ui/Parts/WaveBackground';
 
 export default function LineProductsSection({ categoryId, bgColor }) {
-  // API
   const products = Array.from({ length: 6 }, (_, i) => ({
     id: i,
     title: `Prodotto ${i + 1}`,
@@ -17,14 +17,12 @@ export default function LineProductsSection({ categoryId, bgColor }) {
   if (!products.length) return null;
 
   return (
-    <section className="relative py-16">
+    <section className="relative py-16 overflow-x-hidden">
       {/* Wave background */}
-      <div className="absolute inset-0 -z-10">
-        {/* <Wave style={{ backgroundColor: bgColor }} /> */}
-      </div>
+      <WaveBackground color={bgColor} />
 
-      <div className="mx-auto max-w-[1570px] px-2 md:px-8">
-        <h2 className="heading-default mb-12">Tutti prodotti della linea</h2>
+      <div className="mx-auto max-w-[1570px] px-2 md:px-8 relative z-10">
+        <h2 className="heading-default mb-12 text-center">Tutti prodotti della linea</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((p) => (
