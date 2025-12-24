@@ -8,7 +8,7 @@ export default function Logo({ isScrolled = false, className = '' }) {
       aria-label="Home"
       className={`
         relative
-        transition-all duration-300 ease-out
+        transition-all duration-500 ease-out
 
         w-[88px] h-[61px]
 

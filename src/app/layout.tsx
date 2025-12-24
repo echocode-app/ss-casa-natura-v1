@@ -12,6 +12,10 @@ const raleway = Raleway({
 export const metadata: Metadata = {
   title: 'CASA NATURA',
   description: 'Cosmetics store',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

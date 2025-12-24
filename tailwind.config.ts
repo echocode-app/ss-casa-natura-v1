@@ -25,7 +25,7 @@ const config: Config = {
           // heading-xl
           '47px',
           {
-            lineHeight: '50px',
+            lineHeight: 'clamp(32px, 4vw, 46px)',
             fontWeight: '400',
           },
         ],
@@ -33,7 +33,7 @@ const config: Config = {
           // heading-lg
           '40px',
           {
-            lineHeight: '50px',
+            lineHeight: 'clamp(30px, 5vw, 46px)',
             fontWeight: '400',
           },
         ],
@@ -41,7 +41,7 @@ const config: Config = {
           // heading-sm
           '30px',
           {
-            lineHeight: '50px',
+            lineHeight: 'clamp(30px, 5vw, 46px)',
             fontWeight: '400',
           },
         ],
@@ -49,7 +49,7 @@ const config: Config = {
           // heading
           '26px',
           {
-            lineHeight: '50px',
+            lineHeight: 'clamp(30px, 5vw, 46px)',
             fontWeight: '400',
           },
         ],
@@ -57,7 +57,7 @@ const config: Config = {
           // heading-accent
           'inherit',
           {
-            lineHeight: '43px',
+            lineHeight: 'clamp(30px, 5vw, 43px)',
             fontWeight: '600',
           },
         ],

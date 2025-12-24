@@ -99,7 +99,7 @@ export default function Header() {
           <Logo isScrolled={isScrolled} />
 
           <div className="flex items-center gap-[clamp(20px,2vw,70px)]">
-            <Nav />
+            <Nav isScrolled={isScrolled} />
             <HeaderIcons />
           </div>
         </div>
