@@ -1,6 +1,6 @@
 'use client';
 
-import { WavesImage } from '@/components/ui/Parts';
+import { WaveBackground } from '@/components/ui/Parts';
 import ProductCard from '@/components/ui/Products/ProductCard';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { useState, useEffect } from 'react';
@@ -33,7 +33,7 @@ export default function TopProductsSection() {
 
   return (
     <section className="py-16 xl:py-20 relative overflow-x-hidden">
-      <WavesImage color="#F9F8D6" />
+      <WaveBackground color="#F9F8D6" />
       <div className="relative z-10 mx-auto max-w-[1570px] px-2 md:px-8 lg:px-10 xl:px-12">
         <h2 className="heading-default heading-sm lg:heading-lg xl:heading-xl mb-12 md:mb-16 xl:mb-20">
           I nostri prodotti più <span className="heading-accent">amati</span>

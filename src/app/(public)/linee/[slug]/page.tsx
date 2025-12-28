@@ -9,6 +9,7 @@ import {
 import { lineeConfig, LineConfigItem } from '@/lib/lineeConfig';
 import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 import { LineBannerSection } from '@/components/sections/BannerSection';
+import LeLineeNav from '@/components/sections/LeLinee/LeLineeNav';
 
 interface LinePageProps {
   params: { slug: string } | Promise<{ slug: string }>;
@@ -38,6 +39,8 @@ export default function LinePage({ params }: LinePageProps) {
   return (
     <>
       <LineBannerSection title={line.title} backgroundSrc={line.heroImage} />
+
+      <LeLineeNav currentLine={line.title} />
 
       <LineDescriptionSection
         imageSrc={line.productsImage}

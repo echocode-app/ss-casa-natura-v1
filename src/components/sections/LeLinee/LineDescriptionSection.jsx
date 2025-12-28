@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function LineDescriptionSection({ imageSrc, title, subtitle }) {
   return (
-    <section className="py-16 xl:py-20">
+    <section className="pb-16 xl:pb-20">
       <div
         className="
     flex flex-col lg:flex-row justify-between items-start 

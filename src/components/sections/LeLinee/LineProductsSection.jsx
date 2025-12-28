@@ -5,7 +5,7 @@ import ProductCard from '@/components/ui/Products/ProductCard';
 import WaveBackground from '@/components/ui/Parts/WaveBackground';
 
 export default function LineProductsSection({ categoryId, bgColor }) {
-  const products = Array.from({ length: 6 }, (_, i) => ({
+  const products = Array.from({ length: 8 }, (_, i) => ({
     id: i,
     title: `Prodotto ${i + 1}`,
     volume: 'ml 750',

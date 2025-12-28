@@ -12,24 +12,13 @@ import LeLineeItem from '@/components/ui/LeLinee/LeLineeItem';
 export default function OtherLinesSection({ currentSlug }) {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+  const swiperRef = useRef(null);
 
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [canSlidePrev, setCanSlidePrev] = useState(false);
+  const [canSlideNext, setCanSlideNext] = useState(false);
 
-  const lineOrder = [
-    'lavanda',
-    'brezza-marina',
-    'agrumi-di-sicilia',
-    'fiore-di-loto',
-    'marsiglia',
-    'neutro',
-  ];
-
-  const currentIndex = lineOrder.indexOf(currentSlug);
-
-  const otherLines = [
-    ...lineOrder.slice(currentIndex + 1),
-    ...lineOrder.slice(0, currentIndex),
-  ].map((slug) => lineeConfig[slug]);
+  const otherLines = Object.values(lineeConfig).filter((line) => line.slug !== currentSlug);
 
   useEffect(() => {
     const checkScreen = () => setIsLargeScreen(window.innerWidth >= 768);
@@ -38,19 +27,33 @@ export default function OtherLinesSection({ currentSlug }) {
     return () => window.removeEventListener('resize', checkScreen);
   }, []);
 
+  const updateNavigation = (swiper) => {
+    setCanSlidePrev(!swiper.isBeginning);
+    setCanSlideNext(!swiper.isEnd);
+  };
+
+  const buttonBaseClass =
+    'absolute top-1/2 -translate-y-1/2 z-20 w-[56px] h-[56px] xl:w-[74px] xl:h-[74px] rounded-full bg-brand-accent flex items-center justify-center transition-all duration-300';
+
   return (
     <section className="relative py-12 lg:py-20 overflow-hidden">
-      <div className="relative mx-auto max-w-none md:max-w-[760px] lg:max-w-[1010px] xl:max-w-[1400px] px-4 md:px-12">
+      <div className="relative mx-auto max-w-none md:max-w-[840px] lg:max-w-[1060px] xl:max-w-[1400px] px-4 md:px-12">
         <h2 className="heading-sm lg:heading-lg xl:heading-xl mb-10 md:mb-16">
           Scopri le altre linee
         </h2>
 
         {isLargeScreen ? (
-          // MD / LG+ → Swiper
           <div className="relative">
+            {/* PREV BUTTON */}
             <button
               ref={prevRef}
-              className="absolute top-1/2 -translate-y-1/2 -left-[6%] z-20 w-[56px] h-[56px] xl:w-[74px] xl:h-[74px] rounded-full bg-brand-accent flex items-center justify-center transition-all duration-300 hover:shadow-header hover:opacity-90"
+              onClick={() => swiperRef.current?.slidePrev()}
+              disabled={!canSlidePrev}
+              className={`${buttonBaseClass} -left-[6%] ${
+                canSlidePrev
+                  ? 'hover:shadow-header hover:opacity-90 cursor-pointer'
+                  : 'opacity-40 cursor-auto'
+              }`}
               aria-label="Previous slide"
             >
               <span className="rotate-180">
@@ -58,33 +61,39 @@ export default function OtherLinesSection({ currentSlug }) {
               </span>
             </button>
 
+            {/* NEXT BUTTON */}
             <button
               ref={nextRef}
-              className="absolute top-1/2 -translate-y-1/2 -right-[6%] z-20 w-[56px] h-[56px] xl:w-[74px] xl:h-[74px] rounded-full bg-brand-accent flex items-center justify-center transition-all duration-300 hover:shadow-header hover:opacity-90"
+              onClick={() => swiperRef.current?.slideNext()}
+              disabled={!canSlideNext}
+              className={`${buttonBaseClass} -right-[6%] ${
+                canSlideNext
+                  ? 'hover:shadow-header hover:opacity-90 cursor-pointer'
+                  : 'opacity-40 cursor-auto'
+              }`}
               aria-label="Next slide"
             >
               <Arrow />
             </button>
 
+            {/* SWIPER */}
             <Swiper
               modules={[Navigation]}
               spaceBetween={24}
-              slidesPerView={2} // MD
-              loop={false}
+              slidesPerView={2}
+              initialSlide={0}
+              centeredSlides={false}
               breakpoints={{
-                768: {
-                  slidesPerView: 2,
-                  centeredSlides: false,
-                },
-                1024: {
-                  slidesPerView: 3,
-                  centeredSlides: false,
-                },
+                768: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
               }}
               onBeforeInit={(swiper) => {
+                swiperRef.current = swiper;
                 swiper.params.navigation.prevEl = prevRef.current;
                 swiper.params.navigation.nextEl = nextRef.current;
               }}
+              onSlideChange={(swiper) => updateNavigation(swiper)}
+              onSwiper={(swiper) => updateNavigation(swiper)}
               navigation={{
                 prevEl: prevRef.current,
                 nextEl: nextRef.current,
@@ -103,7 +112,7 @@ export default function OtherLinesSection({ currentSlug }) {
             </Swiper>
           </div>
         ) : (
-          // ===========================
+          // MOBILE HORIZONTAL SCROLL
           <div className="flex gap-4 overflow-x-auto pb-4">
             {otherLines.map((line) => (
               <div key={line.slug} className="flex-shrink-0 w-[240px]">
