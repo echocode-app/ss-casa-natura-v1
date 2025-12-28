@@ -1,5 +1,5 @@
 import '@/app/globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Raleway } from 'next/font/google';
 import ClientLoader from '@/components/layout/ClientLoader';
 
@@ -12,10 +12,11 @@ const raleway = Raleway({
 export const metadata: Metadata = {
   title: 'CASA NATURA',
   description: 'Cosmetics store',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -12,7 +12,7 @@ export default function PromoBar({ isVisible = true, text = '', bgColor = '#C3FF
         className="
           text-center font-raleway font-bold
           text-[clamp(10px,1.5vw,19px)]
-          max-w-[320px] sm:max-w-[300px] md:max-w-[740px]
+          max-w-[500px] md:max-w-[700px]
           lg:max-w-[960px] xl:max-w-[1440px]
           px-4
         "

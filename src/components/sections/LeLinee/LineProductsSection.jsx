@@ -17,12 +17,14 @@ export default function LineProductsSection({ categoryId, bgColor }) {
   if (!products.length) return null;
 
   return (
-    <section className="relative py-16 overflow-x-hidden">
+    <section className="relative py-6 xl:py-10 overflow-x-hidden">
       {/* Wave background */}
       <WaveBackground color={bgColor} />
 
       <div className="mx-auto max-w-[1570px] px-2 md:px-8 relative z-10">
-        <h2 className="heading-default mb-12 text-center">Tutti prodotti della linea</h2>
+        <h2 className="heading-sm lg:heading-lg xl:heading-xl mb-8 md:mb-14 text-center">
+          Tutti prodotti della linea
+        </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((p) => (

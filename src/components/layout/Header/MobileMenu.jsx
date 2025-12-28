@@ -24,7 +24,7 @@ export default function MobileMenu({ closeMenu }) {
         <button
           onClick={closeMenu}
           aria-label="Close menu"
-          className="absolute top-4 right-4 hover:scale-105 transition-transform will-change-transform"
+          className="absolute top-4 right-4 transition-transform will-change-transform"
         >
           <Close />
         </button>

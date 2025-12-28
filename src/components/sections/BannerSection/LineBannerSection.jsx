@@ -5,7 +5,6 @@ import React from 'react';
 export default function LineBannerSection({ title, backgroundSrc }) {
   return (
     <section className="relative w-screen h-[300px] md:h-[472px] overflow-hidden">
-      {/* Rotated background image */}
       <img
         src={backgroundSrc}
         alt={title}
@@ -25,7 +24,7 @@ export default function LineBannerSection({ title, backgroundSrc }) {
       {/* Title */}
       <div className="relative z-10 h-full flex items-center justify-center text-center px-4">
         <h1
-          className="font-semibold text-[clamp(32px,2.5vw,43px)]
+          className="font-semibold text-[clamp(32px,5vw,43px)]
         leading-[31px] text-text-inverse
         "
         >

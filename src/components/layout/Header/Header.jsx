@@ -56,7 +56,7 @@ export default function Header() {
       <div
         className={`
           mx-auto max-w-[1570px]
-          p-2
+          px-4 py-2
           transition-all duration-300 ease-out
           md:pl-20 xl:pl-24
         `}
@@ -72,14 +72,10 @@ export default function Header() {
         >
           {/* LEFT */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setMenuOpen(true)}
-              aria-label="Open menu"
-              className="transition-transform hover:scale-105"
-            >
+            <button onClick={() => setMenuOpen(true)} aria-label="Open menu">
               <Menu className="w-2 h-2" />
             </button>
-            <Search className="w-2 h-2 transition-transform hover:scale-105" />
+            <Search className="w-2 h-2" />
           </div>
 
           {/* CENTER */}

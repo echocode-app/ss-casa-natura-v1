@@ -7,14 +7,14 @@ export default function HeaderIcons({ className = '', isMobile = false }) {
     <div className={`flex items-center px-1 md:px-4 lg:px-6 gap-1 md:gap-4 lg:gap-6 ${className}`}>
       {!isMobile && (
         <Search
-          className={`${size} hover:scale-105 focus:scale-105 transition-transform duration-300 will-change-transform`}
+          className={`${size} md:hover:scale-105 focus:scale-105 transition-transform duration-300 will-change-transform`}
         />
       )}
       <User
-        className={`${size} hover:scale-105 focus:scale-105 transition-transform duration-300 will-change-transform`}
+        className={`${size} md:hover:scale-105 focus:scale-105 transition-transform duration-300 will-change-transform`}
       />
       <Cart
-        className={`${size} hover:scale-105 focus:scale-105 transition-transform duration-300 will-change-transform`}
+        className={`${size} md:hover:scale-105 focus:scale-105 transition-transform duration-300 will-change-transform`}
       />
     </div>
   );
