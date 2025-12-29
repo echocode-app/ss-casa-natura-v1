@@ -3,10 +3,7 @@ import Image from 'next/image';
 
 export default function ProductCard({ title }) {
   return (
-    <Link
-      href="/products"
-      className=" group flex flex-col items-center text-center cursor-pointer "
-    >
+    <Link href="/products" className="group flex flex-col items-center text-center cursor-pointer">
       {/* Image wrapper */}
       <div className="relative flex items-center justify-center p-0 md:p-4">
         {/* Circle */}

@@ -6,9 +6,9 @@ export default function Arrow() {
       aria-label="Arrow"
       className="
         inline-flex items-center justify-center
-        w-[28px] h-[28px]
-        md:w-[28px] md:h-[28px]
-        lg:w-[32px] lg:h-[32px]
+        w-[20px] h-[20px]
+        md:w-[22px] md:h-[22px]
+        lg:w-[28px] lg:h-[28px]
         xl:w-[34px] xl:h-[34px]
         md:focus:scale-105
         md:transition-transform md:duration-400
