@@ -42,7 +42,7 @@ export default function ProductCard({
       `}
     >
       {/* Image */}
-      <div className="w-full flex justify-center rounded-[16px] relative">
+      <div className="w-full flex justify-center rounded-[16px] relative max-h-[600px]">
         {imageLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Spinner size="sm" colorScheme="muted" />
@@ -60,7 +60,7 @@ export default function ProductCard({
       </div>
 
       {/* Text info */}
-      <div className="flex flex-col gap-[clamp(6px,2vw,10px)] flex-1 mt-2">
+      <div className="flex flex-col justify-between gap-[clamp(6px,2vw,10px)] flex-1 mt-2">
         <h3 className="font-semibold text-[clamp(12px,2vw,26px)]">{title}</h3>
 
         {/* Volume + Price + Button */}

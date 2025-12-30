@@ -1,3 +1,4 @@
+/* ================= Products ================= */
 export interface Product {
   id: string;
   slug: string;
@@ -5,7 +6,7 @@ export interface Product {
   title: string;
   description?: string;
 
-  categoryId: ProductCategory['id'];
+  categoryIds: ProductCategory['id'][];
   lineId?: ProductLine['id'];
 
   images: ProductImage[];
@@ -22,7 +23,6 @@ export interface Product {
 }
 
 /* ================= Categories ================= */
-
 export interface ProductCategory {
   id: string;
   title: string;
@@ -30,7 +30,6 @@ export interface ProductCategory {
 }
 
 /* ================= Lines ================= */
-
 export interface ProductLine {
   id: string;
   title: string;
@@ -39,14 +38,12 @@ export interface ProductLine {
 }
 
 /* ================= Images ================= */
-
 export interface ProductImage {
   src: string;
   alt?: string;
 }
 
 /* ================= Filters ================= */
-
 export type ProductFilterType = 'checkbox' | 'radio' | 'range';
 
 export interface ProductFilter {
@@ -54,6 +51,7 @@ export interface ProductFilter {
   title: string;
   type: ProductFilterType;
   items?: string[];
+  categoryIds?: ProductCategory['id'][];
 }
 
 export interface ProductFilterValue {

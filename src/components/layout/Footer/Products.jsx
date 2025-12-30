@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import { PRODUCT_FILTERS } from '@/config/products/product.filters';
+
 export default function Products() {
   return (
     <div>
@@ -6,16 +9,25 @@ export default function Products() {
       </h4>
 
       <ul className="flex flex-col">
-        {['Bucato', 'Cucina', 'Pulizia', 'Schede prodotti'].map((item) => (
-          <li key={item} className="mb-2">
-            <a
-              href="#"
+        {PRODUCT_FILTERS.map((filter) => (
+          <li key={filter.id} className="mb-2">
+            <Link
+              href={`/prodotti?category=${filter.id}`}
               className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline"
             >
-              {item}
-            </a>
+              {filter.title}
+            </Link>
           </li>
         ))}
+
+        <li className="mb-2">
+          <Link
+            href="/prodotti"
+            className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline"
+          >
+            Schede prodotti
+          </Link>
+        </li>
       </ul>
     </div>
   );

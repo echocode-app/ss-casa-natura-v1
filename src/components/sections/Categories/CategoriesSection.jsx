@@ -20,11 +20,11 @@ export default function CategoriesSection() {
           className="
           lg:max-w-[1000px] xl:max-w-[1200px] 
           mx-auto
-            mt-6 md:mt-10 lg:mt-16
-            flex flex-col items-center gap-6
-            md:flex-row md:justify-center md:gap-8
-            lg:grid lg:grid-cols-3
-            relative"
+          mt-6 md:mt-10 lg:mt-16
+          flex flex-col items-center gap-6
+          md:flex-row md:justify-center md:gap-8
+          lg:grid lg:grid-cols-3
+          relative"
         >
           <div className="relative snap-start shrink-0 lg:shrink">
             <Image
@@ -40,11 +40,11 @@ export default function CategoriesSection() {
                 z-0 overflow-x-hidden
               "
             />
-            <ProductCard title="Pulizia" />
+            <ProductCard title="Pulizia" href="/prodotti?category=pulizia" />
           </div>
 
           <div className="relative snap-start shrink-0 lg:shrink mt-6 md:mt-0">
-            <ProductCard title="Bucato" />
+            <ProductCard title="Bucato" href="/prodotti?category=bucato" />
           </div>
 
           <div className="relative snap-start shrink-0 lg:shrink mt-6 md:mt-0">
@@ -61,7 +61,7 @@ export default function CategoriesSection() {
                 z-0 overflow-x-hidden
               "
             />
-            <ProductCard title="Cucina" />
+            <ProductCard title="Cucina" href="/prodotti?category=cucina" />
           </div>
         </div>
       </div>
