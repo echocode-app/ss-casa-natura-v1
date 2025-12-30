@@ -1,14 +1,10 @@
-import ProductsCategoriesSection from '@/components/sections/Products/ProductsCategoriesSection';
+import { ProductsCategoriesSection, ProductsSection } from '@/components/sections/Products';
 
 export default function ProdottiPage() {
   return (
     <main>
       <ProductsCategoriesSection />
-
-      {/*
-        - ProductsGridSection
-        - ProductsFiltersSection
-      */}
+      <ProductsSection />
     </main>
   );
 }

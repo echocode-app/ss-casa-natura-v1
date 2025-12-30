@@ -9,7 +9,7 @@ export default function Arrow() {
         w-[20px] h-[20px]
         md:w-[22px] md:h-[22px]
         lg:w-[28px] lg:h-[28px]
-        xl:w-[34px] xl:h-[34px]
+        xl:w-[30px] xl:h-[30px]
         md:focus:scale-105
         md:transition-transform md:duration-400
       "

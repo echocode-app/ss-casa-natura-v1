@@ -7,7 +7,7 @@ export const PRODUCTS_MOCK: Product[] = [
     title: 'Detersivo Piatti al Limone',
     categoryId: 'cucina',
     lineId: 'lavanda',
-    images: [{ src: '/images/products/piatti-limone.png', alt: 'Detersivo piatti al limone' }],
+    images: [{ src: '/images/home/product.png', alt: 'Detersivo piatti al limone' }],
     volume: '750 ml',
     price: 3.9,
     currency: 'EUR',

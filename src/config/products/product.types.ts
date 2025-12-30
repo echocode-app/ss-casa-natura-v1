@@ -53,6 +53,7 @@ export interface ProductFilter {
   id: string;
   title: string;
   type: ProductFilterType;
+  items?: string[];
 }
 
 export interface ProductFilterValue {
