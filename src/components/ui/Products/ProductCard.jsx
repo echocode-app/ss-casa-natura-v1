@@ -8,9 +8,8 @@ import { useState } from 'react';
 
 export default function ProductCard({
   title = 'Sgrassatore naturale Agrumi di Sicilia',
-  volume = 'ml 750',
+  volume = '750',
   price,
-  currency,
   imageSrc = '/images/home/product.png',
   onAddClick,
   slug,
@@ -37,7 +36,8 @@ export default function ProductCard({
     setVisible(true);
   };
 
-  const displayPrice = price && currency ? `${currency} ${price.toFixed(2)}` : price;
+  const formattedVolume = volume ? `ml ${volume}` : '';
+  const formattedPrice = price !== undefined && price !== null ? Number(price).toFixed(2) : '';
 
   return (
     <Link
@@ -53,7 +53,6 @@ export default function ProductCard({
             <Spinner size="sm" colorScheme="muted" />
           </div>
         )}
-
         <Image
           src={imageSrc}
           alt={title}
@@ -72,8 +71,15 @@ export default function ProductCard({
         <div className="flex flex-col lg:flex-col gap-1 mt-2">
           <div className="flex justify-between lg:flex-col">
             <div className="flex flex-col gap-2 justify-center">
-              <span className="font-normal text-[clamp(12px,2vw,20px)]">{volume}</span>
-              <span className="font-semibold text-[clamp(14px,2vw,22px)]">{displayPrice}</span>
+              <span className="font-normal text-[clamp(12px,5vw,22px)]">{formattedVolume}</span>
+
+              {/* Price */}
+              {formattedPrice && (
+                <div className="flex items-baseline gap-1">
+                  <span className="font-bold text-[clamp(14px,5vw,23px)]">€</span>
+                  <span className="font-bold text-[clamp(14px,5vw,23px)]">{formattedPrice}</span>
+                </div>
+              )}
             </div>
 
             <div className="mt-0 lg:mt-3">

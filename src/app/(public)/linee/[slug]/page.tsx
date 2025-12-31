@@ -48,11 +48,7 @@ export default function LinePage({ params }: LinePageProps) {
         subtitle={line.description || ''}
       />
 
-      <LineProductsSection
-        categoryId={line.categoryId}
-        lineSlug={line.slug}
-        bgColor={line.bgColor}
-      />
+      <LineProductsSection lineSlug={line.slug} bgColor={line.bgColor} />
 
       <OtherLinesSection currentSlug={line.slug} />
     </>

@@ -5,6 +5,7 @@ import { LeLineSectionon } from '@/components/sections/LeLinee';
 import { MissionSection } from '@/components/sections/Mission';
 import { PromocodeSection } from '@/components/sections/Promocode';
 import { TopProductsSection } from '@/components/sections/TopProducts';
+import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 
 export default function Page() {
   return (
@@ -12,7 +13,7 @@ export default function Page() {
       <HeroSection />
       <CategoriesSection />
       <LeLineSectionon />
-      <TopProductsSection />
+      <TopProductsSection products={PRODUCTS_MOCK} />
       <GreenProductionSection />
       <MissionSection />
       <PromocodeSection />

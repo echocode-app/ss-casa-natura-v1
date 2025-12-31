@@ -12,10 +12,10 @@ export default function ProductsGridSection({ products }) {
           key={product.id}
           title={product.title}
           volume={product.volume}
-          price={product.price ? `€ ${product.price.toFixed(2)}` : ''}
+          price={product.price}
           imageSrc={product.images?.[0]?.src || product.imageSrc || '/images/home/product.png'}
           slug={product.slug}
-          onAddClick={() => console.log('Add to cart:', product.id)}
+          onAddClick={() => ('Add to cart:', product.id)}
         />
       ))}
     </div>
