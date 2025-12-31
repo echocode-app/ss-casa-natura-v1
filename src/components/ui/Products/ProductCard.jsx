@@ -9,16 +9,19 @@ import { useState } from 'react';
 export default function ProductCard({
   title = 'Sgrassatore naturale Agrumi di Sicilia',
   volume = 'ml 750',
-  price = '€ 10.00',
+  price,
+  currency,
   imageSrc = '/images/home/product.png',
   onAddClick,
-  href = '/',
+  slug,
 }) {
+  const href = slug ? `/prodotti/${slug}` : '/';
   const [adding, setAdding] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [visible, setVisible] = useState(false);
 
   const handleAddClick = async (e) => {
+    e.stopPropagation();
     e.preventDefault();
     if (!onAddClick) return;
     setAdding(true);
@@ -34,10 +37,12 @@ export default function ProductCard({
     setVisible(true);
   };
 
+  const displayPrice = price && currency ? `${currency} ${price.toFixed(2)}` : price;
+
   return (
     <Link
       href={href}
-      className={`group bg-white/90 rounded-[20px] flex flex-col p-2 md:p-4 lg:p-5 xl:p-6 gap-1 md:gap-2 lg:gap-3 xl:gap-4 h-full border border-bg-brand-soft md:border-none transition-all duration-500
+      className={`group bg-white/90 rounded-[20px] flex flex-col p-2 md:p-4 lg:p-5 xl:p-6 gap-1 md:gap-2 lg:gap-3 xl:gap-4 md:max-h-[440px] lg:max-h-[520px] border border-bg-brand-soft md:border-none transition-all duration-500
       ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
       `}
     >
@@ -66,13 +71,11 @@ export default function ProductCard({
         {/* Volume + Price + Button */}
         <div className="flex flex-col lg:flex-col gap-1 mt-2">
           <div className="flex justify-between lg:flex-col">
-            {/* Volume + Price */}
             <div className="flex flex-col gap-2 justify-center">
               <span className="font-normal text-[clamp(12px,2vw,20px)]">{volume}</span>
-              <span className="font-semibold text-[clamp(14px,2vw,22px)]">{price}</span>
+              <span className="font-semibold text-[clamp(14px,2vw,22px)]">{displayPrice}</span>
             </div>
 
-            {/* Button */}
             <div className="mt-0 lg:mt-3">
               <PrimaryButton
                 onClick={handleAddClick}

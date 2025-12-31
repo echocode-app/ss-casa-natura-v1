@@ -44,7 +44,6 @@ export default function OtherLinesSection({ currentSlug }) {
 
         {isLargeScreen ? (
           <div className="relative">
-            {/* PREV BUTTON */}
             <button
               ref={prevRef}
               onClick={() => swiperRef.current?.slidePrev()}
@@ -61,7 +60,6 @@ export default function OtherLinesSection({ currentSlug }) {
               </span>
             </button>
 
-            {/* NEXT BUTTON */}
             <button
               ref={nextRef}
               onClick={() => swiperRef.current?.slideNext()}
@@ -76,13 +74,10 @@ export default function OtherLinesSection({ currentSlug }) {
               <Arrow />
             </button>
 
-            {/* SWIPER */}
             <Swiper
               modules={[Navigation]}
               spaceBetween={24}
               slidesPerView={2}
-              initialSlide={0}
-              centeredSlides={false}
               breakpoints={{
                 768: { slidesPerView: 2 },
                 1024: { slidesPerView: 3 },
@@ -112,7 +107,6 @@ export default function OtherLinesSection({ currentSlug }) {
             </Swiper>
           </div>
         ) : (
-          // MOBILE HORIZONTAL SCROLL
           <div className="flex gap-4 overflow-x-auto pb-4">
             {otherLines.map((line) => (
               <div key={line.slug} className="flex-shrink-0 w-[240px]">

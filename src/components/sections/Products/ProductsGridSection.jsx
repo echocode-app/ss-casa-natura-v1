@@ -6,15 +6,15 @@ export default function ProductsGridSection({ products }) {
   if (!products || products.length === 0) return null;
 
   return (
-    <div className="w-full min-w-0 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-[clamp(10px,2vw,25px)] gap-y-[clamp(16px,2vw,50px)]">
+    <div className="w-full min-w-0 grid grid-cols-2 xl:grid-cols-3 gap-x-[clamp(10px,2vw,25px)] gap-y-[clamp(16px,2vw,50px)]">
       {products.map((product) => (
         <ProductCard
           key={product.id}
           title={product.title}
           volume={product.volume}
           price={product.price ? `€ ${product.price.toFixed(2)}` : ''}
-          imageSrc={product.images[0]?.src || '/images/home/product.png'}
-          href={`/prodotti/${product.slug}`}
+          imageSrc={product.images?.[0]?.src || product.imageSrc || '/images/home/product.png'}
+          slug={product.slug}
           onAddClick={() => console.log('Add to cart:', product.id)}
         />
       ))}

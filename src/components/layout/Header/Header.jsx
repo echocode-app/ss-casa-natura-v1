@@ -28,7 +28,7 @@ export default function Header() {
     let ticking = false;
 
     const shrinkAt = window.innerHeight * 0.1; // 15%
-    const expandAt = window.innerHeight * 0.05; // 8%
+    const expandAt = window.innerHeight * 0.08; // 8%
 
     const onScroll = () => {
       if (ticking) return;

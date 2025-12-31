@@ -42,7 +42,7 @@ export default function ProductsCategoriesSection() {
             {PRODUCT_CATEGORIES.map((category) => (
               <Link
                 key={category.id}
-                href={`/prodotti/${category.slug}`}
+                href={`/prodotti?subcategory=${category.id}`}
                 className="group flex flex-col items-center gap-2 lg:gap-3 focus:outline-none py-1"
                 style={{ width: 'clamp(120px, 16%, 200px)' }}
               >
@@ -123,7 +123,7 @@ export default function ProductsCategoriesSection() {
                 style={{ width: 'clamp(120px, 16%, 200px)' }}
               >
                 <Link
-                  href={`/prodotti/${category.slug}`}
+                  href={`/prodotti?subcategory=${category.id}`}
                   className="group flex flex-col items-center gap-2 lg:gap-3 focus:outline-none py-1"
                 >
                   <div

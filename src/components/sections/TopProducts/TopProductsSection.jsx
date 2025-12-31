@@ -4,16 +4,9 @@ import { WaveBackground } from '@/components/ui/Parts';
 import ProductCard from '@/components/ui/Products/ProductCard';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { useState, useEffect } from 'react';
+import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 
-const products = Array.from({ length: 8 }, (_, i) => ({
-  id: i + 1,
-  title: `Prodotto ${i + 1}`,
-  volume: 'ml 750',
-  price: '€ 10.00',
-  imageSrc: '/images/home/product.png',
-}));
-
-export default function TopProductsSection() {
+export default function TopProductsSection({ products }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +22,7 @@ export default function TopProductsSection() {
     );
   }
 
-  if (!products || products.length === 0) return null;
+  const displayProducts = products && products.length > 0 ? products : PRODUCTS_MOCK;
 
   return (
     <section className="py-16 xl:py-20 relative overflow-x-hidden">
@@ -40,8 +33,16 @@ export default function TopProductsSection() {
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-x-[clamp(10px,2vw,30px)] gap-y-[clamp(10px,2vw,30px)]">
-          {products.map((product) => (
-            <ProductCard key={product.id} {...product} />
+          {displayProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              title={product.title}
+              volume={product.volume}
+              price={product.price}
+              currency={product.currency}
+              imageSrc={product.images[0]?.src || '/images/home/product.png'}
+              slug={product.slug}
+            />
           ))}
         </div>
       </div>
