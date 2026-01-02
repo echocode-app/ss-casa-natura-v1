@@ -9,10 +9,8 @@ export default function CategoriesSection() {
       <div className="mx-auto max-w-[1570px] px-6 md:px-8 lg:px-10 xl:px-12">
         {/* Header */}
         <div className="text-center max-w-[720px] mx-auto">
-          <h2 className="heading-default heading-sm lg:heading-lg">
-            Benvenuti nel mondo di Casa Natura
-          </h2>
-          <p className="text-[26px] lg:text-[40px] font-bold">Scopri i nostri prodotti</p>
+          <h2 className="heading-sm lg:heading-lg">Benvenuti nel mondo di Casa Natura</h2>
+          <p className="text-[30px] lg:text-[40px] font-bold mt-1">Scopri i nostri prodotti</p>
         </div>
 
         {/* Cards */}

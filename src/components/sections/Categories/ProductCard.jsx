@@ -32,7 +32,7 @@ export default function ProductCard({ title, href = '/products' }) {
       </div>
       {/* Title + Arrow */}
       <div className="mt-6 flex items-center gap-5 z-5">
-        <span className="text-[clamp(18px,2vw,30px)]">{title}</span>
+        <span className="text-[clamp(24px,3vw,30px)]">{title}</span>
         <span
           className="relative z-6 flex items-center justify-center
           bg-brand-accent rounded-full 

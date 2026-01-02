@@ -36,10 +36,10 @@ export default function ProductsFiltersSection({
   };
 
   return (
-    <aside className="w-full lg:w-[320px] xl:w-[400px] lg:h-[600px] xl:h-[660px] shrink-0">
-      <div className="bg-white rounded-[34px] p-8 pb-4">
+    <aside className="w-full lg:w-[340px] xl:w-[380px] lg:h-[600px] xl:h-[660px] shrink-0">
+      <div className="bg-white rounded-[34px] px-6 py-8 md:px-8 pb-4">
         <div className="flex items-center justify-between mb-3 lg:mb-5">
-          <h2 className="font-semibold text-[clamp(14px,5vw,28px)] uppercase pl-12 md:pl-7 lg:pl-16">
+          <h2 className="font-semibold text-[clamp(22px,2vw,28px)] uppercase pl-12 md:pl-7 lg:pl-16">
             LINEE
           </h2>
           <button
@@ -65,24 +65,24 @@ export default function ProductsFiltersSection({
                 className="mb-3 pb-3 border-b border-[#8D8D8D] md:border-none lg:border-solid"
               >
                 <h3
-                  className="font-semibold text-[clamp(14px,5vw,28px)] uppercase mb-3 md:mb-4 lg:mb-2 pl-12 md:pl-7 lg:pl-16 cursor-pointer"
+                  className="font-semibold text-[clamp(20px,3vw,28px)] uppercase mb-3 md:mb-4 lg:mb-2 pl-12 md:pl-7 lg:pl-16 cursor-pointer"
                   onClick={() => handleSegmentClick(segment)}
                 >
                   {segment.title}
                 </h3>
-                <div className="flex flex-col gap-2 lg:gap-0">
+                <div className="flex flex-col gap-1 lg:gap-0">
                   {segment.items?.map((item, i) => {
                     const categoryId = segment.categoryIds?.[i];
                     return (
                       <label
                         key={categoryId || i}
-                        className="flex items-center gap-7 md:gap-2 lg:gap-10 font-light text-[clamp(14px,4vw,23px)] leading-[31px] cursor-pointer"
+                        className="flex items-center gap-7 md:gap-2 lg:gap-10 font-light text-[clamp(16px,3vw,23px)] leading-[31px] cursor-pointer"
                       >
                         <input
                           type="checkbox"
                           checked={categoryId && activeFilter.includes(categoryId)}
                           onChange={() => handleCheckboxChange(categoryId)}
-                          className="accent-brand-accent w-5 h-4 lg:w-6 lg:h-5 cursor-pointer"
+                          className="accent-brand-accent w-6 lg:h-5 cursor-pointer"
                         />
                         {item}
                       </label>

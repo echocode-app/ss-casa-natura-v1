@@ -31,9 +31,7 @@ export default function LeLineeSection({ variant = 'slider' }) {
           md:px-8 lg:px-10 xl:px-12
         `}
       >
-        <h2 className="heading-default heading-sm lg:heading-lg xl:heading-xl mb-6 xl:mb-[50px]">
-          Le linee
-        </h2>
+        <h2 className="heading-sm lg:heading-lg xl:heading-xl mb-6 xl:mb-[50px]">Le linee</h2>
 
         <div
           className={

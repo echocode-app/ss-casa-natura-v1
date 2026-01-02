@@ -1,22 +1,20 @@
 export default function Mission() {
   return (
     <div className="mx-auto max-w-[820px]">
-      <h3 className="heading-default heading-sm lg:heading-lg xl:heading-xl mb-4 md:mb-8 xl:mb-10">
+      <h3 className="heading-sm lg:heading-lg xl:heading-xl mb-4 xl:mb-10">
         La nostra <span className="heading-accent">mission</span>
       </h3>
 
       <p
-        className="heading-default heading-sm lg:heading-lg xl:heading-xl 
-      mb-6 xl:mb-12"
+        className="heading-sm lg:heading-lg xl:heading-xl 
+      mb-8 xl:mb-12 max-w-none lg:max-w-[500px] mx-auto"
       >
-        La purezza della natura,
-        <br />
-        nella tua casa
+        La purezza della natura, nella tua casa
       </p>
       <div className="mb-16">
         <p
           className="text-text-gray
-        text-[clamp(18px,2vw,24px)] leading-[1.2] 
+        text-[clamp(18px,3vw,24px)] leading-[1.2] 
         text-center"
         >
           Nel 1994, in provincia di lodi, nasce il nostro saponificio con una missione chiara:
@@ -24,7 +22,7 @@ export default function Mission() {
         </p>
         <p
           className="text-text-gray
-        text-[clamp(18px,2vw,24px)] leading-[1.2] 
+        text-[clamp(18px,3vw,24px)] leading-[1.2] 
         text-center"
         >
           Siamo diventati un punto di riferimento nel panoramanazionale della cosmesi naturale,
@@ -34,7 +32,7 @@ export default function Mission() {
         </p>
         <p
           className="text-text-gray
-        text-[clamp(18px,2vw,24px)] leading-[1.2] 
+        text-[clamp(18px,3vw,24px)] leading-[1.2] 
         text-center"
         >
           Oggi, continuiamo a scrivere la nostra storia con passione, portando ilprofumo e la

@@ -71,7 +71,7 @@ export default function LeLineeItem({ title, imageSrc, slug, variant = 'slider' 
             flex items-center justify-center
             text-text-inverse
             font-semibold
-            text-[20px] sm:text-[22px] md:text-[24px] xl:text-[34px]
+            text-[clamp(22px,2vw,34px)]
             leading-[1.2]
             text-center
             px-4

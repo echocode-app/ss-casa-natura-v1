@@ -32,7 +32,7 @@ export default function PrimaryButton({
         bg-brand-accent
         text-black
         font-semibold
-        text-[clamp(12px,1.5vw,22px)]
+        text-[clamp(14px,2vw,22px)]
         rounded-[25px]
         transition-all duration-300
         hover:shadow-header 
