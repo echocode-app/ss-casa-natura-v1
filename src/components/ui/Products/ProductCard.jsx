@@ -8,23 +8,22 @@ import { useState } from 'react';
 
 export default function ProductCard({
   title = 'Sgrassatore naturale Agrumi di Sicilia',
-  volume = '750',
+  volume,
   price,
+  discountPrice,
   imageSrc = '/images/home/product.png',
-  onAddClick,
   slug,
+  onAddClick,
 }) {
-  const href = slug ? `/prodotti/${slug}` : '/';
+  const href = slug ? `/prodotti/${slug}` : '/prodotti';
 
   const [adding, setAdding] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [visible, setVisible] = useState(false);
 
   const MAX_TITLE_LENGTH = 18;
-
   const truncatedTitle =
     title.length > MAX_TITLE_LENGTH ? title.slice(0, MAX_TITLE_LENGTH).trim() + '…' : title;
-
   const isTruncated = truncatedTitle !== title;
 
   const handleAddClick = async (e) => {
@@ -45,8 +44,13 @@ export default function ProductCard({
     setVisible(true);
   };
 
-  const formattedVolume = volume ? `ml ${volume}` : '';
-  const formattedPrice = price !== undefined && price !== null ? Number(price).toFixed(2) : '';
+  const formattedVolume = volume ? `${volume} ml` : '';
+  const formattedPrice =
+    discountPrice !== undefined && discountPrice !== null
+      ? Number(discountPrice).toFixed(2)
+      : price !== undefined && price !== null
+        ? Number(price).toFixed(2)
+        : '';
 
   return (
     <Link
@@ -77,7 +81,6 @@ export default function ProductCard({
 
       {/* Text info */}
       <div className="flex flex-col justify-between gap-[clamp(6px,2vw,10px)] flex-1 mt-2">
-        {/* Title */}
         <h3
           className="font-semibold text-[clamp(16px,4vw,26px)]"
           aria-label={title}
@@ -109,7 +112,6 @@ export default function ProductCard({
                 <span className="md:hidden">
                   <CartIcon className="m-auto p-1" />
                 </span>
-
                 {adding ? (
                   <Spinner size="sm" colorScheme="muted" />
                 ) : (

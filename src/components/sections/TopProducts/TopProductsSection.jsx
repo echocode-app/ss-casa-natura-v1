@@ -22,7 +22,11 @@ export default function TopProductsSection({ products }) {
     );
   }
 
-  const displayProducts = Array.isArray(products) && products.length > 0 ? products : PRODUCTS_MOCK;
+  const displayProducts = (
+    Array.isArray(products) && products.length > 0 ? products : PRODUCTS_MOCK
+  ).filter((p) => p.isBestSeller);
+
+  if (displayProducts.length === 0) return null;
 
   return (
     <section className="py-16 xl:py-20 relative overflow-x-hidden">
@@ -38,11 +42,12 @@ export default function TopProductsSection({ products }) {
             <ProductCard
               key={product.id}
               title={product.title}
-              volume={product.volume}
-              price={product.price}
-              currency={product.currency}
+              volume={product.variants?.[0]?.volume}
+              price={product.variants?.[0]?.priceModifier || product.price}
+              discountPrice={product.discountPrice}
               imageSrc={product.images?.[0]?.src}
               slug={product.slug}
+              isBestSeller={product.isBestSeller}
             />
           ))}
         </div>

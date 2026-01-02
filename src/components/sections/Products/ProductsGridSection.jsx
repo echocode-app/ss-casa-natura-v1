@@ -11,11 +11,15 @@ export default function ProductsGridSection({ products }) {
         <ProductCard
           key={product.id}
           title={product.title}
-          volume={product.volume}
-          price={product.price}
+          volume={product.variants?.[0]?.volume}
+          price={product.variants?.[0]?.priceModifier || product.price}
+          discountPrice={product.discountPrice}
           imageSrc={product.images?.[0]?.src || product.imageSrc || '/images/home/product.png'}
           slug={product.slug}
           onAddClick={() => ('Add to cart:', product.id)}
+          isBestSeller={product.isBestSeller}
+          isEco={product.isEco}
+          isNew={product.isNew}
         />
       ))}
     </div>

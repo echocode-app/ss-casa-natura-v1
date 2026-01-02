@@ -4,7 +4,7 @@ export interface LineConfigItem {
   heroImage: string;
   cardImage: string;
   description?: string;
-  categoryId: number | string;
+  lineId: number | string;
   bgColor: string;
   heroTitle: string;
   subtitle: string;
@@ -20,7 +20,7 @@ export const lineeConfig: Record<string, LineConfigItem> = {
     cardImage: '/images/home/lavanda.jpg',
     description:
       'Nel 1994, in provincia di lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualità utilizzando ingredienti selezionati emetodi tradizionali.Siamo diventati un punto di riferimento nel panoramanazionale della cosmesi naturale, rifornendo punti vendita in tutta italia.Il nostro impegno per lʼartigianato e la sostenibilità ci guida nella scelta dimaterie prime eccellenti, garantendo prodotti efficaci rispettando lʼambiente.Oggi, continuiamo a scrivere la nostra storia con passione, portando ilprofumo e la purezza dei nostri saponia in ogni angolo del paese.Benvenuti nel mondo delta green, dove tradizione e innovazione si incontrano.',
-    categoryId: 'lavanda',
+    lineId: 'lavanda',
     productsImage: '/images/pages/lavanda-products.jpg',
     bgColor: '#F5EFFF',
     subtitle: 'La purezza della natura, nella tua casa',
@@ -33,7 +33,7 @@ export const lineeConfig: Record<string, LineConfigItem> = {
     cardImage: '/images/home/brezza-marina.jpg',
     description:
       'Nel 1994, in provincia di lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualità utilizzando ingredienti selezionati emetodi tradizionali.Siamo diventati un punto di riferimento nel panoramanazionale della cosmesi naturale, rifornendo punti vendita in tutta italia.Il nostro impegno per lʼartigianato e la sostenibilità ci guida nella scelta dimaterie prime eccellenti, garantendo prodotti efficaci rispettando lʼambiente.Oggi, continuiamo a scrivere la nostra storia con passione, portando ilprofumo e la purezza dei nostri saponia in ogni angolo del paese.Benvenuti nel mondo delta green, dove tradizione e innovazione si incontrano.',
-    categoryId: 'brezza',
+    lineId: 'brezza',
     productsImage: '/images/pages/lavanda-products.jpg',
     bgColor: '#E2F5F4',
     subtitle: 'La purezza della natura, nella tua casa',
@@ -46,7 +46,7 @@ export const lineeConfig: Record<string, LineConfigItem> = {
     cardImage: '/images/home/agrumi-di-sicilia.jpg',
     description:
       'Nel 1994, in provincia di lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualità utilizzando ingredienti selezionati emetodi tradizionali.Siamo diventati un punto di riferimento nel panoramanazionale della cosmesi naturale, rifornendo punti vendita in tutta italia.Il nostro impegno per lʼartigianato e la sostenibilità ci guida nella scelta dimaterie prime eccellenti, garantendo prodotti efficaci rispettando lʼambiente.Oggi, continuiamo a scrivere la nostra storia con passione, portando ilprofumo e la purezza dei nostri saponia in ogni angolo del paese.Benvenuti nel mondo delta green, dove tradizione e innovazione si incontrano.',
-    categoryId: 'agrumi',
+    lineId: 'agrumi',
     productsImage: '/images/pages/lavanda-products.jpg',
     bgColor: '#FFEDDD',
     subtitle: 'La purezza della natura, nella tua casa',
@@ -59,7 +59,7 @@ export const lineeConfig: Record<string, LineConfigItem> = {
     cardImage: '/images/home/fiore-di-loto.jpg',
     description:
       'Nel 1994, in provincia di lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualità utilizzando ingredienti selezionati emetodi tradizionali.Siamo diventati un punto di riferimento nel panoramanazionale della cosmesi naturale, rifornendo punti vendita in tutta italia.Il nostro impegno per lʼartigianato e la sostenibilità ci guida nella scelta dimaterie prime eccellenti, garantendo prodotti efficaci rispettando lʼambiente.Oggi, continuiamo a scrivere la nostra storia con passione, portando ilprofumo e la purezza dei nostri saponia in ogni angolo del paese.Benvenuti nel mondo delta green, dove tradizione e innovazione si incontrano.',
-    categoryId: 'fiore',
+    lineId: 'fiore',
     productsImage: '/images/pages/lavanda-products.jpg',
     bgColor: '#FFEEF2',
     subtitle: 'La purezza della natura, nella tua casa',
@@ -72,7 +72,7 @@ export const lineeConfig: Record<string, LineConfigItem> = {
     cardImage: '/images/home/marsiglia.jpg',
     description:
       'Nel 1994, in provincia di lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualità utilizzando ingredienti selezionati emetodi tradizionali.Siamo diventati un punto di riferimento nel panoramanazionale della cosmesi naturale, rifornendo punti vendita in tutta italia.Il nostro impegno per lʼartigianato e la sostenibilità ci guida nella scelta dimaterie prime eccellenti, garantendo prodotti efficaci rispettando lʼambiente.Oggi, continuiamo a scrivere la nostra storia con passione, portando ilprofumo e la purezza dei nostri saponia in ogni angolo del paese.Benvenuti nel mondo delta green, dove tradizione e innovazione si incontrano.',
-    categoryId: 'marsiglia',
+    lineId: 'marsiglia',
     productsImage: '/images/pages/lavanda-products.jpg',
     bgColor: '#FFEDDD',
     subtitle: 'La purezza della natura, nella tua casa',
@@ -85,7 +85,7 @@ export const lineeConfig: Record<string, LineConfigItem> = {
     cardImage: '/images/home/neutro.jpg',
     description:
       'Nel 1994, in provincia di lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualità utilizzando ingredienti selezionati emetodi tradizionali.Siamo diventati un punto di riferimento nel panoramanazionale della cosmesi naturale, rifornendo punti vendita in tutta italia.Il nostro impegno per lʼartigianato e la sostenibilità ci guida nella scelta dimaterie prime eccellenti, garantendo prodotti efficaci rispettando lʼambiente.Oggi, continuiamo a scrivere la nostra storia con passione, portando ilprofumo e la purezza dei nostri saponia in ogni angolo del paese.Benvenuti nel mondo delta green, dove tradizione e innovazione si incontrano.',
-    categoryId: 'neutro',
+    lineId: 'neutro',
     productsImage: '/images/pages/lavanda-products.jpg',
     bgColor: '#EEF5E2',
     subtitle: 'La purezza della natura, nella tua casa',

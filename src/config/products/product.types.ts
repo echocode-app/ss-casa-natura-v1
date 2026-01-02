@@ -1,28 +1,63 @@
 /* ================= Products ================= */
+
 export interface Product {
   id: string;
   slug: string;
 
+  sku: string;
+
   title: string;
-  description?: string;
+  shortDescription?: string;
+  description: string;
 
   categoryIds: ProductCategory['id'][];
   lineId?: ProductLine['id'];
 
   images: ProductImage[];
 
-  volume?: string;
-  price?: number;
-  currency?: 'EUR';
+  variants?: ProductVariant[];
+  weightGrams: number;
+
+  price: number;
+  currency: 'EUR';
+
+  discount?: ProductDiscount;
+  promoEligible?: boolean;
 
   isEco?: boolean;
   isNew?: boolean;
   isBestSeller?: boolean;
+  isSeasonal?: boolean;
+
+  relatedProductIds?: Product['id'][];
 
   filters?: ProductFilterValue[];
+
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/* ================= Variants ================= */
+
+export interface ProductVariant {
+  id: string;
+  label: string; // "500 ml", "1 L"
+  volume: number;
+  unit: 'ml' | 'l' | 'kg' | 'g';
+  priceModifier?: number; // + / -
+}
+
+/* ================= Discounts ================= */
+
+export interface ProductDiscount {
+  type: 'percentage' | 'fixed';
+  value: number;
+  startAt?: string;
+  endAt?: string;
 }
 
 /* ================= Categories ================= */
+
 export interface ProductCategory {
   id: string;
   title: string;
@@ -30,6 +65,7 @@ export interface ProductCategory {
 }
 
 /* ================= Lines ================= */
+
 export interface ProductLine {
   id: string;
   title: string;
@@ -38,12 +74,14 @@ export interface ProductLine {
 }
 
 /* ================= Images ================= */
+
 export interface ProductImage {
   src: string;
   alt?: string;
 }
 
 /* ================= Filters ================= */
+
 export type ProductFilterType = 'checkbox' | 'radio' | 'range';
 
 export interface ProductFilter {
