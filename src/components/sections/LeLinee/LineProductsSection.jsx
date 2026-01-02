@@ -19,14 +19,19 @@ export default function LineProductsSection({ lineSlug, bgColor }) {
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((p) => (
+          {products.map((product) => (
             <ProductCard
-              key={p.id}
-              title={p.title}
-              volume={p.volume}
-              price={p.price}
-              imageSrc={p.images[0]?.src || '/images/home/product.png'}
-              slug={p.slug}
+              key={product.id}
+              title={product.title}
+              volume={product.variants?.[0]?.volume}
+              price={product.variants?.[0]?.priceModifier || product.price}
+              discountPrice={product.discountPrice}
+              imageSrc={product.images?.[0]?.src || product.imageSrc || '/images/home/product.png'}
+              slug={product.slug}
+              onAddClick={() => ('Add to cart:', product.id)}
+              isBestSeller={product.isBestSeller}
+              isEco={product.isEco}
+              isNew={product.isNew}
             />
           ))}
         </div>

@@ -20,7 +20,7 @@ export default function Contacts() {
         <li>
           <a
             href="tel:+39000000000"
-            className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline"
+            className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline tabular"
           >
             Tel. 000000000000
           </a>

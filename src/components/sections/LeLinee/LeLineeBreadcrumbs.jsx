@@ -9,12 +9,12 @@ const navItems = [
 
 export default function LeLineeNav({ currentLine }) {
   return (
-    <section className="py-5 lg:py-7">
+    <section className="py-6 lg:py-9">
       <div
         className="
           flex flex-wrap gap-2 items-center
           max-w-[1570px] mx-auto
-          px-6 md:px-8 lg:px-10 xl:px-12
+          px-4 md:px-8 lg:px-10 xl:px-12
           text-[clamp(14px,2vw,17px)] leading-[clamp(24px,2vw,31px)]
          text-text-primary
         "

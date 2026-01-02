@@ -18,44 +18,50 @@ export default function ProductMain({ product }) {
     : product.price;
 
   return (
-    <div className="max-w-[1570px] mx-auto px-6 md:px-8 lg:px-10 xl:px-12 flex flex-col lg:flex-row gap-10 lg:gap-16 mt-8">
+    <div className="max-w-[1570px] mx-auto px-6 md:px-8 lg:px-10 xl:px-12 flex flex-col lg:flex-row gap-6 lg:gap-10 mt-4">
       {/* Image */}
-      <div className="flex-1 flex justify-center lg:justify-start">
+      <div className="flex-1 flex items-center justify-start mb-auto">
         <Image
           src={product.images?.[0]?.src || '/images/home/product.png'}
           alt={product.title}
-          width={400}
-          height={400}
-          className="object-contain rounded-lg"
+          className="object-contain lg:w-full lg:h-full max-h-[80%] mx-auto"
+          width={587}
+          height={550}
         />
       </div>
 
       {/* Info */}
-      <div className="flex-1 flex flex-col gap-4 lg:gap-6">
-        <h1 className="text-h-lg lg:text-h-xl font-semibold">{product.title}</h1>
-        <p className="text-sm text-gray-600">art.{product.sku}</p>
+      <div className="flex-1 flex flex-col justify-between lg:justify-normal gap-3">
+        <div>
+          <h1 className="text-[clamp(22px,4vw,30px)] font-semibold">{product.title}</h1>
+          <p className="text-[clamp(14px,4vw,20px)] mt-3">{product.sku}</p>
 
-        {/* Volume selector */}
-        {product.variants?.length > 0 && (
-          <ProductVolumeSelector variants={product.variants} onChange={setSelectedVariant} />
-        )}
+          {/* Volume selector */}
+          {product.variants?.length > 0 && (
+            <ProductVolumeSelector variants={product.variants} onChange={setSelectedVariant} />
+          )}
 
-        {/* Price */}
-        <div className="mt-2 text-[clamp(20px,4vw,28px)] font-bold">€ {finalPrice.toFixed(2)}</div>
+          {/* Price */}
+          <div className="mt-7 text-[clamp(18px,4vw,25px)] font-bold">
+            € {finalPrice.toFixed(2)}
+          </div>
 
-        {/* Buy button */}
-        <PrimaryButton
-          onClick={handleAddToCart}
-          disabled={!selectedVariant}
-          className="mt-4 w-full lg:w-[200px]"
-        >
-          Aggiungi
-        </PrimaryButton>
+          {/* Buy button */}
+          <PrimaryButton
+            onClick={handleAddToCart}
+            disabled={!selectedVariant}
+            className="mt-6 p-6 mr-auto w-[200px] md:w-[300px]"
+          >
+            Aggiungi
+          </PrimaryButton>
+        </div>
 
         {/* Description */}
-        <div className="mt-6">
-          <h2 className="font-semibold text-lg mb-2">Dettagli prodotto</h2>
-          <p className="text-text-primary leading-relaxed">{product.description}</p>
+        <div className="mt-5 lg:mt-8 lg:ml-0">
+          <h2 className="font-semibold text-[clamp(16px,4vw,22px)] mb-4">Dettagli prodotto</h2>
+          <p className="text-[clamp(12px,4vw,17px)] text-[#373434] whitespace-pre-line leading-[20px]">
+            {product.description}
+          </p>
         </div>
       </div>
     </div>

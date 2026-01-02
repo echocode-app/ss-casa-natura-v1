@@ -15,7 +15,7 @@ export interface Product {
 
   images: ProductImage[];
 
-  variants?: ProductVariant[];
+  variants: ProductVariant[];
   weightGrams: number;
 
   price: number;

@@ -63,6 +63,10 @@ const config: Config = {
         ],
       },
 
+      fontVariantNumeric: {
+        tabular: 'tabular-nums',
+      },
+
       boxShadow: {
         header: '0px 5px 5.2px rgba(0,0,0,0.25)', // тінь хедера - shadow-header
       },
@@ -82,6 +86,7 @@ const config: Config = {
         },
 
         background: {
+          light: '#fdfcfa', // сторінка - bg-background-light
           primary: '#FFFFFF', // основні світлі бекграунди - bg-background-primary
           grizzly: '#F4F4F4', // bg-background-grizzly
         },
@@ -116,7 +121,7 @@ const config: Config = {
     },
   },
 
-  plugins: [],
+  plugins: [require('@tailwindcss/line-clamp')],
 };
 
 export default config;

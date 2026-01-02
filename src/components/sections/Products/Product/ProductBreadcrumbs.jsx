@@ -12,8 +12,12 @@ export default function ProductBreadcrumbs({ product }) {
   const categoryId = categoryFilter?.id || '';
 
   return (
-    <nav className="py-5 lg:py-7 text-[clamp(14px,2vw,17px)]">
-      <div className="flex flex-wrap gap-2 items-center max-w-[1570px] mx-auto px-6 md:px-8 lg:px-10 xl:px-12 text-text-primary">
+    <nav className="py-6 lg:py-9 text-[clamp(14px,2vw,17px)]">
+      <div
+        className="flex flex-wrap gap-2 items-center max-w-[1570px] 
+      mx-auto px-4 md:px-8 lg:px-10 xl:px-12 
+      text-text-primary"
+      >
         <span className="flex items-center gap-2">
           <Link href="/" className="transition-all duration-300 hover:underline">
             Home
@@ -30,7 +34,7 @@ export default function ProductBreadcrumbs({ product }) {
           </span>
         )}
 
-        <span className="font-semibold">{product.title}</span>
+        <span className="text-[#545454] underline">{product.title}</span>
       </div>
     </nav>
   );

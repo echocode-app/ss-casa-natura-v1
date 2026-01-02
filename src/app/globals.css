@@ -18,7 +18,8 @@
 
 html,
 body {
-  @apply bg-background-primary text-text-primary font-sans tracking-normal leading-normal;
+  @apply bg-background-light text-text-primary font-sans tracking-normal leading-normal;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 @layer components {
@@ -43,7 +44,6 @@ body {
   }
 }
 
-
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -55,7 +55,6 @@ body {
     transform: scale(1);
   }
 }
-
 
 @keyframes planet-rotate {
   from {
