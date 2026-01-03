@@ -16,7 +16,7 @@ export default function Footer() {
             max-w-[1570px]
             pr-6 md:pr-8 lg:pr-10 xl:pr-12
             py-6 lg:py-8 xl:py-10
-            pl-6 md:pl-20 lg:pl-24 xl:pl-26
+            px-6 md:pl-16 xl:pl-24
             grid
             md:grid-cols-[auto_1fr]
             gap-10
