@@ -57,12 +57,14 @@ export default function ProductMain({ product }) {
         </div>
 
         {/* Description */}
-        <div className="mt-5 lg:mt-8 lg:ml-0">
-          <h2 className="font-semibold text-[clamp(16px,4vw,22px)] mb-4">Dettagli prodotto</h2>
-          <p className="text-[clamp(12px,4vw,17px)] text-[#373434] whitespace-pre-line leading-[20px]">
-            {product.description}
-          </p>
-        </div>
+        {product.description && (
+          <div className="mt-5 lg:mt-8 lg:ml-0">
+            <h2 className="font-semibold text-[clamp(16px,4vw,22px)] mb-4">Dettagli prodotto</h2>
+            <p className="text-[clamp(12px,4vw,17px)] text-[#373434] whitespace-pre-line leading-[20px]">
+              {product.description}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

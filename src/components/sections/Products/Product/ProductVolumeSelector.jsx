@@ -10,7 +10,7 @@ export default function ProductVolumeSelector({ variants, onChange }) {
   }, [selectedVariant, onChange]);
 
   return (
-    <div className="flex gap-6 mt-5">
+    <div className="tabular flex gap-6 mt-5">
       {variants.map((v) => (
         <button
           key={v.id}

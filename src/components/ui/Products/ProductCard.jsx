@@ -94,6 +94,7 @@ export default function ProductCard({
             ${imageLoading ? 'opacity-0' : 'opacity-100'}
           `}
           onLoad={handleImageLoaded}
+          loading="eager"
         />
       </div>
 
@@ -108,6 +109,9 @@ export default function ProductCard({
             line-clamp-2
             mb-3
           "
+          style={{
+            minHeight: `calc(1.25em * 2)`,
+          }}
           title={title}
         >
           {title}

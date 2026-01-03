@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import DropdownCategories from './DropdownCategories';
 
 export default function Nav({ isScrolled = false, className = '' }) {
   const pathname = usePathname();
 
   const links = [
-    { href: '/prodotti', label: 'Prodotti' },
+    { href: '/prodotti', label: 'Prodotti', hasDropdown: true },
     { href: '/linee', label: 'Linee' },
     { href: '/mission', label: 'Mission' },
     { href: '/contatti', label: 'Contatti' },
@@ -19,6 +20,36 @@ export default function Nav({ isScrolled = false, className = '' }) {
     >
       {links.map((link) => {
         const isActive = pathname === link.href;
+
+        if (link.hasDropdown) {
+          return (
+            <div key={link.href} className="relative group flex flex-col items-center">
+              <Link
+                href={link.href}
+                className={`
+                  relative
+                  transition-all duration-500 ease-out
+                  px-[10px]
+                  ${
+                    isScrolled
+                      ? 'xl:py-[34px] lg:py-[28px] md:py-[23px]'
+                      : 'xl:py-[65px] lg:py-[58px] md:py-[33px]'
+                  }
+                  after:absolute after:left-1/2 after:bottom-0 after:w-0 after:h-[6px] 
+                  after:-translate-x-1/2 after:translate-y-[10px] after:bg-brand-accent
+                  after:transition-all after:duration-300
+                  hover:after:w-[70%] focus:after:w-[90%]
+                  hover:font-semibold focus:font-semibold
+                  ${isActive ? 'after:w-full font-semibold' : ''}
+                `}
+              >
+                {link.label}
+              </Link>
+
+              <DropdownCategories />
+            </div>
+          );
+        }
 
         return (
           <Link

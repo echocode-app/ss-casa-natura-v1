@@ -18,9 +18,10 @@ export default function LineProductsSection({ lineSlug, bgColor }) {
           Tutti prodotti della linea
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 auto-rows-fr">
           {products.map((product) => (
             <ProductCard
+              className="w-full"
               key={product.id}
               title={product.title}
               volume={product.variants?.[0]?.volume}

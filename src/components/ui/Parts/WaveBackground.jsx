@@ -4,7 +4,7 @@ export default function WaveBackground({ color = '#F9F8D6', className = '' }) {
       aria-hidden
       className={`
         absolute inset-0
-        pointer-events-none overflow-hidden
+        pointer-events-none overflow-hidden z-0
         ${className}
       `}
     >
