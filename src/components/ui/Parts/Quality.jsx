@@ -1,13 +1,9 @@
 import Image from 'next/image';
 
-export default function Quality() {
+export default function Quality({ width = 100, height = 100, ariaLabel = 'Quality' }) {
   return (
-    <span
-      aria-label="Quality"
-      //   className="
-      //   hover:scale-105 focus:scale-105 transition-transform duration-400"
-    >
-      <Image src="/images/home/qualita.png" alt="Qualityd" width={100} height={100} />
+    <span aria-label={ariaLabel}>
+      <Image src="/images/home/qualita.png" alt={ariaLabel} width={width} height={height} />
     </span>
   );
 }

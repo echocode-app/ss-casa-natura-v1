@@ -58,9 +58,9 @@ export default function DropdownCategories({ parentRef, isOpen, onClose }) {
               key={category.id}
               href={`/prodotti?subcategory=${category.id}`}
               onClick={onClose}
-              className="flex flex-col items-center gap-2 focus:outline-none lg:max-w-[100px] xl:max-w-[130px]"
+              className="group flex flex-col items-center gap-2 focus:outline-none lg:max-w-[100px] xl:max-w-[130px]"
             >
-              <div className="bg-brand-accent rounded-full flex items-center justify-center lg:w-[80px] lg:h-[80px] xl:w-[100px] xl:h-[100px] transition-all duration-300 hover:shadow-lg">
+              <div className="bg-brand-accent rounded-full flex items-center justify-center lg:w-[80px] lg:h-[80px] xl:w-[100px] xl:h-[100px] transition-all duration-300 md:group-hover:shadow-header">
                 <img
                   src={category.image}
                   alt={label}

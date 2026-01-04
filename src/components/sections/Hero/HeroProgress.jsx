@@ -9,14 +9,10 @@ export default function HeroProgress({ swiper, total }) {
     if (!swiper) return;
 
     const updateIndex = () => setActiveIndex(swiper.realIndex);
-
     swiper.on('slideChange', updateIndex);
-
     setActiveIndex(swiper.realIndex);
 
-    return () => {
-      swiper.off('slideChange', updateIndex);
-    };
+    return () => swiper.off('slideChange', updateIndex);
   }, [swiper]);
 
   return (

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import { PrimaryButton, CartIcon } from '@/components/ui/Buttons';
 import Spinner from '@/components/ui/Spinner/Spinner';
@@ -22,6 +23,7 @@ export default function ProductCard({
   const [adding, setAdding] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [visible, setVisible] = useState(false);
+  const t = useTranslations('topProductsSection');
 
   const handleAddClick = async (e) => {
     e.preventDefault();
@@ -149,7 +151,7 @@ export default function ProductCard({
               disabled={adding}
               className="px-6 py-3 rounded-full text-sm"
             >
-              {adding ? <Spinner size="sm" colorScheme="muted" /> : 'Aggiungi'}
+              {adding ? <Spinner size="sm" colorScheme="muted" /> : t('button')}
             </PrimaryButton>
           </div>
         </div>
@@ -161,7 +163,7 @@ export default function ProductCard({
             disabled={adding}
             className="w-full p-4 xl:px-8 xl:py-5 flex justify-center"
           >
-            {adding ? <Spinner size="sm" colorScheme="muted" /> : 'Aggiungi'}
+            {adding ? <Spinner size="sm" colorScheme="muted" /> : t('button')}
           </PrimaryButton>
         </div>
       </div>

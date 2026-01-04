@@ -27,5 +27,149 @@
   },
   "promoBar": {
     "defaultText": "BLACK FRIDAY: fino al -30% 🔥 Il prezzo più basso dell’anno – non lasciartelo scappare!"
+  },
+  "footer": {
+    "clientArea": "Area clienti",
+    "contacts": "Contatti",
+    "lines": "Linee",
+    "products": "Prodotti",
+    "copyright": "© 2025 Casa Natura / Tutti i diritti riservati / P.IVA 000000000",
+    "privacyLink": "Privacy Policy",
+    "links": {
+      "mission": "Missione",
+      "ingredients": "Ingredienti",
+      "support": "Servizio clienti",
+      "account": "Il mio account",
+      "legal": "Note legali",
+      "productSheets": "Schede prodotti"
+    }
+  },
+  "hero": {
+    "cta": "Scopri i prodotti",
+    "prevSlide": "Slide precedente",
+    "nextSlide": "Slide successiva",
+    "slides": {
+      "1": {
+        "title": "Lavanda",
+        "subtitle": "Detergenti naturali alla Lavanda per la tua casa",
+        "cta": "Scopri i prodotti",
+        "lineKey": "lavanda"
+      },
+      "2": {
+        "title": "Freschezza Oceanica per la tua casa",
+        "subtitle": "Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti",
+        "cta": "Scopri i prodotti",
+        "lineKey": "brezza-marina"
+      },
+      "3": {
+        "title": "Agrumi di Sicilia",
+        "subtitle": "Profumo di Agrumi di Sicilia per pulizia naturale",
+        "cta": "Scopri i prodotti",
+        "lineKey": "agrumi-di-sicilia"
+      },
+      "4": {
+        "title": "Fiore di Loto",
+        "subtitle": "Detergenti naturali Fiore di Loto, delicati e freschi",
+        "cta": "Scopri i prodotti",
+        "lineKey": "fiore-di-loto"
+      },
+      "5": {
+        "title": "Marsiglia",
+        "subtitle": "Detergenti naturali Marsiglia, tradizione e pulizia",
+        "cta": "Scopri i prodotti",
+        "lineKey": "marsiglia"
+      },
+      "6": {
+        "title": "Neutro",
+        "subtitle": "Linea Neutro: detergenti naturali senza profumo",
+        "cta": "Scopri i prodotti",
+        "lineKey": "neutro"
+      }
+    }
+  },
+  "product-categories": {
+    "headerTitle": "Benvenuti nel mondo di Casa Natura",
+    "headerSubtitle": "Scopri i nostri prodotti",
+    "Pulizia": "Pulizia",
+    "Bucato": "Bucato",
+    "Cucina": "Cucina"
+  },
+  "linesSection": {
+    "title": "Le linee",
+    "lines": {
+      "lavanda": {
+        "title": "Lavanda",
+        "imageAlt": "Immagine della linea Lavanda"
+      },
+      "brezza-marina": {
+        "title": "Brezza Marina",
+        "imageAlt": "Immagine della linea Brezza Marina"
+      },
+      "agrumi-di-sicilia": {
+        "title": "Agrumi di Sicilia",
+        "imageAlt": "Immagine della linea Agrumi di Sicilia"
+      },
+      "fiore-di-loto": {
+        "title": "Fiore di Loto",
+        "imageAlt": "Immagine della linea Fiore di Loto"
+      },
+      "marsiglia": {
+        "title": "Marsiglia",
+        "imageAlt": "Immagine della linea Marsiglia"
+      },
+      "neutro": {
+        "title": "Neutro",
+        "imageAlt": "Immagine della linea Neutro"
+      }
+    }
+  },
+  "topProductsSection": {
+    "headerTitle": "I nostri prodotti più",
+    "headerAccent": "amati",
+    "button": "Aggiungi"
+  },
+  "greenProductionSection": {
+    "headerTitle": "Perché siamo",
+    "headerAccent": "green",
+    "items": {
+      "plantBased": {
+        "text": "Solo ingredienti vegetali",
+        "alt": "Solo ingredienti vegetali"
+      },
+      "quality": {
+        "text": "Qualità 100% Made in Italy",
+        "alt": "Qualità 100% Made in Italy"
+      },
+      "testing": {
+        "text": "Prodotti realizzati senza test sugli animali",
+        "alt": "Prodotti realizzati senza test sugli animali"
+      },
+      "planet": {
+        "alt": "Pianeta verde"
+      }
+    }
+  },
+  "missionSection": {
+    "header": {
+      "beforeAccent": "La nostra",
+      "accent": "mission"
+    },
+    "subtitle": "La purezza della natura, nella tua casa",
+    "paragraph1": "Nel 1994, in provincia di Lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualità utilizzando ingredienti selezionati e metodi tradizionali.",
+    "paragraph2": "Siamo diventati un punto di riferimento nel panorama nazionale della cosmesi naturale, rifornendo punti vendita in tutta Italia. Il nostro impegno per lʼartigianato e la sostenibilità ci guida nella scelta di materie prime eccellenti, garantendo prodotti efficaci rispettando lʼambiente.",
+    "paragraph3": "Oggi, continuiamo a scrivere la nostra storia con passione, portando il profumo e la purezza dei nostri saponi in ogni angolo del paese. Benvenuti nel mondo Delta Green, dove tradizione e innovazione si incontrano."
+  },
+  "promocodeSection": {
+    "header": "Unisciti alla nostra community e ricevi subito il 10% di sconto!",
+    "subtitle": "Offerte esclusive, nuovi prodotti e molto altro – direttamente nella tua casella di posta",
+    "form": {
+      "placeholder": "Inserisci la tua email",
+      "submit": "Iscriviti",
+      "loading": "Caricamento...",
+      "success": "Attendi il tuo codice promozionale nella tua email!",
+      "errorEmpty": "Per favore inserisci la tua email!",
+      "errorInvalid": "Inserisci un indirizzo email valido!",
+      "errorSend": "Errore durante l’invio. Riprova!"
+    }
   }
 }

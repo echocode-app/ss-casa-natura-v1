@@ -8,8 +8,10 @@ import {
   Marsiglia,
   Neutro,
 } from '@/components/ui/LeLinee';
+import { useTranslations } from 'next-intl';
 
 export default function LeLineeSection({ variant = 'slider' }) {
+  const t = useTranslations('linesSection');
   const isPage = variant === 'page';
 
   const lines = [
@@ -31,7 +33,7 @@ export default function LeLineeSection({ variant = 'slider' }) {
           md:px-8 lg:px-10 xl:px-12
         `}
       >
-        <h2 className="heading-sm lg:heading-lg xl:heading-xl mb-6 xl:mb-[50px]">Le linee</h2>
+        <h2 className="heading-sm lg:heading-lg xl:heading-xl mb-6 xl:mb-[50px]">{t('title')}</h2>
 
         <div
           className={

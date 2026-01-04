@@ -1,13 +1,9 @@
 import Image from 'next/image';
 
-export default function PlantBased() {
+export default function PlantBased({ width = 100, height = 100, ariaLabel = 'Plant-based' }) {
   return (
-    <span
-      aria-label="Plant-based"
-      //   className="
-      //   hover:scale-105 focus:scale-105 transition-transform duration-400"
-    >
-      <Image src="/images/home/vegetali.png" alt="Plant-based" width={100} height={100} />
+    <span aria-label={ariaLabel}>
+      <Image src="/images/home/vegetali.png" alt={ariaLabel} width={width} height={height} />
     </span>
   );
 }

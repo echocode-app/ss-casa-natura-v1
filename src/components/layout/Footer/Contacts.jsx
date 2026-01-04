@@ -1,10 +1,12 @@
 import { Instagram, Facebook } from '@/components/ui/Buttons';
+import { useTranslations } from 'next-intl';
 
 export default function Contacts() {
+  const t = useTranslations('footer');
   return (
     <div>
       <h4 className="font-semibold text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] uppercase mb-3 md:mb-4 lg:mb-6">
-        Contatti
+        {t('contacts')}
       </h4>
 
       <ul className="flex flex-col mb-1 md:mb-6 gap-2">

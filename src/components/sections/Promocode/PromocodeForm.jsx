@@ -1,11 +1,15 @@
 'use client';
+
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Promocode from '@/components/ui/Form/Promocode';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import notify from '@/lib/notify';
 
 export default function PromocodeForm() {
+  const t = useTranslations('promocodeSection.form');
+
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -16,36 +20,32 @@ export default function PromocodeForm() {
     e.preventDefault();
 
     if (!email) {
-      notify.error('Per favore inserisci la tua email!');
+      notify.error(t('errorEmpty'));
       return;
     }
 
     if (!isValidEmail(email)) {
-      notify.error('Inserisci un indirizzo email valido!');
+      notify.error(t('errorInvalid'));
       return;
     }
 
     setLoading(true);
 
     try {
-      // API
+      // API call simulation
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setSubmitted(true);
-      notify.success('Email inviata con successo!');
+      notify.success(t('success'));
     } catch {
-      notify.error('Errore durante l’invio. Riprova!');
+      notify.error(t('errorSend'));
     } finally {
       setLoading(false);
     }
   };
 
   if (submitted) {
-    return (
-      <p className="text-center text-[clamp(16px,2vw,24px)] font-semibold">
-        Attendi il tuo codice promozionale nella tua email!
-      </p>
-    );
+    return <p className="text-center text-[clamp(16px,2vw,24px)] font-semibold">{t('success')}</p>;
   }
 
   return (
@@ -57,7 +57,7 @@ export default function PromocodeForm() {
         value={email}
         type="email"
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Inserisci la tua email"
+        placeholder={t('placeholder')}
         className="flex-1"
       />
 
@@ -66,7 +66,7 @@ export default function PromocodeForm() {
         disabled={loading || !email || !isValidEmail(email)}
         className="px-10 lg:px-16 xl:px-20 py-3 md:py-4 lg:py-5 text-center"
       >
-        {loading ? <Spinner size="sm" colorScheme="accent" /> : 'Iscriviti'}
+        {loading ? <Spinner size="sm" colorScheme="accent" /> : t('submit')}
       </PrimaryButton>
     </form>
   );

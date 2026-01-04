@@ -30,7 +30,7 @@ export default function PromoBar({
             max-w-[500px] md:max-w-[700px]
             lg:max-w-[960px] xl:max-w-[1440px]
             px-4
-            transition-all duration-300 md:hover:scale-105
+            transition-all duration-300 md:group-hover:scale-105
           "
           style={{ color: textColor }}
         >

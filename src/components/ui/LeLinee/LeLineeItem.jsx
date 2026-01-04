@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function LeLineeItem({ title, imageSrc, slug, variant = 'slider' }) {
+export default function LeLineeItem({ title, imageAlt = '', imageSrc, slug, variant = 'slider' }) {
   const isPage = variant === 'page';
 
   return (
@@ -36,19 +36,14 @@ export default function LeLineeItem({ title, imageSrc, slug, variant = 'slider' 
         {/* IMAGE */}
         <Image
           src={imageSrc}
-          alt={title}
+          alt={imageAlt || title}
           fill
           sizes={
             isPage
               ? '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 340px'
               : '(max-width: 768px) 240px, (max-width: 1024px) 320px, 400px'
           }
-          className="
-            object-cover
-            transition-transform
-            duration-700
-            md:group-hover:scale-110
-          "
+          className="object-cover transition-transform duration-700 md:group-hover:scale-110"
         />
 
         {/* OVERLAY (md+) */}

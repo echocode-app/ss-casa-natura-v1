@@ -30,5 +30,149 @@
   },
   "promoBar": {
     "defaultText": "BLACK FRIDAY: up to -30% 🔥 The lowest price of the year – don’t miss it!"
+  },
+  "footer": {
+    "clientArea": "Client Area",
+    "contacts": "Contacts",
+    "lines": "Lines",
+    "products": "Products",
+    "copyright": "© 2025 Casa Natura / All rights reserved / VAT 000000000",
+    "privacyLink": "Privacy Policy",
+    "links": {
+      "mission": "Mission",
+      "ingredients": "Ingredients",
+      "support": "Customer Service",
+      "account": "My Account",
+      "legal": "Legal Notes",
+      "productSheets": "Product Sheets"
+    }
+  },
+  "hero": {
+    "cta": "Discover products",
+    "prevSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "slides": {
+      "1": {
+        "title": "Lavender",
+        "subtitle": "Natural lavender detergents for your home",
+        "cta": "Discover products",
+        "lineKey": "lavanda"
+      },
+      "2": {
+        "title": "Brezza Marina",
+        "subtitle": "Natural Brezza Marina detergents: ocean freshness",
+        "cta": "Discover products",
+        "lineKey": "brezza-marina"
+      },
+      "3": {
+        "title": "Sicilian Citrus",
+        "subtitle": "Sicilian Citrus scent for natural cleaning",
+        "cta": "Discover products",
+        "lineKey": "agrumi-di-sicilia"
+      },
+      "4": {
+        "title": "Lotus Flower",
+        "subtitle": "Lotus Flower natural detergents, gentle and fresh",
+        "cta": "Discover products",
+        "lineKey": "fiore-di-loto"
+      },
+      "5": {
+        "title": "Marseille",
+        "subtitle": "Marseille natural detergents, tradition and cleanliness",
+        "cta": "Discover products",
+        "lineKey": "marsiglia"
+      },
+      "6": {
+        "title": "Neutral",
+        "subtitle": "Neutral line: fragrance-free natural detergents",
+        "cta": "Discover products",
+        "lineKey": "neutro"
+      }
+    }
+  },
+  "product-categories": {
+    "headerTitle": "Welcome to the world of Casa Natura",
+    "headerSubtitle": "Discover our products",
+    "Pulizia": "Cleaning",
+    "Bucato": "Laundry",
+    "Cucina": "Kitchen"
+  },
+  "linesSection": {
+    "title": "Lines",
+    "lines": {
+      "lavanda": {
+        "title": "Lavender",
+        "imageAlt": "Image of the Lavender line"
+      },
+      "brezza-marina": {
+        "title": "Brezza Marina",
+        "imageAlt": "Image of the Brezza Marina line"
+      },
+      "agrumi-di-sicilia": {
+        "title": "Sicilian Citrus",
+        "imageAlt": "Image of the Sicilian Citrus line"
+      },
+      "fiore-di-loto": {
+        "title": "Lotus Flower",
+        "imageAlt": "Image of the Lotus Flower line"
+      },
+      "marsiglia": {
+        "title": "Marseille",
+        "imageAlt": "Image of the Marseille line"
+      },
+      "neutro": {
+        "title": "Neutral",
+        "imageAlt": "Image of the Neutral line"
+      }
+    }
+  },
+  "topProductsSection": {
+    "headerTitle": "Our best-selling products",
+    "headerAccent": "loved",
+    "button": "Add"
+  },
+  "greenProductionSection": {
+    "headerTitle": "Why we are",
+    "headerAccent": "green",
+    "items": {
+      "plantBased": {
+        "text": "Only plant-based ingredients",
+        "alt": "Only plant-based ingredients"
+      },
+      "quality": {
+        "text": "100% Made in Italy quality",
+        "alt": "100% Made in Italy quality"
+      },
+      "testing": {
+        "text": "Products made without animal testing",
+        "alt": "Products made without animal testing"
+      },
+      "planet": {
+        "alt": "Green planet"
+      }
+    }
+  },
+  "missionSection": {
+    "header": {
+      "beforeAccent": "Our",
+      "accent": "mission"
+    },
+    "subtitle": "The purity of nature, in your home",
+    "paragraph1": "In 1994, in the province of Lodi, our soap factory was born with a clear mission: to create high-quality soaps using carefully selected ingredients and traditional methods.",
+    "paragraph2": "We have become a reference point in the national natural cosmetics landscape, supplying stores throughout Italy. Our commitment to craftsmanship and sustainability guides us in choosing excellent raw materials, ensuring effective products while respecting the environment.",
+    "paragraph3": "Today, we continue to write our story with passion, bringing the fragrance and purity of our soaps to every corner of the country. Welcome to the world of Delta Green, where tradition and innovation meet."
+  },
+  "promocodeSection": {
+    "header": "Join our community and get 10% off now!",
+    "subtitle": "Exclusive offers, new products, and more – straight to your inbox",
+    "form": {
+      "placeholder": "Enter your email",
+      "submit": "Subscribe",
+      "loading": "Loading...",
+      "success": "Wait for your promo code in your email!",
+      "errorEmpty": "Please enter your email!",
+      "errorInvalid": "Please enter a valid email address!",
+      "errorSend": "Error sending. Please try again!"
+    }
   }
 }

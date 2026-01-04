@@ -5,9 +5,11 @@ import ProductCard from '@/components/ui/Products/ProductCard';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { useState, useEffect } from 'react';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import { useTranslations } from 'next-intl';
 
 export default function TopProductsSection({ products }) {
   const [loading, setLoading] = useState(true);
+  const t = useTranslations('topProductsSection');
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1000);
@@ -34,7 +36,7 @@ export default function TopProductsSection({ products }) {
 
       <div className="relative z-10 mx-auto max-w-[1570px] px-2 md:px-8 lg:px-10 xl:px-12">
         <h2 className="heading-default heading-sm lg:heading-lg xl:heading-xl mb-12 md:mb-16 xl:mb-20">
-          I nostri prodotti più <span className="heading-accent">amati</span>
+          {t('headerTitle')} <span className="heading-accent">{t('headerAccent')}</span>
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(10px,2vw,30px)]">
