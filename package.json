@@ -21,8 +21,6 @@
     "framer-motion": "^12.23.26",
     "glob": "^13.0.0",
     "jsonwebtoken": "^9.0.3",
-    "lodash.get": "^4.4.2",
-    "lodash.isequal": "^4.5.0",
     "mongoose": "^9.0.2",
     "next": "^16.1.0",
     "next-intl": "^4.7.0",
@@ -60,8 +58,7 @@
   "overrides": {
     "glob": "^13.0.0",
     "inflight": "^1.0.6",
-    "lodash.get": "^4.4.2",
-    "lodash.isequal": "^4.5.0",
-    "formidable": "^3.5.4"
+    "formidable": "^3.5.4",
+    "superagent": "^10.2.3"
   }
 }
