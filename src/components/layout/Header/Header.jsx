@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import Logo from './Logo';
 import Nav from './Nav';
 import HeaderIcons from './HeaderIcons';
@@ -15,6 +16,7 @@ export default function Header() {
   const headerRef = useRef(null);
   const lastScroll = useRef(0);
   const scrollTimeout = useRef(null);
+  const t = useTranslations('header.actions');
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -28,21 +30,23 @@ export default function Header() {
     const thresholdDown = 5;
     const thresholdUp = 5;
 
+    const hideDelay = 50;
+    const showDelay = 10;
+
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
 
       requestAnimationFrame(() => {
         const current = window.scrollY;
-
         setFixed(current > 0);
 
         if (current > lastScroll.current + thresholdDown) {
           if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-          setVisible(false);
+          scrollTimeout.current = setTimeout(() => setVisible(false), hideDelay);
         } else if (current < lastScroll.current - thresholdUp || current === 0) {
           if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-          scrollTimeout.current = setTimeout(() => setVisible(true), 30);
+          scrollTimeout.current = setTimeout(() => setVisible(true), showDelay);
         }
 
         lastScroll.current = current;
@@ -81,7 +85,7 @@ export default function Header() {
           {/* MOBILE HEADER */}
           <div className="md:hidden grid grid-cols-[auto_1fr_auto] items-center relative">
             <div className="flex items-center">
-              <button onClick={() => setMenuOpen(true)} aria-label="Open menu" className="p-1">
+              <button onClick={() => setMenuOpen(true)} aria-label={t('openMenu')} className="p-1">
                 <Menu className="w-6 h-6" />
               </button>
               <Search className="w-6 h-6" />

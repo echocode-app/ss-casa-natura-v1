@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { Close } from '@/components/ui/Buttons';
+import { useTranslations } from 'next-intl';
 
 export default function MobileMenu({ closeMenu }) {
+  const t = useTranslations('header.nav');
+  const actions = useTranslations('header.actions');
   return (
     <div className="fixed inset-0 z-[60] md:hidden">
       {/* Overlay */}
@@ -23,7 +26,7 @@ export default function MobileMenu({ closeMenu }) {
         {/* Close */}
         <button
           onClick={closeMenu}
-          aria-label="Close menu"
+          aria-label={actions('closeMenu')}
           className="absolute top-4 right-4 transition-transform will-change-transform"
         >
           <Close />
@@ -31,16 +34,16 @@ export default function MobileMenu({ closeMenu }) {
 
         <nav className="flex flex-col gap-8">
           <Link href="/prodotti" onClick={closeMenu}>
-            Prodotti
+            {t('products')}
           </Link>
           <Link href="/linee" onClick={closeMenu}>
-            Linee
+            {t('lines')}
           </Link>
           <Link href="/mission" onClick={closeMenu}>
-            Mission
+            {t('mission')}
           </Link>
           <Link href="/contatti" onClick={closeMenu}>
-            Contatti
+            {t('contacts')}
           </Link>
         </nav>
       </div>

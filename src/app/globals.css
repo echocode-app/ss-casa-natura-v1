@@ -44,6 +44,12 @@ body {
   }
 }
 
+.transition-colors {
+  transition-property:
+    background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-duration: 200ms;
+}
+
 @keyframes pulse {
   0% {
     transform: scale(1);

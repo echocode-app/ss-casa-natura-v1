@@ -1,32 +1,42 @@
 'use client';
 
-export default function PromoBar({ isVisible = true, text = '', bgColor = '#C3FF8A' }) {
+import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+
+export default function PromoBar({
+  isVisible = true,
+  text,
+  href = '/prodotti',
+  bgColor = '#C3FF8A',
+  textColor = '#000000',
+}) {
+  const t = useTranslations('promoBar');
+
   if (!isVisible) return null;
 
+  const label = text || t('defaultText');
+
   return (
-    <div
-      className="group w-full py-2 flex justify-center cursor-pointer"
-      style={{ backgroundColor: bgColor }}
-    >
+    <Link href={href} className="block w-full" aria-label={label}>
       <div
-        className="
-          text-center font-raleway font-bold
-          text-[clamp(10px,1.5vw,19px)]
-          max-w-[500px] md:max-w-[700px]
-          lg:max-w-[960px] xl:max-w-[1440px]
-          px-4
-        "
+        className="group w-full py-2 flex justify-center transition-all duration-300"
+        style={{ backgroundColor: bgColor }}
+        role="region"
       >
-        <a
-          href="/"
+        <div
           className="
-            inline-block
+            text-center font-raleway font-bold
+            text-[clamp(10px,1.5vw,19px)]
+            max-w-[500px] md:max-w-[700px]
+            lg:max-w-[960px] xl:max-w-[1440px]
+            px-4
+            transition-all duration-300 md:hover:scale-105
           "
+          style={{ color: textColor }}
         >
-          BLACK FRIDAY: fino al -30% 🔥 Il prezzo più basso dell’anno – non lasciartelo scappare!{' '}
-          {text}
-        </a>
+          {label}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

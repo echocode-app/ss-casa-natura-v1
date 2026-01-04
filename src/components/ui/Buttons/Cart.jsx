@@ -1,9 +1,12 @@
 import { Icon } from '@/components/ui';
+import { useTranslations } from 'next-intl';
 
 export default function CartIcons() {
+  const t = useTranslations('header.icons');
+
   return (
     <button
-      aria-label="Cart"
+      aria-label={t('cart')}
       className="hover:scale-105 focus:scale-105 transition-transform duration-400
       my-auto px-2 py-6
       "

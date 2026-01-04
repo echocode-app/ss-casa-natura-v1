@@ -1,76 +1,31 @@
 {
-  "nav": {
-    "products": "Products",
-    "lines": "Lines",
-    "mission": "Mission",
-    "contact": "Contact"
-  },
   "header": {
-    "menuOpen": "Open menu",
-    "menuClose": "Close menu",
-    "search": "Search",
-    "user": "Account",
-    "cart": "Cart",
-    "promoBar": {
-      "defaultText": "BLACK FRIDAY: up to -30% 🔥 The lowest price of the year – don't miss it!"
+    "nav": {
+      "products": "Prodotti",
+      "lines": "Linee",
+      "mission": "Mission",
+      "contacts": "Contatti"
+    },
+    "actions": {
+      "openMenu": "Apri menu",
+      "closeMenu": "Chiudi menu",
+      "home": "Home"
+    },
+    "icons": {
+      "search": "Cerca",
+      "user": "Account",
+      "cart": "Carrello"
     }
   },
-  "logo": {
-    "alt": "CASA NATURA"
-  },
   "categories": {
-    "welcome": "Welcome to the world of Casa Natura",
-    "discover": "Discover our products"
+    "Detersivi piatti": "Detersivi piatti",
+    "Cura lavastoviglie": "Cura lavastoviglie",
+    "Detersivi bucato": "Detersivi bucato",
+    "Ammorbidenti": "Ammorbidenti",
+    "Sgrassatori": "Sgrassatori",
+    "Lavapavimenti": "Lavapavimenti"
   },
-  "lines": {
-    "title": "Lines",
-    "items": ["Lavender", "Sea Breeze", "Sicilian Citrus", "Lotus Flower", "Marseille", "Neutral"]
-  },
-  "topProducts": {
-    "title": "Our most loved products",
-    "products": [
-      {
-        "name": "Natural degreaser Sicilian Citrus",
-        "size": "ml 750",
-        "price": "$10.00",
-        "button": "Add"
-      }
-    ]
-  },
-  "greenProduction": {
-    "title": "Why are we green?",
-    "items": [
-      { "name": "Plant-based", "description": "Only plant ingredients" },
-      { "name": "Green Planet", "description": "" },
-      { "name": "Qualityd", "description": "100% Made in Italy quality" },
-      { "name": "Testing", "description": "Products made without animal testing" }
-    ]
-  },
-  "mission": {
-    "title": "Our mission",
-    "subtitle": "Nature's purity, in your home",
-    "description": "In 1994, in the province of Lodi, our soap factory was born with a clear mission: to create high-quality soaps using selected ingredients and traditional methods. We have become a reference point in the national natural cosmetics landscape, supplying stores throughout Italy. Our commitment to craftsmanship and sustainability guides us in choosing excellent raw materials, ensuring effective products while respecting the environment. Today, we continue to write our story with passion, bringing the scent and purity of our soaps to every corner of the country. Welcome to the delta green world, where tradition and innovation meet."
-  },
-  "promocode": {
-    "title": "Join our community and get 10% off immediately!",
-    "description": "Exclusive offers, new products, and much more – directly in your inbox",
-    "placeholder": "Enter your email",
-    "button": "Subscribe"
-  },
-  "footer": {
-    "productsTitle": "Products",
-    "products": ["Laundry", "Kitchen", "Cleaning", "Product sheets"],
-    "linesTitle": "Lines",
-    "lines": ["Lavender", "Sea Breeze", "Sicilian Citrus", "Lotus Flower", "Neutral"],
-    "clientTitle": "Client Area",
-    "client": ["Mission", "Ingredients", "Customer Service", "My Account", "Legal Notes"],
-    "contacts": {
-      "title": "Contacts",
-      "address": "Production site – Casalmaiocco (LO)",
-      "phone": "Tel. 000000000000",
-      "email": "info@casanatura.it"
-    },
-    "privacy": "Privacy Policy",
-    "copyright": "© 2025 Casa Natura / All rights reserved / VAT 000000000 / "
+  "promoBar": {
+    "defaultText": "BLACK FRIDAY: fino al -30% 🔥 Il prezzo più basso dell’anno – non lasciartelo scappare!"
   }
 }
