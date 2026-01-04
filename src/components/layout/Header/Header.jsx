@@ -10,18 +10,51 @@ import { Menu, Search } from '@/components/ui/Buttons';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const [fixed, setFixed] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
+
   const headerRef = useRef(null);
   const lastScroll = useRef(0);
   const scrollTimeout = useRef(null);
   const t = useTranslations('header.actions');
 
+  /* ================= Mobile menu scroll lock ================= */
+
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : '';
-    return () => (document.body.style.overflow = '');
+    if (!menuOpen) return;
+
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, scrollY);
+    };
   }, [menuOpen]);
+
+  /* ================= Dropdown scroll lock ================= */
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+
+    const preventScroll = (e) => e.preventDefault();
+
+    window.addEventListener('wheel', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', preventScroll);
+      window.removeEventListener('touchmove', preventScroll);
+    };
+  }, [dropdownOpen]);
+
+  /* ================= Header hide / show ================= */
 
   useEffect(() => {
     if (window.innerWidth < 768) return;
@@ -60,9 +93,10 @@ export default function Header() {
 
   useEffect(() => {
     if (!headerRef.current) return;
-    setHeaderHeight(headerRef.current.offsetHeight);
 
+    setHeaderHeight(headerRef.current.offsetHeight);
     const onResize = () => setHeaderHeight(headerRef.current.offsetHeight);
+
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, [menuOpen]);
@@ -82,7 +116,6 @@ export default function Header() {
         `}
       >
         <div className="mx-auto max-w-[1570px] px-6 md:pl-16 xl:pl-24 md:pr-10">
-          {/* MOBILE HEADER */}
           <div className="md:hidden grid grid-cols-[auto_1fr_auto] items-center relative">
             <div className="flex items-center">
               <button onClick={() => setMenuOpen(true)} aria-label={t('openMenu')} className="p-1">
@@ -96,22 +129,20 @@ export default function Header() {
             </div>
 
             <div className="flex items-center justify-end gap-3">
-              <HeaderIcons isMobile={true} />
+              <HeaderIcons isMobile />
             </div>
           </div>
 
-          {/* TABLET + DESKTOP HEADER */}
           <div className="hidden md:flex items-center justify-between">
             <Logo />
             <div className="flex items-center gap-[clamp(20px,2vw,80px)] relative">
-              <Nav />
+              <Nav onDropdownChange={setDropdownOpen} />
               <HeaderIcons />
             </div>
           </div>
         </div>
       </header>
 
-      {/* MOBILE MENU */}
       {menuOpen && <MobileMenu isOpen={menuOpen} closeMenu={() => setMenuOpen(false)} />}
     </>
   );

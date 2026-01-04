@@ -10,6 +10,7 @@ import { lineeConfig, LineConfigItem } from '@/lib/lineeConfig';
 import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 import { LineBannerSection } from '@/components/sections/BannerSection';
 import LeLineeBreadcrumbs from '@/components/sections/LeLinee/LeLineeBreadcrumbs';
+import { useTranslations } from 'next-intl';
 
 interface LinePageProps {
   params: { slug: string } | Promise<{ slug: string }>;
@@ -18,6 +19,7 @@ interface LinePageProps {
 export default function LinePage({ params }: LinePageProps) {
   const [line, setLine] = useState<LineConfigItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const t = useTranslations('linee');
 
   useEffect(() => {
     async function loadLine() {
@@ -34,11 +36,11 @@ export default function LinePage({ params }: LinePageProps) {
 
   if (loading) return <FullscreenSpinner />;
 
-  if (!line) return <div>Linea non trovata</div>;
+  if (!line) return <div>{t('lineNotFound')}</div>;
 
   return (
     <>
-      <LineBannerSection title={line.title} backgroundSrc={line.heroImage} />
+      <LineBannerSection slug={line.slug} backgroundSrc={line.heroImage} />
 
       <LeLineeBreadcrumbs currentLine={line.title} />
 

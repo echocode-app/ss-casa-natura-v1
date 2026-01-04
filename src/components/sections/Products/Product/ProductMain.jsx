@@ -4,9 +4,11 @@ import Image from 'next/image';
 import { PrimaryButton } from '@/components/ui/Buttons';
 import ProductVolumeSelector from './ProductVolumeSelector';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function ProductMain({ product }) {
   const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0] ?? null);
+  const t = useTranslations('prodotti.related');
 
   const handleAddToCart = async () => {
     if (!selectedVariant) return;
@@ -52,14 +54,14 @@ export default function ProductMain({ product }) {
             disabled={!selectedVariant}
             className="mt-6 p-6 mr-auto w-[200px] md:w-[300px]"
           >
-            Aggiungi
+            {t('addToCart')}
           </PrimaryButton>
         </div>
 
         {/* Description */}
         {product.description && (
           <div className="mt-5 lg:mt-8 lg:ml-0">
-            <h2 className="font-semibold text-[clamp(16px,4vw,22px)] mb-4">Dettagli prodotto</h2>
+            <h2 className="font-semibold text-[clamp(16px,4vw,22px)] mb-4">{t('details')}</h2>
             <p className="text-[clamp(12px,4vw,17px)] text-[#373434] whitespace-pre-line leading-[20px]">
               {product.description}
             </p>

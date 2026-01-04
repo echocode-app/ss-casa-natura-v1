@@ -13,7 +13,8 @@ import Arrow from '@/components/ui/Buttons/Arrow';
 import { PRODUCT_CATEGORIES } from '@/config/products/product.categories';
 
 export default function ProductsCategoriesSection() {
-  const t = useTranslations('categories');
+  const c = useTranslations('categories');
+  const t = useTranslations('prodotti.categories');
 
   const swiperRef = useRef(null);
   const prevRef = useRef(null);
@@ -35,7 +36,7 @@ export default function ProductsCategoriesSection() {
   `;
 
   const renderCategory = (category) => {
-    const label = t.has(category.title) ? t(category.title) : category.title;
+    const label = c.has(category.title) ? c(category.title) : category.title;
 
     return (
       <Link
@@ -66,9 +67,9 @@ export default function ProductsCategoriesSection() {
     <section className="py-10 xl:py-14 relative overflow-x-visible">
       <div className="relative z-10 mx-auto max-w-[1570px] px-2 md:px-8 lg:px-10 xl:px-12">
         <h1 className="heading-default heading-sm lg:heading-lg xl:heading-xl mb-8 md:mb-12 xl:mb-16 text-center">
-          Benvenuti nel mondo di Casa Natura
+          {t('title')}
           <br />
-          <span className="heading-accent">Scopri i nostri prodotti</span>
+          <span className="heading-accent">{t('subtitle')}</span>
         </h1>
 
         {!canSlide ? (

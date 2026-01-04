@@ -4,8 +4,7 @@ import { Raleway } from 'next/font/google';
 import ClientLoader from '@/components/layout/ClientLoader';
 
 import { NextIntlClientProvider } from 'next-intl';
-import itMessages from '@/messages/it.json';
-import enMessages from '@/messages/en.json';
+import { getLocale, getMessages } from 'next-intl/server';
 
 const raleway = Raleway({
   subsets: ['latin'],
@@ -23,16 +22,14 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // const locale = 'en';
-  // const messages = locale === 'en' ? enMessages : itMessages;
-  const locale = 'it';
-  const messages = locale === 'it' ? itMessages : enMessages;
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
 
   return (
     <html lang={locale}>
       <body className={raleway.className}>
-        <NextIntlClientProvider messages={messages} locale={locale}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <ClientLoader>{children}</ClientLoader>
         </NextIntlClientProvider>
       </body>

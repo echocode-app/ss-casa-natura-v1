@@ -9,6 +9,7 @@ import 'swiper/css/navigation';
 import Arrow from '@/components/ui/Buttons/Arrow';
 import { ProductCard } from '@/components/ui/Products';
 import { WaveBackground } from '@/components/ui/Parts';
+import { useTranslations } from 'next-intl';
 
 export default function RelatedProductsSection({ products }) {
   const swiperRef = useRef(null);
@@ -18,6 +19,7 @@ export default function RelatedProductsSection({ products }) {
   const [maxCardHeight, setMaxCardHeight] = useState(0);
   const [canSlidePrev, setCanSlidePrev] = useState(false);
   const [canSlideNext, setCanSlideNext] = useState(false);
+  const t = useTranslations('prodotti.related');
 
   if (!products || products.length === 0) return null;
 
@@ -58,7 +60,7 @@ export default function RelatedProductsSection({ products }) {
 
       <div className="relative z-10 mx-auto max-w-[1570px] px-6 md:px-8 lg:px-10 xl:px-12">
         <h2 className="heading-sm lg:heading-lg xl:heading-xl mb-10 lg:mb-20 text-center">
-          Ti potrebbero interessare
+          {t('title')}
         </h2>
 
         <div className="relative">

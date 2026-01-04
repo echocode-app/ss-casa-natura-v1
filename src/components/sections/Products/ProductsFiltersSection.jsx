@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import Chevron from '@/components/ui/Buttons/Chevron';
 import { PRODUCT_FILTERS } from '@/config/products/product.filters';
+import { useTranslations } from 'next-intl';
 
 export default function ProductsFiltersSection({
   activeFilter,
@@ -13,6 +14,7 @@ export default function ProductsFiltersSection({
   onApply,
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
+  const t = useTranslations('prodotti.filters');
 
   useEffect(() => {
     if (typeof window !== 'undefined') setInternalOpen(window.innerWidth >= 1024);
@@ -40,7 +42,7 @@ export default function ProductsFiltersSection({
       <div className="bg-white rounded-[34px] px-6 py-8 md:px-8 pb-4">
         <div className="flex items-center justify-between mb-3 lg:mb-5">
           <h2 className="font-semibold text-[clamp(22px,2vw,28px)] uppercase pl-12 md:pl-7 lg:pl-16">
-            LINEE
+            {t('title')}
           </h2>
           <button
             onClick={toggleOpen}
@@ -100,7 +102,7 @@ export default function ProductsFiltersSection({
               onClick={onApply}
               className="w-full text-[clamp(12px,4vw,22px)] py-4 xl:py-5 text-center flex justify-center items-center"
             >
-              Applica filtri
+              {t('apply')}
             </PrimaryButton>
           </div>
         </div>

@@ -18,8 +18,8 @@ export default function Promocode({
       placeholder={placeholder}
       className={`
   w-full
-  px-5 py-3
-  lg:px-8 lg:py-6
+  p-5 md:px-7
+  lg:py-7 lg:pl-10
 
   rounded-[49px]
   border border-transparent

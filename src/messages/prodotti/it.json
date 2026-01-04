@@ -1,0 +1,36 @@
+{
+  "notFound": "Prodotto non trovato",
+
+  "categories": {
+    "title": "Benvenuti nel mondo di Casa Natura",
+    "subtitle": "Scopri i nostri prodotti"
+  },
+
+  "filters": {
+    "title": "Linee",
+    "apply": "Applica filtri"
+  },
+
+  "list": {
+    "title": "I nostri prodotti"
+  },
+
+  "breadcrumbs": {
+    "home": "Home",
+    "products": "Prodotti"
+  },
+
+  "product": {
+    "details": "Dettagli prodotto",
+    "addToCart": "Aggiungi",
+    "selectVolume": "Seleziona volume",
+    "outOfStock": "Esaurito"
+  },
+
+  "related": {
+    "title": "Ti potrebbero interessare",
+    "home": "Home",
+    "details": "Dettagli prodotto",
+    "addToCart": "Aggiungi"
+  }
+}

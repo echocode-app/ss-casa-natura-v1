@@ -7,6 +7,7 @@ import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import { WaveBackground } from '@/components/ui/Parts';
 import { PRODUCT_FILTERS } from '@/config/products/product.filters';
 import Spinner from '@/components/ui/Spinner/Spinner';
+import { useTranslations } from 'next-intl';
 
 interface ProductsSectionProps {
   initialFilterId?: string;
@@ -22,6 +23,8 @@ export default function ProductsSection({
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [appliedCategories, setAppliedCategories] = useState<string[]>([]);
+
+  const t = useTranslations('prodotti.list');
 
   useEffect(() => {
     if (initialCategoryIds.length) {
@@ -65,7 +68,7 @@ export default function ProductsSection({
 
       <div className="relative z-10 mx-auto max-w-[1570px] px-2 md:px-8 lg:px-10 xl:px-12">
         <h2 className="heading-default heading-sm lg:heading-lg xl:heading-xl mb-10 lg:mb-16">
-          I nostri prodotti
+          {t('title')}
         </h2>
 
         <div className="flex flex-col lg:flex-row gap-8">

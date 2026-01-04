@@ -1,0 +1,36 @@
+{
+  "notFound": "Product not found",
+
+  "categories": {
+    "title": "Welcome to the world of Casa Natura",
+    "subtitle": "Discover our products"
+  },
+
+  "filters": {
+    "title": "Lines",
+    "apply": "Apply filters"
+  },
+
+  "list": {
+    "title": "Our products"
+  },
+
+  "breadcrumbs": {
+    "home": "Home",
+    "products": "Products"
+  },
+
+  "product": {
+    "details": "Product details",
+    "addToCart": "Add to cart",
+    "selectVolume": "Select volume",
+    "outOfStock": "Out of stock"
+  },
+
+  "related": {
+    "title": "You might be interested in",
+    "home": "Home",
+    "details": "Product details",
+    "addToCart": "Add to cart"
+  }
+}

@@ -6,7 +6,7 @@ import { useRef, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import DropdownCategories from './DropdownCategories';
 
-export default function Nav({ className = '' }) {
+export default function Nav({ className = '', onDropdownChange }) {
   const t = useTranslations('header.nav');
   const pathname = usePathname();
 
@@ -17,17 +17,20 @@ export default function Nav({ className = '' }) {
   const openDropdown = () => {
     if (hideTimeout.current) clearTimeout(hideTimeout.current);
     setIsDropdownOpen(true);
+    onDropdownChange?.(true);
   };
 
   const closeDropdown = useCallback(() => {
-    hideTimeout.current = setTimeout(() => setIsDropdownOpen(false), 300);
-  }, []);
+    hideTimeout.current = setTimeout(() => {
+      setIsDropdownOpen(false);
+      onDropdownChange?.(false);
+    }, 300);
+  }, [onDropdownChange]);
 
   return (
     <nav
       className={`uppercase font-raleway font-normal text-[clamp(0.9rem,1.5vw,1.125rem)] flex gap-2 ${className}`}
     >
-      {/* Prodotti Dropdown */}
       <div
         ref={prodottiRef}
         className="relative flex flex-col items-center"
@@ -36,7 +39,10 @@ export default function Nav({ className = '' }) {
       >
         <Link
           href="/prodotti"
-          onClick={() => setIsDropdownOpen(false)}
+          onClick={() => {
+            setIsDropdownOpen(false);
+            onDropdownChange?.(false);
+          }}
           className={`
             relative py-20 px-[clamp(6px,2vw,30px)]
             transition-all duration-300
@@ -53,7 +59,10 @@ export default function Nav({ className = '' }) {
         <DropdownCategories
           parentRef={prodottiRef}
           isOpen={isDropdownOpen}
-          onClose={() => setIsDropdownOpen(false)}
+          onClose={() => {
+            setIsDropdownOpen(false);
+            onDropdownChange?.(false);
+          }}
         />
       </div>
 
@@ -63,6 +72,7 @@ export default function Nav({ className = '' }) {
         { href: '/contatti', label: t('contacts') },
       ].map((link) => {
         const isActive = pathname === link.href;
+
         return (
           <Link
             key={link.href}

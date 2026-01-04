@@ -1,24 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
-const navItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Linee', href: '/linee' },
-];
+export default function LeLineeBreadcrumbs({ currentLine }) {
+  const t = useTranslations('linee');
 
-export default function LeLineeNav({ currentLine }) {
+  const navItems = [
+    { label: t('breadcrumbs.home'), href: '/' },
+    { label: t('breadcrumbs.lines'), href: '/linee' },
+  ];
+
   return (
     <section className="py-6 lg:py-9">
-      <div
-        className="
-          flex flex-wrap gap-2 items-center
-          max-w-[1570px] mx-auto
-          px-4 md:px-8 lg:px-10 xl:px-12
-          text-[clamp(14px,2vw,17px)] leading-[clamp(24px,2vw,31px)]
-         text-text-primary
-        "
-      >
+      <div className="flex flex-wrap gap-2 items-center max-w-[1570px] mx-auto px-4 md:px-8 lg:px-10 xl:px-12 text-[clamp(14px,2vw,17px)] leading-[clamp(24px,2vw,31px)] text-text-primary">
         {navItems.map((item, idx) => (
           <span key={idx} className="flex items-center gap-2">
             <Link

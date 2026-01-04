@@ -1,0 +1,16 @@
+{
+  "breadcrumbs": {
+    "home": "Home",
+    "lines": "Linee"
+  },
+  "relatedLines": {
+    "title": "Scopri le altre linee"
+  },
+  "lineProducts": {
+    "title": "Tutti prodotti della linea"
+  },
+  "linesSection": {
+    "title": "Le linee"
+  },
+  "lineNotFound": "Linea non trovata"
+}

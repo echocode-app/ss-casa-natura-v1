@@ -64,7 +64,7 @@ export default function PromocodeForm() {
       <PrimaryButton
         type="submit"
         disabled={loading || !email || !isValidEmail(email)}
-        className="px-10 lg:px-16 xl:px-20 py-3 md:py-4 lg:py-5 text-center"
+        className="px-8 py-4 lg:py-6 lg:min-w-[280px]"
       >
         {loading ? <Spinner size="sm" colorScheme="accent" /> : t('submit')}
       </PrimaryButton>

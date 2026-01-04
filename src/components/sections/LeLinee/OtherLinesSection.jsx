@@ -8,8 +8,10 @@ import 'swiper/css';
 import Arrow from '@/components/ui/Buttons/Arrow';
 import { lineeConfig } from '@/lib/lineeConfig';
 import LeLineeItem from '@/components/ui/LeLinee/LeLineeItem';
+import { useTranslations } from 'next-intl';
 
 export default function OtherLinesSection({ currentSlug }) {
+  const t = useTranslations('linesSection');
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const swiperRef = useRef(null);
@@ -38,9 +40,7 @@ export default function OtherLinesSection({ currentSlug }) {
   return (
     <section className="relative py-12 lg:py-20 overflow-hidden">
       <div className="relative mx-auto max-w-none md:max-w-[840px] lg:max-w-[1060px] xl:max-w-[1400px] px-4 md:px-12">
-        <h2 className="heading-sm lg:heading-lg xl:heading-xl mb-10 md:mb-16">
-          Scopri le altre linee
-        </h2>
+        <h2 className="heading-sm lg:heading-lg xl:heading-xl mb-10 md:mb-16">{t('title')}</h2>
 
         {isLargeScreen ? (
           <div className="relative">
@@ -97,8 +97,9 @@ export default function OtherLinesSection({ currentSlug }) {
               {otherLines.map((line) => (
                 <SwiperSlide key={line.slug} className="flex justify-center w-auto">
                   <LeLineeItem
-                    title={line.title}
+                    title={t(`lines.${line.slug}.title`)}
                     imageSrc={line.cardImage}
+                    imageAlt={t(`lines.${line.slug}.imageAlt`)}
                     slug={line.slug}
                     variant="slider"
                   />
@@ -111,8 +112,9 @@ export default function OtherLinesSection({ currentSlug }) {
             {otherLines.map((line) => (
               <div key={line.slug} className="flex-shrink-0 w-[240px]">
                 <LeLineeItem
-                  title={line.title}
+                  title={t(`lines.${line.slug}.title`)}
                   imageSrc={line.cardImage}
+                  imageAlt={t(`lines.${line.slug}.imageAlt`)}
                   slug={line.slug}
                   variant="slider"
                 />

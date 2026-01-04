@@ -26,17 +26,17 @@ export default function HeroSlide({ id, image, title, subtitle, lineKey, cta }) 
         <div className="text-primary">
           <h1 className="sr-only">CASA NATURA</h1>
 
-          <h2 className="font-raleway font-bold text-[clamp(32px,6vw,88px)] max-w-[890px] leading-[0.95]">
+          <h2 className="font-raleway font-bold text-[clamp(36px,6vw,88px)] max-w-[890px] leading-[0.95]">
             {slideTitle}
           </h2>
 
-          <p className="mt-6 font-raleway text-[clamp(16px,2.5vw,27px)] max-w-[400px]">
+          <p className="mt-8 lg:mt-12 font-raleway text-[clamp(20px,2.5vw,27px)] max-w-[400px] leading-normal">
             {slideSubtitle}
           </p>
 
-          <div className="mt-8 sm:mt-10">
+          <div className="mt-8 lg:mt-12">
             <Link href={linkHref}>
-              <PrimaryButton className="px-6 py-3 md:px-8 md:py-4 lg:px-12 lg:py-5 xl:px-16 xl:py-6">
+              <PrimaryButton className="px-8 py-4 lg:py-6 lg:min-w-[300px]">
                 {slideCta}
               </PrimaryButton>
             </Link>

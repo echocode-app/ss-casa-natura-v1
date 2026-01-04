@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { PRODUCT_CATEGORIES } from '@/config/products/product.categories';
-import { useState, useLayoutEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 
@@ -12,7 +12,7 @@ export default function DropdownCategories({ parentRef, isOpen, onClose }) {
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
   const containerRef = useRef(null);
 
-  useState(() => setMounted(true));
+  useEffect(() => setMounted(true), []);
 
   useLayoutEffect(() => {
     if (!parentRef?.current) return;
@@ -36,7 +36,7 @@ export default function DropdownCategories({ parentRef, isOpen, onClose }) {
   return createPortal(
     <div
       ref={containerRef}
-      className={`fixed z-[9999] lg:flex justify-center transition-opacity duration-300`}
+      className="fixed z-[9999] lg:flex justify-center transition-opacity duration-300"
       style={{
         top: coords.top,
         left: 0,
@@ -45,7 +45,6 @@ export default function DropdownCategories({ parentRef, isOpen, onClose }) {
         opacity: isOpen ? 1 : 0,
       }}
       onMouseLeave={onClose}
-      onMouseEnter={() => {}}
     >
       <div
         className="bg-[#FFFEEB] lg:p-4 lg:gap-4 xl:p-6 xl:gap-6 flex flex-wrap justify-center max-w-[max(900px,80vw)]"
@@ -53,6 +52,7 @@ export default function DropdownCategories({ parentRef, isOpen, onClose }) {
       >
         {PRODUCT_CATEGORIES.map((category) => {
           const label = t.has(category.title) ? t(category.title) : category.title;
+
           return (
             <Link
               key={category.id}

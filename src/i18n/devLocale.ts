@@ -1,8 +1,7 @@
 export const DEV_LOCALE_KEY = 'dev-locale';
 
 export function getDevLocale(): 'it' | 'en' {
-  if (typeof window === 'undefined') return 'it';
-  return (localStorage.getItem(DEV_LOCALE_KEY) as 'it' | 'en') || 'it';
+  return process.env.NEXT_PUBLIC_DEV_LOCALE === 'en' ? 'en' : 'it';
 }
 
 export function setDevLocale(locale: 'it' | 'en') {

@@ -1,13 +1,19 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
-export default function LineBannerSection({ title, backgroundSrc }) {
+export default function LineBannerSection({ slug, backgroundSrc }) {
+  const t = useTranslations('linesSection');
+
+  const title = slug ? t(`lines.${slug}.title`) : '';
+  const alt = slug ? t(`lines.${slug}.imageAlt`) : '';
+
   return (
     <section className="relative w-screen h-[300px] md:h-[472px] overflow-hidden">
       <img
         src={backgroundSrc}
-        alt={title}
+        alt={alt}
         className="
           absolute
           top-1/2 lg:top-[70%] left-1/2
@@ -15,7 +21,7 @@ export default function LineBannerSection({ title, backgroundSrc }) {
           w-[150%] md:w-[130%] lg:w-[120%] xl:w-[100%]
           h-auto
           object-cover
-  "
+        "
       />
 
       {/* Overlay */}
@@ -23,11 +29,7 @@ export default function LineBannerSection({ title, backgroundSrc }) {
 
       {/* Title */}
       <div className="relative z-10 h-full flex items-center justify-center text-center px-4">
-        <h1
-          className="font-semibold text-[clamp(32px,5vw,43px)]
-        leading-[31px] text-text-inverse
-        "
-        >
+        <h1 className="font-semibold text-[clamp(32px,5vw,43px)] leading-[31px] text-text-inverse">
           {title}
         </h1>
       </div>

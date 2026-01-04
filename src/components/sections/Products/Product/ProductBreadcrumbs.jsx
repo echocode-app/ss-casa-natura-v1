@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { PRODUCT_FILTERS } from '@/config/products/product.filters';
+import { useTranslations } from 'next-intl';
 
 export default function ProductBreadcrumbs({ product }) {
   const categoryFilter = PRODUCT_FILTERS.find((filter) =>
@@ -10,6 +11,7 @@ export default function ProductBreadcrumbs({ product }) {
 
   const categoryName = categoryFilter?.title || '';
   const categoryId = categoryFilter?.id || '';
+  const t = useTranslations('prodotti.related');
 
   return (
     <nav className="py-6 lg:py-9 text-[clamp(14px,2vw,17px)]">
@@ -20,7 +22,7 @@ export default function ProductBreadcrumbs({ product }) {
       >
         <span className="flex items-center gap-2">
           <Link href="/" className="transition-all duration-300 hover:underline">
-            Home
+            {t('home')}
           </Link>
           <span>|</span>
         </span>

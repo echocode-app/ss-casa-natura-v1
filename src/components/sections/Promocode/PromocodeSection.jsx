@@ -42,11 +42,11 @@ export default function PromocodeSection() {
         {/* CONTENT */}
         <div className="relative z-10 flex justify-center lg:justify-end">
           <div className="w-full max-w-[600px] md:max-w-[700px] lg:max-w-[800px] xl:max-w-[1000px] bg-opacity-80 transition-all duration-300 ease-out hover:bg-opacity-100 xl:bg-opacity-100 bg-background-grizzly rounded-[60px] lg:rounded-[120px] xl:rounded-[223px] p-8 md:p-12 lg:p-20 lg:pb-10">
-            <h3 className="text-[clamp(24px,4vw,40px)] font-semibold mb-3 text-center mx-auto lg:max-w-[800px]">
+            <h3 className="text-[clamp(24px,4vw,40px)] font-semibold mb-4 text-center mx-auto lg:max-w-[800px]">
               {t('header')}
             </h3>
 
-            <p className="text-[clamp(16px,2vw,24px)] max-w-[660px] leading-[1.2] text-center mx-auto mb-4 lg:mb-8">
+            <p className="text-[clamp(16px,2vw,24px)] max-w-[640px] leading-[1.2] text-center mx-auto mb-4 lg:mb-8">
               {t.rich('subtitle', {
                 br: () => <br className="hidden md:block" />,
               })}
