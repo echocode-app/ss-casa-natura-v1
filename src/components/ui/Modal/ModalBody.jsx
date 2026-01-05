@@ -9,15 +9,21 @@ export default function ModalBody({ type = 'register', formData, setFormData }) 
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
+    <div className="flex flex-col items-center gap-3 w-full">
       {type === 'register' && (
-        <div className="flex flex-col lg:flex-row gap-4 w-full">
+        <div className="flex flex-col md:flex-row gap-2 w-full">
           <input
             type="text"
             value={formData.nome}
             onChange={handleChange('nome')}
             placeholder={t('form.nome')}
-            className="w-full lg:w-1/2 rounded-input-xl border border-input py-[18px] px-[26px] text-text-primary placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+            className="w-full border border-input bg-background-primary outline-none
+            text-text-primary text-[clamp(14px,2vw,18px)] 
+            placeholder:text-text-gray
+            rounded-input-sm md:rounded-input-xl 
+            px-4 py-3 md:px-7 md:py-4
+            transition-all duration-300 hover:outline-none
+            focus-within:ring-1 focus-within:ring-border-input focus:outline-none"
             required
           />
           <input
@@ -25,7 +31,13 @@ export default function ModalBody({ type = 'register', formData, setFormData }) 
             value={formData.cognome}
             onChange={handleChange('cognome')}
             placeholder={t('form.cognome')}
-            className="w-full lg:w-1/2 rounded-input-xl border border-input py-[18px] px-[26px] text-text-primary placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+            className="w-full border border-input bg-background-primary outline-none
+            text-text-primary text-[clamp(14px,2vw,18px)] 
+            placeholder:text-text-gray
+            rounded-input-sm md:rounded-input-xl 
+            px-4 py-3 md:px-7 md:py-4
+            transition-all duration-300 hover:outline-none
+            focus-within:ring-1 focus-within:ring-border-input focus:outline-none"
             required
           />
         </div>
@@ -36,7 +48,13 @@ export default function ModalBody({ type = 'register', formData, setFormData }) 
         value={formData.email}
         onChange={handleChange('email')}
         placeholder={t('form.email')}
-        className="w-[clamp(280px,90%,620px)] rounded-input-xl border border-input py-[18px] px-[26px] text-text-primary placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+        className="w-full border border-input bg-background-primary outline-none
+            text-text-primary text-[clamp(14px,2vw,18px)] 
+            placeholder:text-text-gray
+            rounded-input-sm md:rounded-input-xl 
+            px-4 py-3 md:px-7 md:py-4
+            transition-all duration-300 hover:outline-none
+            focus-within:ring-1 focus-within:ring-border-input focus:outline-none"
         required
       />
 
@@ -45,7 +63,13 @@ export default function ModalBody({ type = 'register', formData, setFormData }) 
         value={formData.password}
         onChange={handleChange('password')}
         placeholder={t('form.password')}
-        className="w-[clamp(280px,90%,620px)] rounded-input-xl border border-input py-[18px] px-[26px] text-text-primary placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+        className="w-full border border-input bg-background-primary outline-none
+            text-text-primary text-[clamp(14px,2vw,18px)] 
+            placeholder:text-text-gray
+            rounded-input-sm md:rounded-input-xl 
+            px-4 py-3 md:px-7 md:py-4
+            transition-all duration-300 hover:outline-none
+            focus-within:ring-1 focus-within:ring-border-input focus:outline-none"
         required
       />
 
@@ -55,7 +79,13 @@ export default function ModalBody({ type = 'register', formData, setFormData }) 
           value={formData.confermaPassword}
           onChange={handleChange('confermaPassword')}
           placeholder={t('form.confermaPassword')}
-          className="w-[clamp(280px,90%,620px)] rounded-input-xl border border-input py-[18px] px-[26px] text-text-primary placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+          className="w-full border border-input bg-background-primary outline-none
+            text-text-primary text-[clamp(14px,2vw,18px)] 
+            placeholder:text-text-gray
+            rounded-input-sm md:rounded-input-xl 
+            px-4 py-3 md:px-7 md:py-4
+            transition-all duration-300 hover:outline-none
+            focus-within:ring-1 focus-within:ring-border-input focus:outline-none"
           required
         />
       )}

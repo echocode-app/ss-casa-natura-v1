@@ -38,7 +38,7 @@ const config: Config = {
 
       borderRadius: {
         'modal-xl': '31px', // use rounded-modal-xl for modal container
-        'modal-sm': '20px', // use rounded-modal-sm for modal container
+        'modal-sm': '18px', // use rounded-modal-sm for modal container
         'input-xl': '16px', // use rounded-input-xl for inputs
         'input-sm': '10px', // use rounded-input-xl for inputs
       },

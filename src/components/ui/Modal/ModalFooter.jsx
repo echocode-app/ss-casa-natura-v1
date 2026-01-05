@@ -7,25 +7,25 @@ export default function ModalFooter({ type = 'register', onSubmit, onSwitch, onF
   const t = useTranslations('modal.auth');
 
   return (
-    <div className="flex flex-col items-center mt-6 w-full gap-4">
+    <div className="flex flex-col items-center mt-4 lg:mt-8 w-full gap-4 lg:gap-5">
       {/* Submit Button */}
       <PrimaryButton
         type="submit"
         onClick={onSubmit}
-        className="w-full lg:w-[clamp(280px,90%,620px)] py-4"
+        className="w-full lg:max-w-[220px] py-3 lg:py-4"
       >
         {type === 'register' ? t('form.register') : t('form.login')}
       </PrimaryButton>
 
       {/* Info / Privacy / Forgot password */}
       {type === 'register' ? (
-        <p className="text-center text-[17px] font-light leading-[100%] mt-2">
+        <p className="text-center text-[clamp(12px,3vw,17px)] font-light leading-[100%]">
           {t('footer.register.text1')}{' '}
           <span className="font-semibold cursor-pointer">{t('footer.register.privacy')}</span>
         </p>
       ) : (
         <p
-          className="text-center text-[17px] font-light leading-[100%] mt-2 underline cursor-pointer"
+          className="text-center text-[clamp(12px,3vw,17px)] font-light leading-[100%] underline cursor-pointer"
           onClick={onForgot}
         >
           {t('footer.login.forgot')}
@@ -33,7 +33,7 @@ export default function ModalFooter({ type = 'register', onSubmit, onSwitch, onF
       )}
 
       {/* Switch Auth */}
-      <p className="text-center text-[17px] font-light leading-[100%] mt-2">
+      <p className="text-center text-[clamp(12px,2vw,17px)] font-light leading-[100%]">
         {type === 'register' ? (
           <>
             {t('footer.register.text2')}{' '}

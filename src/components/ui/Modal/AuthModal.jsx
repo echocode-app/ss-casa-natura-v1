@@ -40,16 +40,18 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
 
   return (
     <ModalLayout isOpen={isOpen} onClose={onClose}>
-      <ModalHeader type={type} onClose={onClose} />
-      <form onSubmit={handleSubmit} className="flex flex-col items-center w-full">
-        <ModalBody type={type} formData={formData} setFormData={setFormData} />
-        <ModalFooter
-          type={type}
-          onSubmit={handleSubmit}
-          onSwitch={handleSwitch}
-          onForgot={handleForgot}
-        />
-      </form>
+      <div className="max-h-[80wv] pb-2 lg:pb-6">
+        <ModalHeader type={type} onClose={onClose} />
+        <form onSubmit={handleSubmit} className="flex flex-col items-center w-full">
+          <ModalBody type={type} formData={formData} setFormData={setFormData} />
+          <ModalFooter
+            type={type}
+            onSubmit={handleSubmit}
+            onSwitch={handleSwitch}
+            onForgot={handleForgot}
+          />
+        </form>
+      </div>
     </ModalLayout>
   );
 }

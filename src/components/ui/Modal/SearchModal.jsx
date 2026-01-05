@@ -20,7 +20,7 @@ function ModalProductCard({ product, onClick }) {
     <Link
       href={`/prodotti/${product.slug}`}
       onClick={onClick}
-      className="flex items-center gap-3 border border-input rounded-input-xl px-3 py-2 bg-white hover:bg-brand-light transition-colors duration-300"
+      className="flex items-center gap-2 md:gap-3 border border-input rounded-input-sm md:rounded-input-xl px-3 py-2 bg-white hover:bg-brand-light transition-colors duration-300"
     >
       <img
         src={product.images?.[0]?.src || DEFAULT_IMAGE}
@@ -81,7 +81,7 @@ export default function SearchModal({ isOpen, onClose }) {
       <div className="flex flex-col h-[380px] md:h-[400px] lg:h-[420px] w-full gap-3 lg:gap-4 transition-all duration-300">
         {/* Search Input */}
         <div className="flex items-center w-full rounded-input-sm md:rounded-input-xl border border-input bg-background-primary p-2 md:px-3 md:py-1 transition-all duration-300 focus-within:ring-1 focus-within:ring-border-input">
-          <button className="p-2 md:mr-1 md:p-3 flex items-center justify-center text-text-gray hover:text-text-primary transition-transform duration-300 md:hover:scale-105">
+          <button className="p-2 md:mr-1 md:p-3 flex items-center justify-center text-text-gray hover:text-text-primary transition-all duration-300 md:hover:scale-105">
             <Icon id="search" className="w-4 h-4 md:w-6 md:h-6" />
           </button>
 
@@ -95,7 +95,7 @@ export default function SearchModal({ isOpen, onClose }) {
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 md:p-4 flex items-center justify-center text-text-gray hover:text-text-primary transition-transform duration-300 md:hover:scale-105"
+              className="p-1 md:p-4 flex items-center justify-center text-text-gray hover:text-text-primary transition-all duration-300 md:hover:scale-105"
             >
               <Icon id="close" className="w-3 h-3 md:w-5 md:h-5" />
             </button>

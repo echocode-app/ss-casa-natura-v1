@@ -47,8 +47,8 @@
       },
       "footer": {
         "register": {
-          "text1": "By registering, you agree to our",
-          "privacy": "Terms of Use and Privacy Policy",
+          "text1": "By registering, you agree to our Terms of Use and",
+          "privacy": "Privacy Policy",
           "text2": "Already have an account?",
           "switch": "Login"
         },
