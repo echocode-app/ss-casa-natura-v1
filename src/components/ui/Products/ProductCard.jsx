@@ -91,6 +91,7 @@ export default function ProductCard({
           fill
           className={`
             object-contain
+            max-h-[300px] m-auto
             transition-transform duration-300 ease-out
             md:group-hover:scale-110
             ${imageLoading ? 'opacity-0' : 'opacity-100'}

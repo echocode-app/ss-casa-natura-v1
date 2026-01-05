@@ -21,101 +21,80 @@ const config: Config = {
 
     extend: {
       fontSize: {
-        'h-xl': [
-          // heading-xl
-          '47px',
-          {
-            lineHeight: 'clamp(32px, 4vw, 46px)',
-            fontWeight: '400',
-          },
-        ],
-        'h-lg': [
-          // heading-lg
-          '40px',
-          {
-            lineHeight: 'clamp(30px, 5vw, 46px)',
-            fontWeight: '400',
-          },
-        ],
-        'h-sm': [
-          // heading-sm
-          '30px',
-          {
-            lineHeight: 'clamp(30px, 5vw, 46px)',
-            fontWeight: '400',
-          },
-        ],
-        'h-default': [
-          // heading
-          '26px',
-          {
-            lineHeight: 'clamp(30px, 5vw, 46px)',
-            fontWeight: '400',
-          },
-        ],
-        'h-accent': [
-          // heading-accent
-          'inherit',
-          {
-            lineHeight: 'clamp(30px, 5vw, 43px)',
-            fontWeight: '600',
-          },
-        ],
+        'h-xl': ['47px', { lineHeight: 'clamp(32px,4vw,46px)', fontWeight: '400' }], // use text-h-xl
+        'h-lg': ['40px', { lineHeight: 'clamp(30px,5vw,46px)', fontWeight: '400' }], // use text-h-lg
+        'h-sm': ['30px', { lineHeight: 'clamp(30px,5vw,46px)', fontWeight: '400' }], // use text-h-sm
+        'h-default': ['26px', { lineHeight: 'clamp(30px,5vw,46px)', fontWeight: '400' }], // text-h-default
+        'h-accent': ['inherit', { lineHeight: 'clamp(30px,5vw,43px)', fontWeight: '600' }], // text-h-accent
       },
 
       fontVariantNumeric: {
-        tabular: 'tabular-nums',
+        tabular: 'tabular-nums', // use font-variant-tabular
       },
 
       boxShadow: {
-        header: '0px 5px 5.2px rgba(0,0,0,0.25)', // тінь хедера - shadow-header
+        header: '0px 5px 5.2px rgba(0,0,0,0.25)', // use shadow-header
+      },
+
+      borderRadius: {
+        'modal-xl': '31px', // use rounded-modal-xl for modal container
+        'modal-sm': '20px', // use rounded-modal-sm for modal container
+        'input-xl': '16px', // use rounded-input-xl for inputs
+        'input-sm': '10px', // use rounded-input-xl for inputs
+      },
+
+      borderWidth: {
+        input: '1px', // use border-input
+      },
+
+      borderColor: {
+        input: 'rgba(162,162,162,1)', // use border-input
       },
 
       colors: {
         brand: {
-          light: '#F9F8D6', // основні світлі бекграунди - bg-brand-light
-          accent: '#FFFC8A', // кнопки, картки товарів - bg-brand-accent
-          muted: '#767676', // рідкісні сірі секції - bg-brand-muted
-          soft: '#EAEAEA', // футер, допоміжні блоки - bg-brand-soft
+          light: '#F9F8D6', // bg-brand-light
+          accent: '#FFFC8A', // bg-brand-accent
+          muted: '#767676', // bg-brand-muted
+          soft: '#EAEAEA', // bg-brand-soft
         },
-
         text: {
-          primary: '#000000', // основний текст - text-text-primary
-          inverse: '#FFFFFF', // текст на темному фоні - text-text-inverse
+          primary: '#000000', // text-text-primary
+          inverse: '#FFFFFF', // text-text-inverse
           gray: '#555555', // text-text-gray
         },
-
         background: {
-          light: '#fdfcfa', // сторінка - bg-background-light
-          primary: '#FFFFFF', // основні світлі бекграунди - bg-background-primary
+          light: '#fdfcfa', // bg-background-light
+          primary: '#FFFFFF', // bg-background-primary
           grizzly: '#F4F4F4', // bg-background-grizzly
+          overlay: 'rgba(0,0,0,0.58)', // bg-background-overlay
         },
       },
 
       fontFamily: {
-        sans: ['Raleway', 'system-ui', 'sans-serif'],
+        sans: ['Raleway', 'system-ui', 'sans-serif'], // font-sans
       },
 
       fontWeight: {
-        regular: '400', // основний текст
-        semibold: '600', // заголовки та акценти
+        regular: '400', // font-regular
+        semibold: '600', // font-semibold
       },
 
       letterSpacing: {
-        normal: '0em',
+        normal: '0em', // tracking-normal
       },
 
       lineHeight: {
-        tight: '0.9',
-        normal: '1',
+        tight: '0.9', // leading-tight
+        normal: '1', // leading-normal
       },
 
       container: {
         center: true,
         padding: {
-          DEFAULT: '16px',
-          md: '24px',
-          lg: '32px',
+          DEFAULT: '16px', // container px-4
+          md: '24px', // container md:px-6
+          lg: '32px', // container lg:px-8
         },
       },
     },

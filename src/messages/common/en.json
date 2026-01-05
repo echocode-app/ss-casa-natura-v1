@@ -20,6 +20,68 @@
       "defaultText": "BLACK FRIDAY: up to -30% 🔥 The lowest price of the year – don't miss it!"
     }
   },
+  "modal": {
+    "auth": {
+      "form": {
+        "nome": "First Name",
+        "cognome": "Last Name",
+        "email": "Email",
+        "password": "Password",
+        "confermaPassword": "Confirm Password",
+        "register": "Register",
+        "login": "Login",
+        "alreadyHaveAccount": "Already have an account? Login",
+        "createAccount": "Don't have an account? Register"
+      },
+      "label": {
+        "register": "Registration",
+        "login": "Login"
+      },
+      "title": {
+        "register": {
+          "part1": "Become",
+          "green": "green",
+          "part2": "with us"
+        },
+        "login": "Welcome!"
+      },
+      "footer": {
+        "register": {
+          "text1": "By registering, you agree to our",
+          "privacy": "Terms of Use and Privacy Policy",
+          "text2": "Already have an account?",
+          "switch": "Login"
+        },
+        "login": {
+          "forgot": "Forgot password?",
+          "text2": "Don't have an account?",
+          "switch": "Register"
+        }
+      }
+    },
+    "search": {
+      "form": {
+        "placeholder": "Search products...",
+        "clear": "Clear",
+        "search": "Search"
+      },
+      "hint": {
+        "minChars": "Enter at least 3 characters"
+      },
+      "topProductsTitle": "Top Selling Products",
+      "empty": {
+        "text": "No products found for your search.",
+        "link": "View all products"
+      },
+      "error": {
+        "text": "There was an error with the product data.",
+        "link": "View all products"
+      },
+      "link": {
+        "allProducts": "View all products"
+      }
+    }
+  },
   "categories": {
     "Detersivi piatti": "Dish detergents",
     "Cura lavastoviglie": "Dishwasher care",

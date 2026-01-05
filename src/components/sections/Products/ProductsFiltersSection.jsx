@@ -38,8 +38,14 @@ export default function ProductsFiltersSection({
   };
 
   return (
-    <aside className="w-full lg:w-[340px] xl:w-[380px] lg:h-[600px] xl:h-[660px] shrink-0">
-      <div className="bg-white rounded-[34px] px-6 py-8 md:px-8 pb-4">
+    <aside className="w-full lg:w-[340px] xl:w-[380px] shrink-0">
+      <div
+        className="
+    bg-white rounded-[34px] px-6 py-8 md:px-8 pb-4
+    lg:sticky lg:top-48
+    lg:max-h-[calc(100vh-140px)] lg:overflow-y-auto
+  "
+      >
         <div className="flex items-center justify-between mb-3 lg:mb-5">
           <h2 className="font-semibold text-[clamp(22px,2vw,28px)] uppercase pl-12 md:pl-7 lg:pl-16">
             {t('title')}

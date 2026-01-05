@@ -17,6 +17,68 @@
       "cart": "Carrello"
     }
   },
+  "modal": {
+    "auth": {
+      "form": {
+        "nome": "Nome",
+        "cognome": "Cognome",
+        "email": "E-mail",
+        "password": "Password",
+        "confermaPassword": "Conferma password",
+        "register": "Registrati",
+        "login": "Accedi",
+        "alreadyHaveAccount": "Hai già un account? Accedi",
+        "createAccount": "Non hai un account? Registrati"
+      },
+      "label": {
+        "register": "Registrazione",
+        "login": "Login"
+      },
+      "title": {
+        "register": {
+          "part1": "Diventa",
+          "green": "green",
+          "part2": "con noi"
+        },
+        "login": "Benvenuto!"
+      },
+      "footer": {
+        "register": {
+          "text1": "Registrandoti, accetti le nostre",
+          "privacy": "Condizioni d’uso e l’informativa sulla privacy",
+          "text2": "Hai già un account?",
+          "switch": "Accedi"
+        },
+        "login": {
+          "forgot": "Dimenticato password?",
+          "text2": "Non hai un account?",
+          "switch": "Registrati"
+        }
+      }
+    },
+    "search": {
+      "form": {
+        "placeholder": "Cerca prodotti...",
+        "clear": "Pulisci",
+        "search": "Cerca"
+      },
+      "hint": {
+        "minChars": "Inserisci almeno 3 caratteri"
+      },
+      "topProductsTitle": "Top vendite",
+      "empty": {
+        "text": "Non sono stati trovati prodotti corrispondenti alla tua ricerca.",
+        "link": "Visualizza tutti i prodotti"
+      },
+      "error": {
+        "text": "Si è verificato un errore con i dati del prodotto.",
+        "link": "Visualizza tutti i prodotti"
+      },
+      "link": {
+        "allProducts": "Vedi tutti i prodotti"
+      }
+    }
+  },
   "categories": {
     "Detersivi piatti": "Detersivi piatti",
     "Cura lavastoviglie": "Cura lavastoviglie",

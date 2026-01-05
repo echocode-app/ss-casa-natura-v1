@@ -4,10 +4,10 @@ import { useState, useEffect, useMemo } from 'react';
 import ProductsFiltersSection from './ProductsFiltersSection';
 import ProductsGridSection from './ProductsGridSection';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
-import { WaveBackground } from '@/components/ui/Parts';
 import { PRODUCT_FILTERS } from '@/config/products/product.filters';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { useTranslations } from 'next-intl';
+import ProductsWaveBackground from '@/components/ui/Parts/ProductsWaveBackground';
 
 interface ProductsSectionProps {
   initialFilterId?: string;
@@ -63,8 +63,10 @@ export default function ProductsSection({
   };
 
   return (
-    <section className="py-16 xl:py-20 relative overflow-x-hidden">
-      <WaveBackground color="#F9F8D6" />
+    <section className="relative py-16 xl:py-20">
+      <div className="absolute inset-x-0 bottom-0 top-[600px] xl:top-[760px] bg-[#F9F8D6] z-0" />
+
+      <ProductsWaveBackground color="#F9F8D6" />
 
       <div className="relative z-10 mx-auto max-w-[1570px] px-2 md:px-8 lg:px-10 xl:px-12">
         <h2 className="heading-default heading-sm lg:heading-lg xl:heading-xl mb-10 lg:mb-16">

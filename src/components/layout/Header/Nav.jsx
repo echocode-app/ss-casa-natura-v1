@@ -44,7 +44,7 @@ export default function Nav({ className = '', onDropdownChange }) {
             onDropdownChange?.(false);
           }}
           className={`
-            relative py-20 px-[clamp(6px,2vw,30px)]
+            relative md:py-12 lg:py-16 xl:py-20 px-[clamp(6px,2vw,30px)]
             transition-all duration-300
             after:absolute after:left-1/2 after:bottom-0 after:w-0 after:h-[6px]
             after:-translate-x-1/2 after:bg-brand-accent after:transition-all
@@ -78,7 +78,7 @@ export default function Nav({ className = '', onDropdownChange }) {
             key={link.href}
             href={link.href}
             className={`
-              relative py-20 px-[clamp(6px,2vw,30px)]
+              relative md:py-12 lg:py-16 xl:py-20 px-[clamp(6px,2vw,30px)]
               transition-all duration-300
               after:absolute after:left-1/2 after:bottom-0 after:w-0 after:h-[6px]
               after:-translate-x-1/2 after:bg-brand-accent after:transition-all

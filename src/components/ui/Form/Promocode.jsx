@@ -25,7 +25,7 @@ export default function Promocode({
   border border-transparent
   bg-white
 
-  text-text-primary text-[clamp(14px,1.5vw,20px)]
+  text-text-primary text-[clamp(14px,3vw,20px)]
   placeholder:text-text-gray
 
   outline-none
