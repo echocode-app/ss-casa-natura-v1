@@ -36,7 +36,7 @@ export default function ContattiForm() {
         p-[40px_30px] md:p-[30px_80px] lg:p-[26px_200px] lg:pt-[50px] 
         flex flex-col gap-4 lg:gap-6"
       >
-        <h2 className="text-[clamp(22px,3vw,42px)] text-h-accent mb-2 text-center">
+        <h2 className="text-[clamp(22px,3vw,42px)] font-semibold mb-2 text-center">
           {t('formTitle')}
         </h2>
         <p className="text-[clamp(18px,2vw,24px)] mb-4 lg:mb-8 text-center">{t('formSubtitle')}</p>
