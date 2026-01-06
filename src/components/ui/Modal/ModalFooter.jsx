@@ -2,6 +2,7 @@
 
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function ModalFooter({ type = 'register', onSubmit, onSwitch, onForgot }) {
   const t = useTranslations('modal.auth');
@@ -12,18 +13,26 @@ export default function ModalFooter({ type = 'register', onSubmit, onSwitch, onF
       <PrimaryButton
         type="submit"
         onClick={onSubmit}
-        className="w-full lg:max-w-[220px] py-3 lg:py-4"
+        className="min-w-[140px] lg:min-w-[220px] px-6 py-3 lg:py-4"
       >
-        {type === 'register' ? t('form.register') : t('form.login')}
+        {type === 'register'
+          ? t('form.register')
+          : type === 'login'
+            ? t('form.login')
+            : t('form.forgot')}
       </PrimaryButton>
 
       {/* Info / Privacy / Forgot password */}
-      {type === 'register' ? (
+      {type === 'register' && (
         <p className="text-center text-[clamp(12px,3vw,17px)] font-light leading-[100%]">
           {t('footer.register.text1')}{' '}
-          <span className="font-semibold cursor-pointer">{t('footer.register.privacy')}</span>
+          <Link href="/privacy-policy" className="font-semibold underline" target="_blank">
+            {t('footer.register.privacy')}
+          </Link>
         </p>
-      ) : (
+      )}
+
+      {type === 'login' && (
         <p
           className="text-center text-[clamp(12px,3vw,17px)] font-light leading-[100%] underline cursor-pointer"
           onClick={onForgot}

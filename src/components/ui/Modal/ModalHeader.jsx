@@ -24,10 +24,12 @@ export default function ModalHeader({ type = 'register', onClose }) {
       </button>
 
       <div
-        className="flex flex-col md:flex-row
-      justify-evenly 
-      items-center 
-      gap-2 md:gap-4"
+        className={`flex flex-col md:flex-row
+      justify-between 
+      items-center
+      gap-2 md:gap-6 xl:gap-10 mb-6
+      ${type === 'login' ? 'gap-4 md:gap-14 xl:gap-16' : 'gap-2 md:gap-6 xl:gap-8'}
+      `}
       >
         <div
           className="
@@ -36,10 +38,15 @@ export default function ModalHeader({ type = 'register', onClose }) {
         lg:w-[220px] lg:h-[220px] 
         overflow-hidden"
         >
-          <GreenPlanet width={220} height={220} />
+          <GreenPlanet />
         </div>
-
-        <div className="p-2 mb-auto">
+        <div
+          className={`
+        pt-4
+        ${type === 'login' ? 'md:ml-2 md:pt-6' : ''}
+        ${type === 'forgot' ? 'md:h-full md:flex md:flex-col md:justify-center' : 'mb-auto'}
+  `}
+        >
           {/* Small label */}
           <p className="text-center text-lg md:text-h-default font-normal mb-2">
             {t(`label.${type}`)}
@@ -64,8 +71,8 @@ export default function ModalHeader({ type = 'register', onClose }) {
             <h2
               className="
             text-h-default lg:text-h-lg xl:text-h-xl
-            text-center  
-            font-light"
+            text-center font-light
+            "
             >
               {t('title.login')}
             </h2>

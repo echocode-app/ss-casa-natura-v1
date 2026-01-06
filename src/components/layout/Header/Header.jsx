@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useAuth } from '@/components/layout/AuthContext';
+
 import Logo from './Logo';
 import Nav from './Nav';
 import HeaderIcons from './HeaderIcons';
@@ -10,7 +12,10 @@ import { Menu, Search } from '@/components/ui/Buttons';
 import SearchModal from '@/components/ui/Modal/SearchModal';
 import AuthModal from '@/components/ui/Modal/AuthModal';
 
-export default function Header({ isUserLoggedIn = false }) {
+export default function Header() {
+  const { isAuthenticated } = useAuth();
+  const t = useTranslations('header.actions');
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -22,12 +27,10 @@ export default function Header({ isUserLoggedIn = false }) {
   const headerRef = useRef(null);
   const lastScroll = useRef(0);
   const scrollTimeout = useRef(null);
-  const t = useTranslations('header.actions');
 
   const forcedVisible = menuOpen || searchOpen || authOpen;
 
   /* ================= Mobile menu scroll lock ================= */
-
   useEffect(() => {
     if (!menuOpen) return;
     const scrollY = window.scrollY;
@@ -43,7 +46,6 @@ export default function Header({ isUserLoggedIn = false }) {
   }, [menuOpen]);
 
   /* ================= Dropdown scroll lock ================= */
-
   useEffect(() => {
     if (!dropdownOpen) return;
     const preventScroll = (e) => e.preventDefault();
@@ -56,7 +58,6 @@ export default function Header({ isUserLoggedIn = false }) {
   }, [dropdownOpen]);
 
   /* ================= Header hide / show ================= */
-
   useEffect(() => {
     if (window.innerWidth < 768) return;
     let ticking = false;
@@ -91,6 +92,7 @@ export default function Header({ isUserLoggedIn = false }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, [forcedVisible]);
 
+  /* ================= Header height ================= */
   useEffect(() => {
     if (!headerRef.current) return;
     setHeaderHeight(headerRef.current.offsetHeight);
@@ -99,15 +101,25 @@ export default function Header({ isUserLoggedIn = false }) {
     return () => window.removeEventListener('resize', onResize);
   }, [menuOpen]);
 
+  /* ================= User icon click ================= */
+  const handleUserClick = () => {
+    if (!isAuthenticated) {
+      setAuthOpen(true);
+    } else {
+      window.location.href = '/account';
+    }
+  };
+
   return (
     <>
       {fixed && <div style={{ height: headerHeight }} />}
+
       <header
         ref={headerRef}
         className={`
           bg-brand-light
           shadow-header
-          ${fixed ? 'fixed top-0 left-0 right-0 z-30' : 'relative'}
+          ${fixed ? 'fixed top-0 left-0 right-0 z-40' : 'relative'}
           transition-transform duration-300 ease-in-out
           ${forcedVisible || visible ? 'translate-y-0' : '-translate-y-full'}
         `}
@@ -115,7 +127,6 @@ export default function Header({ isUserLoggedIn = false }) {
         <div className="mx-auto max-w-[1570px] px-6 md:pl-16 xl:pl-24 md:pr-10">
           {/* Mobile */}
           <div className="md:hidden grid grid-cols-[auto_1fr_auto] items-center relative">
-            {/* Left: Menu + Search */}
             <div className="flex items-center gap-1">
               <button onClick={() => setMenuOpen(true)} aria-label={t('openMenu')} className="p-1">
                 <Menu className="w-6 h-6" />
@@ -125,14 +136,12 @@ export default function Header({ isUserLoggedIn = false }) {
               </button>
             </div>
 
-            {/* Center: Logo */}
             <div className="flex justify-center">
               <Logo />
             </div>
 
-            {/* Right: HeaderIcons */}
             <div className="flex items-center justify-end gap-3">
-              <HeaderIcons isMobile onUserClick={() => !isUserLoggedIn && setAuthOpen(true)} />
+              <HeaderIcons isMobile onUserClick={handleUserClick} />
             </div>
           </div>
 
@@ -143,7 +152,7 @@ export default function Header({ isUserLoggedIn = false }) {
               <Nav onDropdownChange={setDropdownOpen} />
               <HeaderIcons
                 onSearchClick={() => setSearchOpen(true)}
-                onUserClick={() => !isUserLoggedIn && setAuthOpen(true)}
+                onUserClick={handleUserClick}
               />
             </div>
           </div>

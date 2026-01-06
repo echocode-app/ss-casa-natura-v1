@@ -17,9 +17,18 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
     confermaPassword: '',
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    ('Submitted', formData);
+
+    if (type === 'forgot') {
+      // API
+      ('Send reset email to:', formData.email); // console.log
+      alert('Check your email for reset link');
+      onClose?.();
+      return;
+    }
+
+    ('Submitted', formData); // console.log
   };
 
   const handleSwitch = (newType) => {
@@ -34,14 +43,21 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
   };
 
   const handleForgot = () => {
-    ('Forgot password clicked');
-    // TODO
+    setType('forgot');
+    setFormData({
+      nome: '',
+      cognome: '',
+      email: '',
+      password: '',
+      confermaPassword: '',
+    });
   };
 
   return (
     <ModalLayout isOpen={isOpen} onClose={onClose}>
-      <div className="max-h-[80wv] pb-2 lg:pb-6">
+      <div className="max-h-[85vh] pb-2 lg:pb-6">
         <ModalHeader type={type} onClose={onClose} />
+
         <form onSubmit={handleSubmit} className="flex flex-col items-center w-full">
           <ModalBody type={type} formData={formData} setFormData={setFormData} />
           <ModalFooter

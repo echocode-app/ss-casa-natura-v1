@@ -1,7 +1,9 @@
 import '@/app/globals.css';
+import Script from 'next/script';
 import type { Metadata, Viewport } from 'next';
 import { Raleway } from 'next/font/google';
 import ClientLoader from '@/components/layout/ClientLoader';
+import { AuthProvider } from '@/components/layout/AuthContext';
 
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
@@ -29,8 +31,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale}>
       <body className={raleway.className}>
+        {process.env.NEXT_PUBLIC_IUBENDA_ENABLED === 'true' && (
+          <Script
+            src="https://cdn.iubenda.com/cs/iubenda_cs.js"
+            strategy="beforeInteractive"
+            data-site-id="__IUBENDA_SITE_ID__"
+            data-cookie-policy-id="__IUBENDA_POLICY_ID__"
+          />
+        )}
+
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <ClientLoader>{children}</ClientLoader>
+          <AuthProvider>
+            <ClientLoader>{children}</ClientLoader>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

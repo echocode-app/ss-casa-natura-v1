@@ -68,27 +68,26 @@ export default function ProductCard({
       {/* Image */}
       <div
         className="
-          relative
-          flex items-center justify-center
+          relative flex items-center justify-center
           rounded-[16px]
           overflow-hidden
-          w-full
+          w-full m-auto
           aspect-[3/4]      /* mobile default */
           md:aspect-square  /* tablet */
-          lg:aspect-[3/4]   /* desktop */
-          xl:w-[230px] xl:h-[300px] xl:aspect-auto /* fix container size on xl */
+          lg:aspect-[3/4] lg:max-w-[230px] lg:max-h-[300px]  /* desktop */
+          xl:w-[230px] xl:h-[300px]  /* fix XL */
         "
       >
-        {imageLoading && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Spinner size="sm" colorScheme="muted" />
-          </div>
-        )}
-
         <Image
           src={imageSrc}
           alt={title}
           fill
+          sizes="
+            (max-width: 500px) 100vw,
+            (max-width: 1024px) 50vw,
+            (max-width: 1280px) 33vw,
+            230px
+          "
           className={`
             object-contain
             max-h-[300px] m-auto

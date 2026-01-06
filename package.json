@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev:clean": "rm -rf .next && next dev",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

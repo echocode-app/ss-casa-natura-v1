@@ -31,11 +31,14 @@
         "register": "Register",
         "login": "Login",
         "alreadyHaveAccount": "Already have an account? Login",
-        "createAccount": "Don't have an account? Register"
+        "createAccount": "Don't have an account? Register",
+        "sendReset": "Send reset email",
+        "forgot": "Reset"
       },
       "label": {
         "register": "Registration",
-        "login": "Login"
+        "login": "Login",
+        "forgot": "Forgot password"
       },
       "title": {
         "register": {
@@ -50,7 +53,8 @@
           "text1": "By registering, you agree to our Terms of Use and",
           "privacy": "Privacy Policy",
           "text2": "Already have an account?",
-          "switch": "Login"
+          "switch": "Login",
+          "forgot": "Forgot password?"
         },
         "login": {
           "forgot": "Forgot password?",

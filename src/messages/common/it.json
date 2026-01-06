@@ -28,11 +28,14 @@
         "register": "Registrati",
         "login": "Accedi",
         "alreadyHaveAccount": "Hai già un account? Accedi",
-        "createAccount": "Non hai un account? Registrati"
+        "createAccount": "Non hai un account? Registrati",
+        "sendReset": "Invia email di reset",
+        "forgot": "Recupera"
       },
       "label": {
         "register": "Registrazione",
-        "login": "Login"
+        "login": "Login",
+        "forgot": "Recupero password"
       },
       "title": {
         "register": {
@@ -47,7 +50,8 @@
           "text1": "Registrandoti, accetti le nostre Condizioni d’uso e l’informativa sulla",
           "privacy": "privacy",
           "text2": "Hai già un account?",
-          "switch": "Accedi"
+          "switch": "Accedi",
+          "forgot": "Hai dimenticato la password?"
         },
         "login": {
           "forgot": "Dimenticato password?",

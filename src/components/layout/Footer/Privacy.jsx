@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function Privacy() {
   const t = useTranslations('footer');
@@ -6,9 +7,9 @@ export default function Privacy() {
   return (
     <p className="text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] text-white break-words tabular">
       {t('copyright')} /{' '}
-      <a href="#" className="hover:underline">
+      <Link href="/privacy-policy" className="hover:underline">
         {t('privacyLink')}
-      </a>
+      </Link>
     </p>
   );
 }

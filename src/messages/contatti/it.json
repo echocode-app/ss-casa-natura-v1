@@ -1,3 +1,11 @@
 {
-  "key": "value"
+  "bannerTitle": "Contatti",
+  "formTitle": "Hai bisogno di aiuto?",
+  "formSubtitle": "Scrivici, i nostri manager ti contatteranno a breve.",
+  "nome": "Nome",
+  "cognome": "Cognome",
+  "email": "E-mail",
+  "telefono": "Telefono",
+  "messaggio": "Messaggio",
+  "submitButton": "Invia"
 }
