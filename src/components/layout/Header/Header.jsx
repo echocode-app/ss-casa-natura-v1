@@ -11,6 +11,8 @@ import MobileMenu from './MobileMenu';
 import { Menu, Search } from '@/components/ui/Buttons';
 import SearchModal from '@/components/ui/Modal/SearchModal';
 import AuthModal from '@/components/ui/Modal/AuthModal';
+import { CartDropdown } from '@/components/ui/Сart';
+import { CART_MOCK } from '@/config/products/cart.mock';
 
 export default function Header() {
   const { isAuthenticated } = useAuth();
@@ -18,6 +20,7 @@ export default function Header() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -28,9 +31,8 @@ export default function Header() {
   const lastScroll = useRef(0);
   const scrollTimeout = useRef(null);
 
-  const forcedVisible = menuOpen || searchOpen || authOpen;
+  const forcedVisible = menuOpen || searchOpen || authOpen || cartOpen;
 
-  /* ================= Mobile menu scroll lock ================= */
   useEffect(() => {
     if (!menuOpen) return;
     const scrollY = window.scrollY;
@@ -45,7 +47,20 @@ export default function Header() {
     };
   }, [menuOpen]);
 
-  /* ================= Dropdown scroll lock ================= */
+  useEffect(() => {
+    if (!cartOpen) return;
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, scrollY);
+    };
+  }, [cartOpen]);
+
   useEffect(() => {
     if (!dropdownOpen) return;
     const preventScroll = (e) => e.preventDefault();
@@ -57,7 +72,12 @@ export default function Header() {
     };
   }, [dropdownOpen]);
 
-  /* ================= Header hide / show ================= */
+  useEffect(() => {
+    if (searchOpen || authOpen || dropdownOpen || menuOpen) {
+      setCartOpen(false);
+    }
+  }, [searchOpen, authOpen]);
+
   useEffect(() => {
     if (window.innerWidth < 768) return;
     let ticking = false;
@@ -92,7 +112,6 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [forcedVisible]);
 
-  /* ================= Header height ================= */
   useEffect(() => {
     if (!headerRef.current) return;
     setHeaderHeight(headerRef.current.offsetHeight);
@@ -101,7 +120,6 @@ export default function Header() {
     return () => window.removeEventListener('resize', onResize);
   }, [menuOpen]);
 
-  /* ================= User icon click ================= */
   const handleUserClick = () => {
     if (!isAuthenticated) {
       setAuthOpen(true);
@@ -141,7 +159,11 @@ export default function Header() {
             </div>
 
             <div className="flex items-center justify-end gap-3">
-              <HeaderIcons isMobile onUserClick={handleUserClick} />
+              <HeaderIcons
+                isMobile
+                onUserClick={handleUserClick}
+                onCartClick={() => setCartOpen(true)}
+              />
             </div>
           </div>
 
@@ -153,6 +175,7 @@ export default function Header() {
               <HeaderIcons
                 onSearchClick={() => setSearchOpen(true)}
                 onUserClick={handleUserClick}
+                onCartClick={() => setCartOpen(true)}
               />
             </div>
           </div>
@@ -162,6 +185,14 @@ export default function Header() {
       {menuOpen && <MobileMenu isOpen={menuOpen} closeMenu={() => setMenuOpen(false)} />}
       {searchOpen && <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />}
       {authOpen && <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />}
+      {cartOpen && (
+        <CartDropdown
+          parentRef={headerRef}
+          isOpen={cartOpen}
+          items={CART_MOCK}
+          onClose={() => setCartOpen(false)}
+        />
+      )}
     </>
   );
 }

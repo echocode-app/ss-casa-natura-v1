@@ -1,3 +1,7 @@
 {
-  "key": "value"
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "proceed": "Proceed"
+  }
 }

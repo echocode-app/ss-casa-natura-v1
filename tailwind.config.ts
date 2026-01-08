@@ -63,12 +63,16 @@ const config: Config = {
           primary: '#000000', // text-text-primary
           inverse: '#FFFFFF', // text-text-inverse
           gray: '#555555', // text-text-gray
+          soft: '#535353', // text-text-soft
         },
         background: {
           light: '#fdfcfa', // bg-background-light
           primary: '#FFFFFF', // bg-background-primary
           grizzly: '#F4F4F4', // bg-background-grizzly
+          secondary: '#FAFAFA', // bg-background-secondary
           overlay: 'rgba(0,0,0,0.58)', // bg-background-overlay
+          gray: '#595959', // bg-background-gray
+
         },
       },
 

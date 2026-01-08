@@ -6,6 +6,7 @@ export default function HeaderIcons({
   className = '',
   isMobile = false,
   onSearchClick,
+  onCartClick,
   onUserClick,
 }) {
   const size = isMobile ? 'w-6 h-6' : 'w-5 h-5 md:w-6 md:h-6';
@@ -27,7 +28,7 @@ export default function HeaderIcons({
         <User className={icon} />
       </button>
 
-      <button type="button" aria-label="Cart" className={btn}>
+      <button type="button" aria-label="Cart" onClick={onCartClick} className={btn}>
         <Cart className={icon} />
       </button>
     </div>
