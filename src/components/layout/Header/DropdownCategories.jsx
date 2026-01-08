@@ -36,20 +36,15 @@ export default function DropdownCategories({ parentRef, isOpen, onClose }) {
   return createPortal(
     <div
       ref={containerRef}
-      className="fixed z-[9999] lg:flex justify-center transition-opacity duration-300"
+      className={`fixed z-[9999] lg:flex justify-center transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
       style={{
         top: coords.top,
         left: 0,
         width: '100%',
-        pointerEvents: isOpen ? 'auto' : 'none',
-        opacity: isOpen ? 1 : 0,
       }}
       onMouseLeave={onClose}
     >
-      <div
-        className="bg-[#FFFEEB] lg:p-4 lg:gap-4 xl:p-6 xl:gap-6 flex flex-wrap justify-center max-w-[max(900px,80vw)]"
-        style={{ boxShadow: 'inset 0 5px 5.2px -3px rgba(0,0,0,0.25)' }}
-      >
+      <div className="bg-[#FFFEEB] lg:p-4 lg:gap-4 xl:p-6 xl:gap-6 flex flex-wrap justify-center max-w-[max(900px,80vw)] shadow-[inset_0_5px_5.2px_-3px_rgba(0,0,0,0.25)]">
         {PRODUCT_CATEGORIES.map((category) => {
           const label = t.has(category.title) ? t(category.title) : category.title;
 

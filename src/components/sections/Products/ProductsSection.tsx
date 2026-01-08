@@ -3,8 +3,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import ProductsFiltersSection from './ProductsFiltersSection';
 import ProductsGridSection from './ProductsGridSection';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import { fetchProducts } from '@/lib/utils/fetchProducts';
 import { PRODUCT_FILTERS } from '@/config/products/product.filters';
+import { Product } from '@/config/products/product.types';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { useTranslations } from 'next-intl';
 import ProductsWaveBackground from '@/components/ui/Parts/ProductsWaveBackground';
@@ -24,7 +25,24 @@ export default function ProductsSection({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [appliedCategories, setAppliedCategories] = useState<string[]>([]);
 
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const t = useTranslations('prodotti.list');
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts(true); // Start with mock
+        setProducts(data);
+      } catch (error) {
+        // Handle error silently
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
 
   useEffect(() => {
     if (initialCategoryIds.length) {
@@ -46,12 +64,12 @@ export default function ProductsSection({
   }, [initialFilterId, initialCategoryIds]);
 
   const filteredProducts = useMemo(() => {
-    if (!appliedCategories.length) return PRODUCTS_MOCK;
+    if (!appliedCategories.length) return products;
 
-    return PRODUCTS_MOCK.filter((product) =>
-      product.categoryIds?.some((catId) => appliedCategories.includes(catId)),
+    return products.filter((product) =>
+      product.categoryIds?.some((catId: string) => appliedCategories.includes(catId)),
     );
-  }, [appliedCategories]);
+  }, [appliedCategories, products]);
 
   const applyFilters = () => {
     setIsFiltering(true);
@@ -73,25 +91,31 @@ export default function ProductsSection({
           {t('title')}
         </h2>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          <ProductsFiltersSection
-            activeFilter={selectedCategories}
-            setActiveFilter={setSelectedCategories}
-            _isOpen={isFilterOpen}
-            onToggle={setIsFilterOpen}
-            onApply={applyFilters}
-          />
-
-          <div className="relative flex-1">
-            {isFiltering && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm">
-                <Spinner size="lg" />
-              </div>
-            )}
-
-            <ProductsGridSection products={filteredProducts} />
+        {loading ? (
+          <div className="flex justify-center">
+            <Spinner size="lg" />
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-col lg:flex-row gap-8">
+            <ProductsFiltersSection
+              activeFilter={selectedCategories}
+              setActiveFilter={setSelectedCategories}
+              _isOpen={isFilterOpen}
+              onToggle={setIsFilterOpen}
+              onApply={applyFilters}
+            />
+
+            <div className="relative flex-1">
+              {isFiltering && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+                  <Spinner size="lg" />
+                </div>
+              )}
+
+              <ProductsGridSection products={filteredProducts} />
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

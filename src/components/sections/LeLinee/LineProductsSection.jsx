@@ -1,13 +1,27 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import ProductCard from '@/components/ui/Products/ProductCard';
 import WaveBackground from '@/components/ui/Parts/WaveBackground';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import { fetchProducts } from '@/lib/utils/fetchProducts';
+// import { Product } from '@/config/products/product.types';
 import { useTranslations } from 'next-intl';
 
 export default function LineProductsSection({ lineSlug, bgColor }) {
+  const [products, setProducts] = useState([]);
   const t = useTranslations('linee');
-  const products = PRODUCTS_MOCK.filter((product) => product.lineId === lineSlug);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts(true);
+        setProducts(data.filter((product) => product.lineId === lineSlug));
+      } catch (error) {
+        ('Failed to load products:', error);
+      }
+    };
+    loadProducts();
+  }, [lineSlug]);
 
   if (!products.length) return null;
 

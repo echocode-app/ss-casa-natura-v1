@@ -1,26 +1,49 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ProductBreadcrumbs, RelatedProductsSection } from '@/components/sections/Products/Product';
 import ProductMain from '@/components/sections/Products/Product/ProductMain';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import { fetchProduct, fetchProducts } from '@/lib/utils/fetchProducts';
+import { Product } from '@/config/products/product.types';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 export default function ProductPageClient() {
   const params = useParams();
-  const slug = params.slug;
+  const slug = params.slug as string;
   const t = useTranslations('prodotti');
 
-  if (!slug) return <div>{t('notFound')}</div>;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const product = PRODUCTS_MOCK.find((p) => p.slug === slug);
+  useEffect(() => {
+    const loadProduct = async () => {
+      if (!slug) return;
 
-  if (!product) return <div>{t('notFound')}</div>;
+      try {
+        const prod = await fetchProduct(slug, true);
+        if (!prod) return;
 
-  const categoryId = product.categoryIds[0];
-  const relatedProducts = PRODUCTS_MOCK.filter(
-    (p) => p.categoryIds.includes(categoryId) && p.id !== product.id,
-  );
+        setProduct(prod);
+
+        const allProducts = await fetchProducts(true);
+        const categoryId = prod.categoryIds[0];
+        const related = allProducts.filter(
+          (p) => p.categoryIds.includes(categoryId) && p.id !== prod.id,
+        );
+        setRelatedProducts(related);
+      } catch (_error) {
+        // Handle error silently or show user message
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProduct();
+  }, [slug]);
+
+  if (loading) return <div>Loading...</div>;
+  if (!slug || !product) return <div>{t('notFound')}</div>;
 
   return (
     <>

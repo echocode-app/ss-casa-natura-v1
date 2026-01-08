@@ -1,0 +1,57 @@
+
+> ss-casa-natura-v1@0.1.0 lint
+> eslint src --ext .js,.jsx,.ts,.tsx
+
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/app/(public)/prodotti/[slug]/page.tsx
+  36:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/app/api/admin/products/[id]/route.ts
+  10:57  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/app/api/admin/promocodes/[id]/route.ts
+  10:57  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/app/api/admin/users/[id]/route.ts
+  10:57  warning  'params' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/app/api/contact/route.ts
+  6:9  warning  'body' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/app/api/orders/webhook/route.ts
+  6:9  warning  'body' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/app/api/users/me/password/route.ts
+  6:9  warning  'body' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/components/sections/Contatti/ContattiForm.tsx
+    3:17  warning  'useState' is defined but never used                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   56:10  error    Replace `⏎····data,⏎····errors,⏎····isSubmitting,⏎····handleSubmit,⏎····getFieldProps,⏎····resetForm,⏎·` with `·data,·errors,·isSubmitting,·handleSubmit,·getFieldProps,·resetForm`                                   prettier/prettier
+   57:5   warning  'data' is assigned a value but only used as a type                                                                                                                                                                    @typescript-eslint/no-unused-vars
+   58:5   warning  'errors' is assigned a value but never used                                                                                                                                                                           @typescript-eslint/no-unused-vars
+   71:11  error    Insert `,`                                                                                                                                                                                                            prettier/prettier
+   97:20  warning  'e' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                   @typescript-eslint/no-unused-vars
+  108:19  error    Replace `⏎··········label={t('nome')}⏎··········{...getFieldProps('nome')}⏎··········required⏎·······` with `·label={t('nome')}·{...getFieldProps('nome')}·required`                                                  prettier/prettier
+  114:19  error    Replace `⏎··········label={t('cognome')}⏎··········{...getFieldProps('cognome')}⏎··········required⏎·······` with `·label={t('cognome')}·{...getFieldProps('cognome')}·required`                                      prettier/prettier
+  120:19  error    Replace `⏎··········label={t('email')}⏎··········type="email"⏎··········{...getFieldProps('email')}⏎··········required⏎·······` with `·label={t('email')}·type="email"·{...getFieldProps('email')}·required`          prettier/prettier
+  127:19  error    Replace `⏎··········label={t('telefono')}⏎··········type="tel"⏎··········{...getFieldProps('telefono')}⏎··········required⏎·······` with `·label={t('telefono')}·type="tel"·{...getFieldProps('telefono')}·required`  prettier/prettier
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/components/sections/Products/ProductsSection.tsx
+  38:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/components/sections/Promocode/PromocodeForm.tsx
+  24:10  error    Replace `⏎····data,⏎····errors,⏎····isSubmitting,⏎····handleSubmit,⏎····getFieldProps,⏎····resetForm,⏎··}·=·useFormValidation({·email:·''·},·fields` with `·data,·errors,·isSubmitting,·handleSubmit,·getFieldProps,·resetForm·}·=·useFormValidation(⏎····{·email:·''·},⏎····fields,⏎··`  prettier/prettier
+  35:27  warning  'formData' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  62:18  warning  'e' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/components/ui/Modal/AuthModal.tsx
+   98:11  error    Insert `,`                                                           prettier/prettier
+  126:13  warning  'result' is assigned a value but never used                          @typescript-eslint/no-unused-vars
+  151:22  warning  'e' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/Users/annakotlyar/Desktop/projects/ss-casa-natura-v1/src/components/ui/Modal/ModalBody.tsx
+  9:3  warning  'errors' is assigned a value but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+✖ 25 problems (8 errors, 17 warnings)
+  8 errors and 0 warnings potentially fixable with the `--fix` option.
+
