@@ -10,7 +10,7 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
     <div
       className="
         grid grid-cols-[80px_1fr_auto]
-        px-2 py-1 md:py-2 md:px-3 lg:px-5
+        px-2 py-1 md:px-3 lg:px-4
         bg-background-secondary
         rounded-input-xl
       "
@@ -46,7 +46,7 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col items-end justify-between">
+      <div className="flex flex-col items-end justify-between pt-2 pl-3 md:pt-3 md:pl-6">
         <button
           onClick={onRemove}
           className="bg-background-primary rounded-input-sm items-center p-2 lg:p-3"
@@ -54,7 +54,7 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
           <Delite />
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pl-3 pb-2 md:pl-6">
           <button
             onClick={onDecrease}
             className="bg-background-primary text-text-soft rounded-input-sm justify-center items-center p-2 lg:px-3"

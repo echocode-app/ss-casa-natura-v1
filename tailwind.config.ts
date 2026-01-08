@@ -42,6 +42,7 @@ const config: Config = {
         'input-xxl': '49px', // use rounded-input-xxl for inputs
         'input-xl': '16px', // use rounded-input-xl for inputs
         'input-sm': '10px', // use rounded-input-sm for inputs
+        'button-sm': '8px', // use rounded-button-sm for inputs
       },
 
       borderWidth: {
@@ -61,6 +62,7 @@ const config: Config = {
         },
         text: {
           primary: '#000000', // text-text-primary
+          extrablack: '#151515', // text-text-extrablack
           inverse: '#FFFFFF', // text-text-inverse
           gray: '#555555', // text-text-gray
           soft: '#535353', // text-text-soft
@@ -72,7 +74,7 @@ const config: Config = {
           secondary: '#FAFAFA', // bg-background-secondary
           overlay: 'rgba(0,0,0,0.58)', // bg-background-overlay
           gray: '#595959', // bg-background-gray
-
+          green: '#D4FFAD', // bg-background-green
         },
       },
 

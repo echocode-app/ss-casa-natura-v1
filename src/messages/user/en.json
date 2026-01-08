@@ -1,7 +1,22 @@
 {
   "cart": {
     "title": "Cart",
-    "empty": "Your cart is empty",
-    "proceed": "Proceed"
+    "cart": {
+      "empty": {
+        "text": "Your cart is empty. Take a look at our",
+        "link": "products"
+      }
+    },
+    "proceed": "Proceed",
+    "items": "items",
+    "shipping": "Shipping",
+    "calculated": "Calculated at next step",
+    "discount": "Discount code",
+    "discountSuccess": "Discount code applied successfully",
+    "discountError": "Invalid code, please try again",
+    "apply": "Apply",
+    "total": "TOTAL",
+    "taxIncluded": "incl. VAT",
+    "discountApplied": "Discount code applied"
   }
 }

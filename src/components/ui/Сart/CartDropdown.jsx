@@ -84,7 +84,7 @@ export default function CartDropdown({ parentRef, isOpen, onClose, items: initia
           bg-white
           flex flex-col
           max-h-[80vh]
-          overflow-hidden
+          overflow-y-auto
         "
         style={{
           boxShadow:
@@ -92,7 +92,7 @@ export default function CartDropdown({ parentRef, isOpen, onClose, items: initia
           width: dropdownWidth,
         }}
       >
-        <div className="flex-1 overflow-y-auto py-3 px-1 md:py-5 flex flex-col gap-2 md:gap-5">
+        <div className="overflow-y-auto max-h-[50wv] flex-1 py-3 px-1 md:py-4 flex flex-col gap-2 md:gap-4">
           {items.length === 0 ? (
             <CartEmpty />
           ) : (
@@ -107,6 +107,7 @@ export default function CartDropdown({ parentRef, isOpen, onClose, items: initia
             ))
           )}
         </div>
+
         {items.length > 0 && <CartFooter items={items} />}
       </div>
     </div>,

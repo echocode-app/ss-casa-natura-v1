@@ -1,7 +1,20 @@
 {
   "cart": {
     "title": "Carrello",
-    "empty": "Il carrello è vuoto",
-    "proceed": "Procedi"
+    "empty": {
+      "text": "Il carrello è vuoto. Dai un’occhiata ai nostri",
+      "link": "prodotti"
+    },
+    "proceed": "Procedi",
+    "items": "articoli",
+    "shipping": "Spedizione",
+    "calculated": "Calcolato al passaggio successivo",
+    "discount": "Codice sconto",
+    "discountSuccess": "Codice sconto applicato con successo",
+    "discountError": "Codice non valido, riprova",
+    "apply": "Applica",
+    "total": "TOTALE",
+    "taxIncluded": "IVA incl.",
+    "discountApplied": "Codice sconto applicato"
   }
 }
