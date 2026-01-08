@@ -41,9 +41,9 @@ export default function CartFooter({ items = [] }) {
       </div>
 
       {/* shipping */}
-      <div className="flex justify-between mt-2 lg:mt-4 px-2 md:px-6 xl:px-10 text-text-muted">
+      <div className="flex justify-between gap-2 mt-2 lg:mt-4 px-2 md:px-6 xl:px-10 text-text-muted">
         <span>{t('shipping')}</span>
-        <span className="font-semibold">{t('calculated')}</span>
+        <span className="font-semibold text-right">{t('calculated')}</span>
       </div>
 
       {/* discount */}

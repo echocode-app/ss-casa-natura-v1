@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/components/layout/AuthContext';
-
 import Logo from './Logo';
 import Nav from './Nav';
 import HeaderIcons from './HeaderIcons';
@@ -11,7 +10,7 @@ import MobileMenu from './MobileMenu';
 import { Menu, Search } from '@/components/ui/Buttons';
 import SearchModal from '@/components/ui/Modal/SearchModal';
 import AuthModal from '@/components/ui/Modal/AuthModal';
-import { CartDropdown } from '@/components/ui/Сart';
+import CartDropdown from '@/components/ui/Сart/CartDropdown';
 import { CART_MOCK } from '@/config/products/cart.mock';
 
 export default function Header() {
@@ -62,21 +61,10 @@ export default function Header() {
   }, [cartOpen]);
 
   useEffect(() => {
-    if (!dropdownOpen) return;
-    const preventScroll = (e) => e.preventDefault();
-    window.addEventListener('wheel', preventScroll, { passive: false });
-    window.addEventListener('touchmove', preventScroll, { passive: false });
-    return () => {
-      window.removeEventListener('wheel', preventScroll);
-      window.removeEventListener('touchmove', preventScroll);
-    };
-  }, [dropdownOpen]);
-
-  useEffect(() => {
     if (searchOpen || authOpen || dropdownOpen || menuOpen) {
       setCartOpen(false);
     }
-  }, [searchOpen, authOpen]);
+  }, [searchOpen, authOpen, menuOpen, dropdownOpen]);
 
   useEffect(() => {
     if (window.innerWidth < 768) return;
@@ -143,7 +131,6 @@ export default function Header() {
         `}
       >
         <div className="mx-auto max-w-[1570px] px-6 md:pl-16 xl:pl-24 md:pr-10">
-          {/* Mobile */}
           <div className="md:hidden grid grid-cols-[auto_1fr_auto] items-center relative">
             <div className="flex items-center gap-1">
               <button onClick={() => setMenuOpen(true)} aria-label={t('openMenu')} className="p-1">
@@ -153,11 +140,9 @@ export default function Header() {
                 <Search className="w-6 h-6" />
               </button>
             </div>
-
             <div className="flex justify-center">
               <Logo />
             </div>
-
             <div className="flex items-center justify-end gap-3">
               <HeaderIcons
                 isMobile
@@ -167,7 +152,6 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Desktop */}
           <div className="hidden md:flex items-center justify-between">
             <Logo />
             <div className="flex items-center gap-[clamp(20px,2vw,80px)] relative">
@@ -191,6 +175,7 @@ export default function Header() {
           isOpen={cartOpen}
           items={CART_MOCK}
           onClose={() => setCartOpen(false)}
+          forceClose={searchOpen || authOpen || menuOpen || dropdownOpen}
         />
       )}
     </>

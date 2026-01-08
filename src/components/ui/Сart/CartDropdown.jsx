@@ -6,7 +6,13 @@ import CartItem from './CartItem';
 import CartFooter from './CartFooter';
 import CartEmpty from './CartEmpty';
 
-export default function CartDropdown({ parentRef, isOpen, onClose, items: initialItems = [] }) {
+export default function CartDropdown({
+  parentRef,
+  isOpen,
+  onClose,
+  items: initialItems = [],
+  forceClose = false,
+}) {
   const [mounted, setMounted] = useState(false);
   const [coords, setCoords] = useState({ top: 0, right: 0 });
   const containerRef = useRef(null);
@@ -63,29 +69,25 @@ export default function CartDropdown({ parentRef, isOpen, onClose, items: initia
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
-  if (!mounted) return null;
+  if (!mounted || forceClose) return null;
 
   return createPortal(
     <div
       ref={containerRef}
-      className="fixed z-[9999] transition-opacity duration-300"
+      className="fixed transition-opacity duration-300"
       style={{
         top: coords.top,
         right: coords.right,
         pointerEvents: isOpen ? 'auto' : 'none',
         opacity: isOpen ? 1 : 0,
+        zIndex: 40,
       }}
       onMouseLeave={() => {
         if (window.innerWidth >= 1024) onClose();
       }}
     >
       <div
-        className="
-          bg-white
-          flex flex-col
-          max-h-[80vh]
-          overflow-y-auto
-        "
+        className="bg-white flex flex-col max-h-[80vh] overflow-y-auto"
         style={{
           boxShadow:
             '0px 2px 4.9px -1px rgba(0, 0, 0, 0.25), inset 0 5px 5.2px -3px rgba(0,0,0,0.25)',
@@ -107,7 +109,6 @@ export default function CartDropdown({ parentRef, isOpen, onClose, items: initia
             ))
           )}
         </div>
-
         {items.length > 0 && <CartFooter items={items} />}
       </div>
     </div>,
