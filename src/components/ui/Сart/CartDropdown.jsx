@@ -6,18 +6,12 @@ import CartItem from './CartItem';
 import CartFooter from './CartFooter';
 import CartEmpty from './CartEmpty';
 
-export default function CartDropdown({
-  parentRef,
-  isOpen,
-  onClose,
-  items: initialItems = [],
-  forceClose = false,
-}) {
+export default function CartDropdown({ parentRef, isOpen, onClose, items: initialItems = [] }) {
   const [mounted, setMounted] = useState(false);
   const [coords, setCoords] = useState({ top: 0, right: 0 });
-  const containerRef = useRef(null);
   const [items, setItems] = useState(initialItems);
   const [dropdownWidth, setDropdownWidth] = useState('90vw');
+  const containerRef = useRef(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -34,7 +28,11 @@ export default function CartDropdown({
 
     updatePosition();
     window.addEventListener('resize', updatePosition);
-    return () => window.removeEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition);
+    };
   }, [parentRef, isOpen]);
 
   useLayoutEffect(() => {
@@ -69,22 +67,19 @@ export default function CartDropdown({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
-  if (!mounted || forceClose) return null;
+  if (!mounted) return null;
 
   return createPortal(
     <div
       ref={containerRef}
-      className="fixed transition-opacity duration-300"
+      className="fixed z-[1050] transition-opacity duration-300"
       style={{
         top: coords.top,
         right: coords.right,
         pointerEvents: isOpen ? 'auto' : 'none',
         opacity: isOpen ? 1 : 0,
-        zIndex: 40,
       }}
-      onMouseLeave={() => {
-        if (window.innerWidth >= 1024) onClose();
-      }}
+      onMouseLeave={() => window.innerWidth >= 1024 && onClose()}
     >
       <div
         className="bg-white flex flex-col max-h-[80vh] overflow-y-auto"
@@ -94,7 +89,7 @@ export default function CartDropdown({
           width: dropdownWidth,
         }}
       >
-        <div className="overflow-y-auto max-h-[50wv] flex-1 py-3 px-1 md:py-4 flex flex-col gap-2 md:gap-4">
+        <div className="overflow-y-auto max-h-[50vw] flex-1 py-3 px-1 md:py-4 flex flex-col gap-2 md:gap-4">
           {items.length === 0 ? (
             <CartEmpty />
           ) : (
@@ -109,6 +104,7 @@ export default function CartDropdown({
             ))
           )}
         </div>
+
         {items.length > 0 && <CartFooter items={items} />}
       </div>
     </div>,

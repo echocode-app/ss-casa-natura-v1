@@ -10,8 +10,8 @@ import MobileMenu from './MobileMenu';
 import { Menu, Search } from '@/components/ui/Buttons';
 import SearchModal from '@/components/ui/Modal/SearchModal';
 import AuthModal from '@/components/ui/Modal/AuthModal';
-import CartDropdown from '@/components/ui/Сart/CartDropdown';
 import { CART_MOCK } from '@/config/products/cart.mock';
+import { CartDropdown } from '@/components/ui/Сart';
 
 export default function Header() {
   const { isAuthenticated } = useAuth();
@@ -33,7 +33,17 @@ export default function Header() {
   const forcedVisible = menuOpen || searchOpen || authOpen || cartOpen;
 
   useEffect(() => {
-    if (!menuOpen) return;
+    const updateHeaderHeight = () => {
+      if (!headerRef.current) return;
+      setHeaderHeight(headerRef.current.offsetHeight);
+    };
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    return () => window.removeEventListener('resize', updateHeaderHeight);
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen && !cartOpen) return;
     const scrollY = window.scrollY;
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
@@ -44,27 +54,23 @@ export default function Header() {
       document.body.style.width = '';
       window.scrollTo(0, scrollY);
     };
-  }, [menuOpen]);
+  }, [menuOpen, cartOpen]);
 
   useEffect(() => {
-    if (!cartOpen) return;
-    const scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-    return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      window.scrollTo(0, scrollY);
-    };
-  }, [cartOpen]);
-
-  useEffect(() => {
-    if (searchOpen || authOpen || dropdownOpen || menuOpen) {
-      setCartOpen(false);
+    if (dropdownOpen) {
+      const preventScroll = (e) => e.preventDefault();
+      window.addEventListener('wheel', preventScroll, { passive: false });
+      window.addEventListener('touchmove', preventScroll, { passive: false });
+      return () => {
+        window.removeEventListener('wheel', preventScroll);
+        window.removeEventListener('touchmove', preventScroll);
+      };
     }
-  }, [searchOpen, authOpen, menuOpen, dropdownOpen]);
+  }, [dropdownOpen]);
+
+  useEffect(() => {
+    if (searchOpen || authOpen || dropdownOpen || menuOpen) setCartOpen(false);
+  }, [searchOpen, authOpen, dropdownOpen, menuOpen]);
 
   useEffect(() => {
     if (window.innerWidth < 768) return;
@@ -100,26 +106,14 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [forcedVisible]);
 
-  useEffect(() => {
-    if (!headerRef.current) return;
-    setHeaderHeight(headerRef.current.offsetHeight);
-    const onResize = () => setHeaderHeight(headerRef.current.offsetHeight);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [menuOpen]);
-
   const handleUserClick = () => {
-    if (!isAuthenticated) {
-      setAuthOpen(true);
-    } else {
-      window.location.href = '/account';
-    }
+    if (!isAuthenticated) setAuthOpen(true);
+    else window.location.href = '/account';
   };
 
   return (
     <>
       {fixed && <div style={{ height: headerHeight }} />}
-
       <header
         ref={headerRef}
         className={`
@@ -140,9 +134,11 @@ export default function Header() {
                 <Search className="w-6 h-6" />
               </button>
             </div>
+
             <div className="flex justify-center">
               <Logo />
             </div>
+
             <div className="flex items-center justify-end gap-3">
               <HeaderIcons
                 isMobile
@@ -175,7 +171,6 @@ export default function Header() {
           isOpen={cartOpen}
           items={CART_MOCK}
           onClose={() => setCartOpen(false)}
-          forceClose={searchOpen || authOpen || menuOpen || dropdownOpen}
         />
       )}
     </>
