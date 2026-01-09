@@ -1,13 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/components/layout/AuthContext';
 import ModalLayout from './ModalLayout';
 import ModalHeader from './ModalHeader';
 import ModalBody from './ModalBody';
 import ModalFooter from './ModalFooter';
 
 export default function AuthModal({ isOpen, onClose, initialType = 'register' }) {
+  const { login } = useAuth();
   const [type, setType] = useState(initialType);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -19,19 +24,74 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccessMsg('');
+    setLoading(true);
 
-    if (type === 'forgot') {
-      // API
-      ('Send reset email to:', formData.email); // console.log
-      alert('Check your email for reset link');
-      onClose?.();
-      return;
+    try {
+      if (type === 'register') {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: formData.nome,
+            cognome: formData.cognome,
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setError(data.error || 'Registration failed');
+          return;
+        }
+
+        setSuccessMsg('Registration successful! Logging in...');
+        login();
+        setTimeout(() => {
+          onClose?.();
+        }, 1000);
+      } else if (type === 'login') {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setError(data.error || 'Login failed');
+          return;
+        }
+
+        setSuccessMsg('Login successful!');
+        login();
+        setTimeout(() => {
+          onClose?.();
+        }, 1000);
+      } else if (type === 'forgot') {
+        // Placeholder for forgot password (would call email API)
+        setSuccessMsg('If email exists, you will receive a reset link shortly.');
+        setTimeout(() => {
+          handleSwitch('login');
+        }, 2000);
+      }
+    } catch (err) {
+      setError(err.message || 'An error occurred');
+    } finally {
+      setLoading(false);
     }
-
-    ('Submitted', formData); // console.log
   };
 
   const handleSwitch = (newType) => {
+    setError('');
+    setSuccessMsg('');
     setType(newType);
     setFormData({
       nome: '',
@@ -43,6 +103,8 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
   };
 
   const handleForgot = () => {
+    setError('');
+    setSuccessMsg('');
     setType('forgot');
     setFormData({
       nome: '',
@@ -58,6 +120,18 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
       <div className="max-h-[85vh] pb-2 lg:pb-6">
         <ModalHeader type={type} onClose={onClose} />
 
+        {error && (
+          <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-4 text-center text-sm">
+            {error}
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="bg-green-100 text-green-700 px-4 py-3 rounded mb-4 text-center text-sm">
+            {successMsg}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col items-center w-full">
           <ModalBody type={type} formData={formData} setFormData={setFormData} />
           <ModalFooter
@@ -65,6 +139,7 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
             onSubmit={handleSubmit}
             onSwitch={handleSwitch}
             onForgot={handleForgot}
+            loading={loading}
           />
         </form>
       </div>

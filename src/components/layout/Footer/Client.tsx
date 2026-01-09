@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/layout/AuthContext';
 import AuthModal from '@/components/ui/Modal/AuthModal';
 
@@ -10,10 +10,14 @@ export default function Client() {
   const t = useTranslations('footer');
   const { isAuthenticated } = useAuth();
   const [showModal, setShowModal] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const clientLinks = [
     { label: t('links.mission'), href: '/mission' },
-    { label: t('links.ingredients'), href: '/ingredienti' },
     { label: t('links.support'), href: '/supporto' },
     { label: t('links.account'), href: '/account', isAccount: true },
     { label: t('links.legal'), href: '/legal' },
@@ -25,6 +29,8 @@ export default function Client() {
       setShowModal(true);
     }
   };
+
+  if (!isClient) return null;
 
   return (
     <div>
@@ -46,7 +52,7 @@ export default function Client() {
         ))}
       </ul>
 
-      <AuthModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      <AuthModal isOpen={showModal} onClose={() => setShowModal(false)} initialType="login" />
     </div>
   );
 }

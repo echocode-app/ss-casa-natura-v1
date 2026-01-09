@@ -4,7 +4,13 @@ import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
-export default function ModalFooter({ type = 'register', onSubmit, onSwitch, onForgot }) {
+export default function ModalFooter({
+  type = 'register',
+  onSubmit,
+  onSwitch,
+  onForgot,
+  loading = false,
+}) {
   const t = useTranslations('modal.auth');
 
   return (
@@ -13,13 +19,16 @@ export default function ModalFooter({ type = 'register', onSubmit, onSwitch, onF
       <PrimaryButton
         type="submit"
         onClick={onSubmit}
-        className="min-w-[140px] lg:min-w-[220px] px-6 py-3 lg:py-4"
+        disabled={loading}
+        className="min-w-[140px] lg:min-w-[220px] px-6 py-3 lg:py-4 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {type === 'register'
-          ? t('form.register')
-          : type === 'login'
-            ? t('form.login')
-            : t('form.forgot')}
+        {loading
+          ? 'Loading...'
+          : type === 'register'
+            ? t('form.register')
+            : type === 'login'
+              ? t('form.login')
+              : t('form.forgot')}
       </PrimaryButton>
 
       {/* Info / Privacy / Forgot password */}

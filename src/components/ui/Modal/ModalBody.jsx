@@ -60,6 +60,7 @@ export default function ModalBody({ type = 'register', formData, setFormData }) 
             placeholder={t('form.password')}
             autoComplete="new-password"
             className={inputClass}
+            minLength={8}
             required
           />
 
@@ -71,6 +72,7 @@ export default function ModalBody({ type = 'register', formData, setFormData }) 
               placeholder={t('form.confermaPassword')}
               autoComplete="new-password"
               className={inputClass}
+              minLength={8}
               required
             />
           )}

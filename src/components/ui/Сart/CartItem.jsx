@@ -49,7 +49,8 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
       <div className="flex flex-col items-end justify-between pt-2 pl-3 md:pt-3 md:pl-6">
         <button
           onClick={onRemove}
-          className="bg-background-primary rounded-input-sm items-center p-2 lg:p-3"
+          className="bg-background-primary rounded-input-sm items-center p-2 lg:p-3
+          transition-transform duration-200 ease-out will-change-transform md:hover:scale-105 md:focus-visible:scale-105"
         >
           <Delite />
         </button>
@@ -57,7 +58,13 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
         <div className="flex items-center gap-2 pl-3 pb-2 md:pl-6">
           <button
             onClick={onDecrease}
-            className="bg-background-primary text-text-soft rounded-input-sm justify-center items-center p-2 lg:px-3"
+            className="bg-background-primary text-text-soft text-[clamp(16px, 3vw, 25px)] rounded-input-sm justify-center items-center p-2 lg:px-3
+          transition-all duration-200 ease-out
+          will-change-transform
+          md:hover:scale-105
+          md:focus-visible:scale-105
+          md:hover:bg-brand-light
+          md:focus-visible:bg-brand-light"
           >
             –
           </button>
@@ -66,7 +73,13 @@ export default function CartItem({ item, onIncrease, onDecrease, onRemove }) {
 
           <button
             onClick={onIncrease}
-            className="bg-background-primary text-text-soft rounded-input-sm justify-center items-center p-2 lg:px-3"
+            className="bg-background-primary text-text-soft text-[clamp(16px, 3vw, 25px)] rounded-input-sm justify-center items-center p-2 lg:px-3
+          transition-all duration-200 ease-out
+          will-change-transform
+          md:hover:scale-105
+          md:focus-visible:scale-105
+          md:hover:bg-brand-light
+          md:focus-visible:bg-brand-light"
           >
             +
           </button>
