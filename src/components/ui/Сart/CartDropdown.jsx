@@ -2,16 +2,18 @@
 
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import CartItem from './CartItem';
+import CartItem from './CartItem.tsx';
 import CartFooter from './CartFooter';
 import CartEmpty from './CartEmpty';
+import { useCart } from '@/contexts/CartContext';
 
-export default function CartDropdown({ parentRef, isOpen, onClose, items: initialItems = [] }) {
+export default function CartDropdown({ parentRef, isOpen, onClose }) {
+  const { items, updateItem, removeItem, isInitializing } = useCart();
   const [mounted, setMounted] = useState(false);
   const [coords, setCoords] = useState({ top: 0, right: 0 });
-  const [items, setItems] = useState(initialItems);
   const [dropdownWidth, setDropdownWidth] = useState('90vw');
   const containerRef = useRef(null);
+  const [isUpdating, setIsUpdating] = useState(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -50,13 +52,38 @@ export default function CartDropdown({ parentRef, isOpen, onClose, items: initia
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  const increase = (id) =>
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity: i.quantity + 1 } : i)));
-  const decrease = (id) =>
-    setItems((prev) =>
-      prev.map((i) => (i.id === id && i.quantity > 1 ? { ...i, quantity: i.quantity - 1 } : i)),
-    );
-  const remove = (id) => setItems((prev) => prev.filter((i) => i.id !== id));
+  const increase = async (id) => {
+    const item = items.find((i) => i.id === id);
+    if (item) {
+      setIsUpdating(id);
+      try {
+        await updateItem(id, item.quantity + 1);
+      } finally {
+        setIsUpdating(null);
+      }
+    }
+  };
+
+  const decrease = async (id) => {
+    const item = items.find((i) => i.id === id);
+    if (item && item.quantity > 1) {
+      setIsUpdating(id);
+      try {
+        await updateItem(id, item.quantity - 1);
+      } finally {
+        setIsUpdating(null);
+      }
+    }
+  };
+
+  const handleRemove = async (id) => {
+    setIsUpdating(id);
+    try {
+      await removeItem(id);
+    } finally {
+      setIsUpdating(null);
+    }
+  };
 
   useEffect(() => {
     if (window.innerWidth >= 1024) return;
@@ -97,9 +124,10 @@ export default function CartDropdown({ parentRef, isOpen, onClose, items: initia
               <CartItem
                 key={item.id}
                 item={item}
+                isUpdating={isUpdating === item.id}
                 onIncrease={() => increase(item.id)}
                 onDecrease={() => decrease(item.id)}
-                onRemove={() => remove(item.id)}
+                onRemove={() => handleRemove(item.id)}
               />
             ))
           )}

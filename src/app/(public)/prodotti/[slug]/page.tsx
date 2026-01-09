@@ -33,7 +33,7 @@ export default function ProductPageClient() {
           (p) => p.categoryIds.includes(categoryId) && p.id !== prod.id,
         );
         setRelatedProducts(related);
-      } catch (_error) {
+      } catch {
         // Handle error silently or show user message
       } finally {
         setLoading(false);

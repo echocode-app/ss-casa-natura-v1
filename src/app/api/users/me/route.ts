@@ -4,34 +4,54 @@ import connectToDB from '@/lib/db/mongo';
 import User from '@/lib/db/models/User';
 import { getUser } from '@/lib/auth/getUser';
 
+export const runtime = 'nodejs';
+
+interface UserResponse {
+  id: string;
+  name?: string;
+  surname?: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  role?: 'user' | 'admin';
+  createdAt?: Date | string;
+}
+
 export const GET = handleApi(async (req: NextRequest) => {
-  const authUser = await getUser();
-  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   await connectToDB();
 
-  const user = await User.findById(authUser.id).select(
+  const dbUser = await User.findById(user.id).select(
     'name surname email phone address role createdAt',
   );
 
-  if (!user) {
+  if (!dbUser) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  return NextResponse.json({
-    id: user._id,
-    nome: user.name,
-    cognome: user.surname,
-    email: user.email,
-    phone: user.phone || '',
-    address: user.address || {},
-    createdAt: user.createdAt,
-  });
+  const response: UserResponse = {
+    id: dbUser._id.toString(),
+    name: dbUser.name,
+    surname: dbUser.surname,
+    email: dbUser.email,
+    phone: dbUser.phone,
+    address: dbUser.address,
+    role: dbUser.role,
+    createdAt: dbUser.createdAt,
+  };
+
+  return NextResponse.json(response);
 });
 
 export const PUT = handleApi(async (req: NextRequest) => {
-  const authUser = await getUser();
-  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   let body;
   try {
@@ -50,7 +70,7 @@ export const PUT = handleApi(async (req: NextRequest) => {
   await connectToDB();
 
   const updated = await User.findByIdAndUpdate(
-    authUser.id,
+    user.id,
     {
       ...(nome && { name: nome }),
       ...(cognome && { surname: cognome }),
@@ -59,7 +79,7 @@ export const PUT = handleApi(async (req: NextRequest) => {
       updatedAt: new Date(),
     },
     { new: true },
-  ).select('name surname email phone address');
+  ).select('name surname email phone address role createdAt');
 
   if (!updated) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -67,10 +87,12 @@ export const PUT = handleApi(async (req: NextRequest) => {
 
   return NextResponse.json({
     id: updated._id,
-    nome: updated.name,
-    cognome: updated.surname,
+    name: updated.name,
+    surname: updated.surname,
     email: updated.email,
-    phone: updated.phone || '',
-    address: updated.address || {},
+    phone: updated.phone,
+    address: updated.address,
+    role: updated.role,
+    createdAt: updated.createdAt,
   });
 });

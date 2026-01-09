@@ -10,11 +10,12 @@ import MobileMenu from './MobileMenu';
 import { Menu, Search } from '@/components/ui/Buttons';
 import SearchModal from '@/components/ui/Modal/SearchModal';
 import AuthModal from '@/components/ui/Modal/AuthModal';
-import { CART_MOCK } from '@/config/products/cart.mock';
 import { CartDropdown } from '@/components/ui/Сart';
+import { useCart } from '@/contexts/CartContext';
 
 export default function Header() {
   const { isAuthenticated } = useAuth();
+  const { items: _cartItems } = useCart();
   const t = useTranslations('header.actions');
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -166,12 +167,7 @@ export default function Header() {
       {searchOpen && <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />}
       {authOpen && <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />}
       {cartOpen && (
-        <CartDropdown
-          parentRef={headerRef}
-          isOpen={cartOpen}
-          items={CART_MOCK}
-          onClose={() => setCartOpen(false)}
-        />
+        <CartDropdown parentRef={headerRef} isOpen={cartOpen} onClose={() => setCartOpen(false)} />
       )}
     </>
   );

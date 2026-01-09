@@ -3,6 +3,6 @@ import { handleApi } from '@/lib/utils/handleApi';
 
 export const POST = handleApi(async (req: Request) => {
   // TODO: Implement sending contact form via Mailchimp
-  const _body = await req.json();
+  await req.json();
   return NextResponse.json({ message: 'Message sent' });
 });

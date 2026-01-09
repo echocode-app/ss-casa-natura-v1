@@ -5,14 +5,27 @@ import { PrimaryButton } from '@/components/ui/Buttons';
 import ProductVolumeSelector from './ProductVolumeSelector';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useCart } from '@/contexts/CartContext';
+import Spinner from '@/components/ui/Spinner/Spinner';
 
 export default function ProductMain({ product }) {
   const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0] ?? null);
+  const [isAdding, setIsAdding] = useState(false);
+  const { addItem } = useCart();
   const t = useTranslations('prodotti.related');
 
   const handleAddToCart = async () => {
     if (!selectedVariant) return;
-    ('Add to cart:', product.id, selectedVariant.id);
+
+    setIsAdding(true);
+    try {
+      await addItem(product.id, selectedVariant.id);
+      // Could add toast notification here
+    } catch (err) {
+      console.error('Failed to add to cart:', err);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const finalPrice = selectedVariant
@@ -51,10 +64,10 @@ export default function ProductMain({ product }) {
           {/* Buy button */}
           <PrimaryButton
             onClick={handleAddToCart}
-            disabled={!selectedVariant}
+            disabled={!selectedVariant || isAdding}
             className="mt-6 p-6 mr-auto w-[200px] md:w-[300px]"
           >
-            {t('addToCart')}
+            {isAdding ? <Spinner size="sm" colorScheme="muted" /> : t('addToCart')}
           </PrimaryButton>
         </div>
 

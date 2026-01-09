@@ -1,22 +1,71 @@
 {
   "cart": {
     "title": "Cart",
-    "cart": {
-      "empty": {
-        "text": "Your cart is empty. Take a look at our",
-        "link": "products"
-      }
+    "empty": {
+      "text": "Your cart is empty. Take a look at our",
+      "link": "products"
     },
     "proceed": "Proceed",
     "items": "items",
     "shipping": "Shipping",
     "calculated": "Calculated at next step",
+    "promoCode": "Promo Code",
+    "enterPromoCode": "Enter promo code",
+    "apply": "Apply",
+    "promoApplied": "Promo applied",
+    "remove": "Remove",
     "discount": "Discount code",
     "discountSuccess": "Discount code applied successfully",
     "discountError": "Invalid code, please try again",
-    "apply": "Apply",
     "total": "TOTAL",
     "taxIncluded": "incl. VAT",
-    "discountApplied": "Discount code applied"
+    "discountApplied": "Discount code applied",
+    "continueShopping": "Continue Shopping",
+    "clearCart": "Clear Cart",
+    "summary": "Summary"
+  },
+  "account": {
+    "title": "My Account",
+    "profile": {
+      "title": "Contact Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "street": "Street",
+      "city": "City",
+      "required": "Required",
+      "invalidEmail": "Invalid email",
+      "invalidPhone": "Invalid phone number",
+      "saving": "Saving...",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit"
+    },
+    "orders": {
+      "title": "Orders",
+      "noOrders": "No orders yet",
+      "orderNumber": "Order #{number}",
+      "status": "Status",
+      "total": "Total",
+      "date": "Date"
+    },
+    "password": {
+      "title": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "updatePassword": "Update Password",
+      "updating": "Updating...",
+      "success": "Password changed successfully",
+      "error": "Failed to change password",
+      "genericError": "An error occurred",
+      "logoutMessage": "You will be logged out in 2 seconds"
+    },
+    "actions": {
+      "logout": "Logout",
+      "loading": "Loading...",
+      "error": "Error",
+      "retry": "Retry"
+    }
   }
 }

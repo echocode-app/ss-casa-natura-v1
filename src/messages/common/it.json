@@ -47,7 +47,7 @@
       },
       "footer": {
         "register": {
-          "text1": "Registrandoti, accetti le nostre Condizioni d’uso e l’informativa sulla",
+          "text1": "Registrandoti, accetti le nostre Condizioni d'uso e l'informativa sulla",
           "privacy": "privacy",
           "text2": "Hai già un account?",
           "switch": "Accedi",
@@ -75,7 +75,7 @@
         "link": "Visualizza tutti i prodotti"
       },
       "error": {
-        "text": "Si è verificato un errore con i dati del prodotto.",
+        "text": "Si e verificato un errore con i dati del prodotto.",
         "link": "Visualizza tutti i prodotti"
       },
       "link": {
@@ -92,7 +92,7 @@
     "Lavapavimenti": "Lavapavimenti"
   },
   "promoBar": {
-    "defaultText": "BLACK FRIDAY: fino al -30% 🔥 Il prezzo più basso dell’anno – non lasciartelo scappare!"
+    "defaultText": "BLACK FRIDAY: fino al -30% 🔥 Il prezzo piu basso dell'anno – non lasciartelo scappare!"
   },
   "footer": {
     "clientArea": "Area clienti",
@@ -123,7 +123,7 @@
       },
       "2": {
         "title": "Freschezza Oceanica per la tua casa",
-        "subtitle": "Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti",
+        "subtitle": "Scopri la linea Brezza Marina: detergenti naturali che portano l'aria del mare nei tuoi ambienti",
         "cta": "Scopri i prodotti",
         "lineKey": "brezza-marina"
       },
@@ -190,12 +190,12 @@
     }
   },
   "topProductsSection": {
-    "headerTitle": "I nostri prodotti più",
+    "headerTitle": "I nostri prodotti piu",
     "headerAccent": "amati",
     "button": "Aggiungi"
   },
   "greenProductionSection": {
-    "headerTitle": "Perché siamo",
+    "headerTitle": "Perche siamo",
     "headerAccent": "green",
     "items": {
       "plantBased": {
@@ -203,8 +203,8 @@
         "alt": "Solo ingredienti vegetali"
       },
       "quality": {
-        "text": "Qualità 100% Made in Italy",
-        "alt": "Qualità 100% Made in Italy"
+        "text": "Qualita 100% Made in Italy",
+        "alt": "Qualita 100% Made in Italy"
       },
       "testing": {
         "text": "Prodotti realizzati senza test sugli animali",
@@ -221,8 +221,8 @@
       "accent": "mission"
     },
     "subtitle": "La purezza della natura, nella tua casa",
-    "paragraph1": "Nel 1994, in provincia di Lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualità utilizzando ingredienti selezionati e metodi tradizionali.",
-    "paragraph2": "Siamo diventati un punto di riferimento nel panorama nazionale della cosmesi naturale, rifornendo punti vendita in tutta Italia. Il nostro impegno per lʼartigianato e la sostenibilità ci guida nella scelta di materie prime eccellenti, garantendo prodotti efficaci rispettando lʼambiente.",
+    "paragraph1": "Nel 1994, in provincia di Lodi, nasce il nostro saponificio con una missione chiara: creare saponi di alta qualita utilizzando ingredienti selezionati e metodi tradizionali.",
+    "paragraph2": "Siamo diventati un punto di riferimento nel panorama nazionale della cosmesi naturale, rifornendo punti vendita in tutta Italia. Il nostro impegno per l'artigianato e la sostenibilita ci guida nella scelta di materie prime eccellenti, garantendo prodotti efficaci rispettando l'ambiente.",
     "paragraph3": "Oggi, continuiamo a scrivere la nostra storia con passione, portando il profumo e la purezza dei nostri saponi in ogni angolo del paese. Benvenuti nel mondo Delta Green, dove tradizione e innovazione si incontrano."
   },
   "promocodeSection": {
@@ -235,7 +235,41 @@
       "success": "Attendi il tuo codice promozionale nella tua email!",
       "errorEmpty": "Per favore inserisci la tua email!",
       "errorInvalid": "Inserisci un indirizzo email valido!",
-      "errorSend": "Errore durante l’invio. Riprova!"
+      "errorSend": "Errore durante l'invio. Riprova!"
     }
-  }
+  },
+  "errors": {
+    "registrationFailed": "Registrazione fallita",
+    "loginFailed": "Accesso fallito",
+    "forgotFailed": "Richiesta non riuscita",
+    "invalidJson": "Dati richiesta non validi",
+    "validationFailed": "Validazione fallita",
+    "emailExists": "Email gia registrata",
+    "invalidCredentials": "Email o password non validi",
+    "unauthorized": "Effettua l'accesso per continuare",
+    "userNotFound": "Utente non trovato",
+    "invalidRequest": "Richiesta non valida",
+    "noFieldsProvided": "Inserisci almeno un campo da aggiornare",
+    "currentPasswordIncorrect": "La password attuale non e corretta",
+    "passwordTooShort": "La password deve essere di almeno 8 caratteri",
+    "genericError": "Si e verificato un errore. Riprova.",
+    "logoutFailed": "Disconnessione fallita"
+  },
+  "success": {
+    "registrationSuccess": "Registrazione completata! Accesso in corso...",
+    "loginSuccess": "Accesso riuscito!",
+    "passwordResetEmailSent": "Se l'esiste, riceverai un link per reimpostare la password.",
+    "passwordChanged": "Password cambiata con successo",
+    "profileUpdated": "Profilo aggiornato con successo",
+    "messageSent": "Messaggio inviato con successo",
+    "loggedOut": "Disconnessione effettuata con successo"
+  },
+  "loading": "Caricamento...",
+  "close": "Chiudi",
+  "cancel": "Annulla",
+  "confirm": "Conferma",
+  "save": "Salva",
+  "delete": "Elimina",
+  "edit": "Modifica"
 }
+

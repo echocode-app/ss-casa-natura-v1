@@ -6,6 +6,7 @@ import ModalLayout from './ModalLayout';
 import ModalHeader from './ModalHeader';
 import ModalBody from './ModalBody';
 import ModalFooter from './ModalFooter';
+import { useTranslations } from 'next-intl';
 
 export default function AuthModal({ isOpen, onClose, initialType = 'register' }) {
   const { login } = useAuth();
@@ -13,6 +14,10 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  const t = useTranslations('errors');
+  const tSuccess = useTranslations('success');
+  const tCommon = useTranslations('common');
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -44,11 +49,11 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const data = await res.json();
 
         if (!res.ok) {
-          setError(data.error || 'Registration failed');
+          setError(data.error || t('registrationFailed'));
           return;
         }
 
-        setSuccessMsg('Registration successful! Logging in...');
+        setSuccessMsg(tSuccess('registrationSuccess'));
         login();
         setTimeout(() => {
           onClose?.();
@@ -66,24 +71,24 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const data = await res.json();
 
         if (!res.ok) {
-          setError(data.error || 'Login failed');
+          setError(data.error || t('loginFailed'));
           return;
         }
 
-        setSuccessMsg('Login successful!');
+        setSuccessMsg(tSuccess('loginSuccess'));
         login();
         setTimeout(() => {
           onClose?.();
         }, 1000);
       } else if (type === 'forgot') {
         // Placeholder for forgot password (would call email API)
-        setSuccessMsg('If email exists, you will receive a reset link shortly.');
+        setSuccessMsg(tSuccess('passwordResetEmailSent'));
         setTimeout(() => {
           handleSwitch('login');
         }, 2000);
       }
     } catch (err) {
-      setError(err.message || 'An error occurred');
+      setError(t('genericError'));
     } finally {
       setLoading(false);
     }

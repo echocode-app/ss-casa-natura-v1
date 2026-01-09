@@ -8,7 +8,6 @@ const emojiMap: Record<LogType, string> = {
   info: '💡 ',
 };
 
-/* eslint-disable no-console */
 export const log = (type: LogType, message: string, extra?: any) => {
   if (process.env.NODE_ENV === 'production') return;
 
@@ -19,4 +18,3 @@ export const log = (type: LogType, message: string, extra?: any) => {
     console.log(`${emoji} ${message}`);
   }
 };
-/* eslint-enable no-console */

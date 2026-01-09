@@ -12,6 +12,7 @@ export default function ModalFooter({
   loading = false,
 }) {
   const t = useTranslations('modal.auth');
+  const tCommon = useTranslations('common');
 
   return (
     <div className="flex flex-col items-center mt-4 lg:mt-8 w-full gap-4 lg:gap-5">
@@ -23,7 +24,7 @@ export default function ModalFooter({
         className="min-w-[140px] lg:min-w-[220px] px-6 py-3 lg:py-4 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading
-          ? 'Loading...'
+          ? tCommon('loading')
           : type === 'register'
             ? t('form.register')
             : type === 'login'

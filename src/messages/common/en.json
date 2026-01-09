@@ -240,5 +240,38 @@
       "errorInvalid": "Please enter a valid email address!",
       "errorSend": "Error sending. Please try again!"
     }
-  }
+  },
+  "errors": {
+    "registrationFailed": "Registration failed",
+    "loginFailed": "Login failed",
+    "forgotFailed": "Failed to process request",
+    "invalidJson": "Invalid request data",
+    "validationFailed": "Validation failed",
+    "emailExists": "Email already registered",
+    "invalidCredentials": "Invalid email or password",
+    "unauthorized": "Please log in to continue",
+    "userNotFound": "User not found",
+    "invalidRequest": "Invalid request",
+    "noFieldsProvided": "Please provide at least one field to update",
+    "currentPasswordIncorrect": "Current password is incorrect",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "genericError": "An error occurred. Please try again.",
+    "logoutFailed": "Logout failed"
+  },
+  "success": {
+    "registrationSuccess": "Registration successful! Logging in...",
+    "loginSuccess": "Login successful!",
+    "passwordResetEmailSent": "If the email exists, you will receive a reset link shortly.",
+    "passwordChanged": "Password changed successfully",
+    "profileUpdated": "Profile updated successfully",
+    "messageSent": "Message sent successfully",
+    "loggedOut": "Logged out successfully"
+  },
+  "loading": "Loading...",
+  "close": "Close",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit"
 }

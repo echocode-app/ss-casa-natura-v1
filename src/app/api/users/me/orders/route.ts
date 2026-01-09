@@ -4,7 +4,7 @@ import connectToDB from '@/lib/db/mongo';
 import Order from '@/lib/db/models/Order';
 import { getUser } from '@/lib/auth/getUser';
 
-export const GET = handleApi(async (req: NextRequest) => {
+export const GET = handleApi(async (_req: NextRequest) => {
   const authUser = await getUser();
   if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

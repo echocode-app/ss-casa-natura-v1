@@ -1,4 +1,6 @@
-export interface JwtPayload {
+import { JWTPayload } from 'jose';
+
+export interface JwtPayload extends JWTPayload {
   id: string;
   email: string;
   role?: 'user' | 'admin';

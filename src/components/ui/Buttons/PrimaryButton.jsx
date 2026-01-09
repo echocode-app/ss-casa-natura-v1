@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function PrimaryButton({
   children,
@@ -7,11 +7,14 @@ export default function PrimaryButton({
   className = '',
   type = 'button',
   delay = 500,
+  disabled: externalDisabled = false,
 }) {
   const [disabled, setDisabled] = useState(false);
 
+  const isDisabled = disabled || externalDisabled;
+
   const handleClick = async (e) => {
-    if (disabled) return;
+    if (isDisabled) return;
     setDisabled(true);
 
     if (onClick) {
@@ -27,7 +30,7 @@ export default function PrimaryButton({
     <button
       type={type}
       onClick={handleClick}
-      disabled={disabled}
+      disabled={isDisabled}
       className={`
         bg-brand-accent
         text-black
@@ -42,7 +45,7 @@ export default function PrimaryButton({
         focus:ring-0
         active:outline-none
         active:ring-0
-        ${disabled ? 'opacity-70 cursor-wait' : ''}
+        ${isDisabled ? 'opacity-70 cursor-wait' : ''}
         ${className}
       `}
     >

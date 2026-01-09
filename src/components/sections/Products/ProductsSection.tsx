@@ -35,7 +35,7 @@ export default function ProductsSection({
       try {
         const data = await fetchProducts(true); // Start with mock
         setProducts(data);
-      } catch (error) {
+      } catch {
         // Handle error silently
       } finally {
         setLoading(false);

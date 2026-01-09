@@ -1,18 +1,23 @@
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
 import { JwtPayload } from './types';
 
-function getSecret(): string {
-  const s = process.env.JWT_SECRET as string | undefined;
+function getSecret(): Uint8Array {
+  const s = process.env.JWT_SECRET;
   if (!s) throw new Error('JWT_SECRET is not defined');
-  return s;
+  return new TextEncoder().encode(s);
 }
 
-export const signToken = (payload: JwtPayload) => {
+export const signToken = async (payload: JwtPayload): Promise<string> => {
   const secret = getSecret();
-  return jwt.sign(payload, secret, { expiresIn: '7d' });
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('7d')
+    .setIssuedAt()
+    .sign(secret);
 };
 
-export const verifyToken = (token: string): JwtPayload => {
+export const verifyToken = async (token: string): Promise<JwtPayload> => {
   const secret = getSecret();
-  return jwt.verify(token, secret) as JwtPayload;
+  const { payload } = await jwtVerify(token, secret);
+  return payload as JwtPayload;
 };

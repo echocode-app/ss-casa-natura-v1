@@ -5,32 +5,32 @@ import User from '@/lib/db/models/User';
 import { hashPassword } from '@/lib/auth/hash';
 import { signToken } from '@/lib/auth/jwt';
 import { setAuthCookie } from '@/lib/auth/cookies';
+import { z } from 'zod';
+
+export const runtime = 'nodejs';
+
+const registerSchema = z.object({
+  nome: z.string().min(1, 'Nome is required'),
+  cognome: z.string().min(1, 'Cognome is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+});
 
 export const POST = handleApi(async (req: NextRequest) => {
   let body;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { nome, cognome, email, password } = body;
-
-  if (!nome || !cognome || !email || !password) {
-    return NextResponse.json(
-      { error: 'nome, cognome, email, and password are required' },
-      { status: 400 },
-    );
+  const validation = registerSchema.safeParse(body);
+  if (!validation.success) {
+    const errors = validation.error.flatten().fieldErrors;
+    return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
   }
 
-  // basic validation
-  if (password.length < 8) {
-    return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
-  }
-
-  if (!email.includes('@')) {
-    return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
-  }
+  const { nome, cognome, email, password } = validation.data;
 
   await connectToDB();
 
@@ -48,8 +48,7 @@ export const POST = handleApi(async (req: NextRequest) => {
     passwordHash,
   });
 
-  // auto-login after registration
-  const token = signToken({ id: user._id.toString(), email: user.email, role: user.role });
+  const token = await signToken({ id: user._id.toString(), email: user.email, role: user.role });
   await setAuthCookie(token);
 
   return NextResponse.json({

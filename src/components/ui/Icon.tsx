@@ -1,10 +1,18 @@
+interface IconProps {
+  id: string;
+  className?: string;
+  width?: number;
+  height?: number;
+  ariaHidden?: boolean;
+}
+
 export default function Icon({
   id,
   className = '',
   width = 24,
   height = 24,
-  'aria-hidden': ariaHidden = true,
-}) {
+  ariaHidden = true,
+}: IconProps) {
   if (!id) return null;
 
   return (
@@ -12,8 +20,8 @@ export default function Icon({
       className={className}
       width={width}
       height={height}
-      aria-hidden={ariaHidden}
-      focusable="false"
+      aria-hidden={ariaHidden ? 'true' : 'false'}
+      focusable={false}
     >
       <use href={`/icons/sprite.svg#${id}`} />
     </svg>

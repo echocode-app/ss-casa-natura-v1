@@ -1,55 +1,61 @@
 'use client';
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { AuthUser } from '@/lib/auth/types';
 
 interface AuthContextProps {
   isAuthenticated: boolean;
-  login: () => void;
-  logout: () => void;
-  user: any;
+  isLoading: boolean;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  user: AuthUser | null;
 }
 
 const AuthContext = createContext<AuthContextProps>({
   isAuthenticated: false,
-  login: () => {},
-  logout: () => {},
+  isLoading: true,
+  login: async () => {},
+  logout: async () => {},
+  refreshUser: async () => {},
   user: null,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check if user is authenticated by calling /api/users/me
-    const checkAuth = async () => {
-      try {
-        const res = await fetch('/api/users/me', {
-          method: 'GET',
-          credentials: 'include', // include cookies
-        });
+  const refreshUser = async () => {
+    try {
+      const res = await fetch('/api/users/me', {
+        method: 'GET',
+        credentials: 'include',
+      });
 
-        if (res.ok) {
-          const userData = await res.json();
-          setUser(userData);
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-          setUser(null);
-        }
-      } catch {
+      if (res.ok) {
+        const userData = await res.json();
+        setUser({
+          id: userData.id,
+          email: userData.email,
+          role: userData.role,
+        });
+        setIsAuthenticated(true);
+      } else {
         setIsAuthenticated(false);
         setUser(null);
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  };
 
-    checkAuth();
+  useEffect(() => {
+    refreshUser().finally(() => setIsLoading(false));
   }, []);
 
-  const login = () => {
-    setIsAuthenticated(true);
+  const login = async () => {
+    await refreshUser();
   };
 
   const logout = async () => {
@@ -59,15 +65,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
       });
     } catch {
-      // ignore
+      // ignore logout errors
     }
     setIsAuthenticated(false);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, user }}>
-      {!isLoading && children}
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, refreshUser, user }}>
+      {children}
     </AuthContext.Provider>
   );
 }

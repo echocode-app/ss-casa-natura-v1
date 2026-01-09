@@ -60,8 +60,8 @@ export default function SearchModal({ isOpen, onClose }) {
       try {
         const foundResults = searchProducts(normalizedQuery).slice(0, MAX_RESULTS);
         setResults(foundResults);
-      } catch (error) {
-        ('Search error:', error);
+      } catch {
+        // Handle search error silently
         setResults([]);
       } finally {
         setIsSearching(false);

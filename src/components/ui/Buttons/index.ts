@@ -9,3 +9,4 @@ export { default as Instagram } from './Instagram';
 export { default as Facebook } from './Facebook';
 export { default as PrimaryButton } from './PrimaryButton';
 export { default as Chevron } from './Chevron';
+export { default as Edit } from './Chevron';
