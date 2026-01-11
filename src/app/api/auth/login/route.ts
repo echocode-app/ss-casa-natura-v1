@@ -7,6 +7,7 @@ import { verifyPassword } from '@/lib/auth/hash';
 import { signToken } from '@/lib/auth/jwt';
 import { setAuthCookie } from '@/lib/auth/cookies';
 import { getCartSessionId } from '@/lib/utils/cartSession';
+import { checkRateLimit } from '@/lib/utils/rateLimit';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -17,6 +18,13 @@ const loginSchema = z.object({
 });
 
 export const POST = handleApi(async (req: NextRequest) => {
+  if (!checkRateLimit(req, 5)) {
+    return NextResponse.json(
+      { error: 'Too many login attempts. Please try again later.' },
+      { status: 429 },
+    );
+  }
+
   let body;
   try {
     body = await req.json();
@@ -35,12 +43,11 @@ export const POST = handleApi(async (req: NextRequest) => {
   await connectToDB();
 
   const user = await User.findOne({ email });
-  if (!user) {
-    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-  }
+  const hashedPassword = user?.passwordHash || '$2a$10$invalidhashtopreventtimingattack';
 
-  const isValid = await verifyPassword(password, user.passwordHash);
-  if (!isValid) {
+  const isValid = await verifyPassword(password, hashedPassword);
+
+  if (!user || !isValid) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   }
 

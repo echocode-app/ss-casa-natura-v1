@@ -10,7 +10,7 @@ export default [
       'node_modules/**',
       '.next/**',
       'out/**',
-      'src/lib/utils/logger.ts', // Logger utility - console statements expected
+      'src/lib/utils/logger.ts',
     ],
   },
   {

@@ -22,13 +22,18 @@ import prodottiEn from '@/messages/prodotti/en.json';
 import userIt from '@/messages/user/it.json';
 import userEn from '@/messages/user/en.json';
 
+import validationIt from '@/messages/validation/it.json';
+import validationEn from '@/messages/validation/en.json';
+
+import modalIt from '@/messages/modal/it.json';
+import modalEn from '@/messages/modal/en.json';
+
 export default getRequestConfig(async () => {
   const locale = getDevLocale();
 
   const messages =
     locale === 'en'
       ? {
-          common: commonEn,
           ...commonEn,
           contatti: contattiEn,
           linee: lineeEn,
@@ -36,9 +41,10 @@ export default getRequestConfig(async () => {
           privacy: privacyEn,
           prodotti: prodottiEn,
           user: userEn,
+          validation: validationEn,
+          ...modalEn,
         }
       : {
-          common: commonIt,
           ...commonIt,
           contatti: contattiIt,
           linee: lineeIt,
@@ -46,6 +52,8 @@ export default getRequestConfig(async () => {
           privacy: privacyIt,
           prodotti: prodottiIt,
           user: userIt,
+          validation: validationIt,
+          ...modalIt,
         };
 
   return {

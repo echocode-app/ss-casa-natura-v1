@@ -7,18 +7,33 @@ import { hashPassword } from '@/lib/auth/hash';
 import { signToken } from '@/lib/auth/jwt';
 import { setAuthCookie } from '@/lib/auth/cookies';
 import { getCartSessionId } from '@/lib/utils/cartSession';
+import { checkRateLimit } from '@/lib/utils/rateLimit';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
 
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+  .regex(/[0-9]/, 'Password must contain at least one number');
+
 const registerSchema = z.object({
-  nome: z.string().min(1, 'Nome is required'),
-  cognome: z.string().min(1, 'Cognome is required'),
+  nome: z.string().min(1, 'Nome is required').max(100),
+  cognome: z.string().min(1, 'Cognome is required').max(100),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: passwordSchema,
 });
 
 export const POST = handleApi(async (req: NextRequest) => {
+  if (!checkRateLimit(req, 3)) {
+    return NextResponse.json(
+      { error: 'Too many registration attempts. Please try again later.' },
+      { status: 429 },
+    );
+  }
+
   let body;
   try {
     body = await req.json();

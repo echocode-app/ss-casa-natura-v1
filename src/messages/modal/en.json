@@ -1,0 +1,56 @@
+{
+  "modal": {
+    "auth": {
+      "label": {
+        "close": "Close modal",
+        "register": "Create your account",
+        "login": "Log in to your account",
+        "forgot": "Reset your password"
+      },
+      "title": {
+        "register": {
+          "part1": "Welcome to the world of",
+          "green": "Casa Natura",
+          "part2": "Natural"
+        },
+        "login": "Log in to your Casa Natura account"
+      },
+      "form": {
+        "nome": "First Name",
+        "cognome": "Last Name",
+        "email": "Email",
+        "password": "Password",
+        "confermaPassword": "Confirm Password",
+        "register": "Sign Up",
+        "login": "Log In",
+        "forgot": "Send"
+      },
+      "footer": {
+        "register": {
+          "text1": "By signing up, you agree to our",
+          "privacy": "Privacy Policy",
+          "text2": "Already have an account?",
+          "switch": "Log In"
+        },
+        "login": {
+          "text2": "Don't have an account?",
+          "switch": "Sign Up",
+          "forgot": "Forgot your password?"
+        }
+      }
+    },
+    "search": {
+      "form": {
+        "placeholder": "Search products..."
+      },
+      "topProductsTitle": "Featured Products",
+      "empty": {
+        "text": "No products found for",
+        "link": "View all products"
+      },
+      "link": {
+        "allProducts": "See all products"
+      }
+    }
+  }
+}

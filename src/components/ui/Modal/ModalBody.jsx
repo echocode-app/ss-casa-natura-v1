@@ -2,19 +2,30 @@
 import { useTranslations } from 'next-intl';
 import { useCapsLockDetector } from '@/lib/utils/useCapsLock';
 import { normalizeInputValue } from '@/lib/utils/inputHelpers';
+import FormError from '@/components/ui/Form/FormError';
 
-export default function ModalBody({ type = 'register', formData, setFormData, fieldErrors = {} }) {
+export default function ModalBody({
+  type = 'register',
+  formData,
+  setFormData,
+  fieldErrors = {},
+  onInputBlur,
+}) {
   const t = useTranslations('modal.auth');
   const tCommon = useTranslations('common.form');
   const { capsLockOn, handleKeyEvent } = useCapsLockDetector();
 
-  const handleChange = (field) => (e) =>
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  const handleChange = (field) => (e) => {
+    const value = e.target.value;
+    // 📌 Normalize immediately for name fields (capitalize)
+    const normalizedValue = normalizeInputValue(value, field);
+    setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
+  };
 
   const handleBlur = (field) => (e) => {
-    const normalizedValue = normalizeInputValue(field, e.target.value);
-    if (normalizedValue !== e.target.value) {
-      setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
+    // 📌 Trigger validation on blur
+    if (onInputBlur) {
+      onInputBlur(field);
     }
   };
 
@@ -40,9 +51,7 @@ export default function ModalBody({ type = 'register', formData, setFormData, fi
               className={inputClass}
               required
             />
-            {fieldErrors.nome && (
-              <span className="text-xs text-red-600 mt-1">{fieldErrors.nome}</span>
-            )}
+            <FormError message={fieldErrors.nome} />
           </div>
           <div className="flex-1 flex flex-col">
             <input
@@ -55,9 +64,7 @@ export default function ModalBody({ type = 'register', formData, setFormData, fi
               className={inputClass}
               required
             />
-            {fieldErrors.cognome && (
-              <span className="text-xs text-red-600 mt-1">{fieldErrors.cognome}</span>
-            )}
+            <FormError message={fieldErrors.cognome} />
           </div>
         </div>
       )}
@@ -68,14 +75,13 @@ export default function ModalBody({ type = 'register', formData, setFormData, fi
             type="email"
             value={formData.email}
             onChange={handleChange('email')}
+            onBlur={handleBlur('email')}
             placeholder={t('form.email', { defaultValue: 'Email' })}
             autoComplete="email"
             className={inputClass}
             required
           />
-          {fieldErrors.email && (
-            <span className="text-xs text-red-600 mt-1">{fieldErrors.email}</span>
-          )}
+          <FormError message={fieldErrors.email} />
         </div>
       )}
 
@@ -87,6 +93,7 @@ export default function ModalBody({ type = 'register', formData, setFormData, fi
                 type="password"
                 value={formData.password}
                 onChange={handleChange('password')}
+                onBlur={handleBlur('password')}
                 onKeyDown={handleKeyEvent}
                 onKeyUp={handleKeyEvent}
                 placeholder={t('form.password', { defaultValue: 'Password' })}
@@ -112,9 +119,7 @@ export default function ModalBody({ type = 'register', formData, setFormData, fi
                 {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
               </p>
             )}
-            {fieldErrors.password && (
-              <span className="text-xs text-red-600 mt-1">{fieldErrors.password}</span>
-            )}
+            <FormError message={fieldErrors.password} />
           </div>
 
           {type === 'register' && (
@@ -124,6 +129,7 @@ export default function ModalBody({ type = 'register', formData, setFormData, fi
                   type="password"
                   value={formData.confermaPassword}
                   onChange={handleChange('confermaPassword')}
+                  onBlur={handleBlur('confermaPassword')}
                   onKeyDown={handleKeyEvent}
                   onKeyUp={handleKeyEvent}
                   placeholder={t('form.confermaPassword', { defaultValue: 'Confirm Password' })}
@@ -149,9 +155,7 @@ export default function ModalBody({ type = 'register', formData, setFormData, fi
                   {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
                 </p>
               )}
-              {fieldErrors.confermaPassword && (
-                <span className="text-xs text-red-600 mt-1">{fieldErrors.confermaPassword}</span>
-              )}
+              <FormError message={fieldErrors.confermaPassword} />
             </div>
           )}
         </>

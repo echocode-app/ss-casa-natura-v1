@@ -24,13 +24,13 @@ export default function HeaderIcons({
 
   const itemCount = isInitializing ? 0 : getItemCount();
 
-  // Обробник кліку на кнопку користувача
+  // 📌 Handle user button click - redirect or open modal
   const handleUserButtonClick = () => {
     if (isAuthenticated) {
-      // Залогінений юзер - переходимо на його сторінку
+      // 📌 Authenticated user - go to account
       router.push('/account');
     } else {
-      // Не залогінений - викликаємо колбек для відкриття модалки
+      // 📌 Not authenticated - open modal
       onUserClick?.();
     }
   };

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Spinner from '@/components/ui/Spinner/Spinner';
 
-// Ролі з доступом до адмін-панелі
+// 📌 Roles with admin panel access
 const ALLOWED_ROLES = ['developer', 'superadmin', 'admin'];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -30,7 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [user, isLoading, router]);
 
-  // Показуємо спіннер під час завантаження або редіректу
+  // 📌 Show spinner during loading or redirect
   if (isLoading || !user || (user.role && !ALLOWED_ROLES.includes(user.role))) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900">

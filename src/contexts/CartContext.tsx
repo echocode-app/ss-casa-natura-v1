@@ -167,6 +167,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           } else {
             const newItem: CartItemUI = {
               id: `${productId}-${variantId}`,
+              slug: product.slug,
               title: product.title,
               imageSrc,
               price,

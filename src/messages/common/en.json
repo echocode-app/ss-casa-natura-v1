@@ -272,6 +272,7 @@
     "noFieldsProvided": "Please provide at least one field to update",
     "currentPasswordIncorrect": "Current password is incorrect",
     "passwordTooShort": "Password must be at least 8 characters",
+    "tooManyAttempts": "Too many attempts. Please try again later.",
     "genericError": "An error occurred. Please try again.",
     "logoutFailed": "Logout failed"
   },
@@ -283,6 +284,9 @@
     "profileUpdated": "Profile updated successfully",
     "messageSent": "Message sent successfully",
     "loggedOut": "Logged out successfully"
+  },
+  "info": {
+    "logoutMessage": "You will be logged out shortly..."
   },
   "loading": "Loading...",
   "close": "Close",

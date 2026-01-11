@@ -82,6 +82,7 @@ export const POST = handleApi(async (req: NextRequest) => {
     cart.items.push({
       productId,
       variantId,
+      slug: productData.slug,
       title: productData.title,
       imageSrc: productData.imageSrc,
       price: productData.price,
@@ -108,6 +109,7 @@ export const POST = handleApi(async (req: NextRequest) => {
         id: item._id?.toString() || item.id,
         productId: item.productId,
         variantId: item.variantId,
+        slug: item.slug,
         title: item.title,
         imageSrc: item.imageSrc,
         price: item.price,

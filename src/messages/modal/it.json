@@ -1,0 +1,56 @@
+{
+  "modal": {
+    "auth": {
+      "label": {
+        "close": "Chiudi modale",
+        "register": "Registrazione",
+        "login": "Login",
+        "forgot": "Ripristina la tua password"
+      },
+      "title": {
+        "register": {
+          "part1": "Diventa",
+          "green": "green",
+          "part2": "con noi"
+        }, 
+        "login": "Benvenuto!"
+      },
+      "form": {
+        "nome": "Nome",
+        "cognome": "Cognome",
+        "email": "Email",
+        "password": "Password",
+        "confermaPassword": "Conferma Password",
+        "register": "Registrati",
+        "login": "Accedi",
+        "forgot": "Invia"
+      },
+      "footer": {
+        "register": {
+          "text1": "Registrandoti, accetti le nostre Condizoni d’uso e l’informativa sulla",
+          "privacy": "privacy.",
+          "text2": "Hai già un account?",
+          "switch": "Accedi"
+        },
+        "login": {
+          "text2": "Non hai un account?",
+          "switch": "Registrati",
+          "forgot": "Dimenticato password?"
+        }
+      }
+    },
+    "search": {
+      "form": {
+        "placeholder": "Cerca prodotti..."
+      },
+      "topProductsTitle": "Prodotti in Evidenza",
+      "empty": {
+        "text": "Nessun prodotto trovato per",
+        "link": "Guarda tutti i prodotti"
+      },
+      "link": {
+        "allProducts": "Vedi tutti i prodotti"
+      }
+    }
+  }
+}

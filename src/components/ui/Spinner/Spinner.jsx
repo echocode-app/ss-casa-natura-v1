@@ -22,8 +22,12 @@ export default function Spinner({ size = 'md', colorScheme = 'accent', className
         animate-spin
         ${colors[colorScheme]}
         ${className}
+        transition-transform duration-300
       `}
       aria-label="Loading"
+      style={{
+        animation: 'spin 1s linear infinite',
+      }}
     />
   );
 }

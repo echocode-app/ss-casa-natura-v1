@@ -67,7 +67,7 @@ export default function MailchimpExportAdminPage() {
     setStatsError(null);
 
     try {
-      // TODO: Замінити на реальний Bearer token якщо буде потрібен
+      // 📌 Replace with real Bearer token if needed
       const response = await fetch('/api/mailchimp/stats', {
         method: 'GET',
         headers: {

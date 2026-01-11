@@ -12,16 +12,12 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   const showSpinner = useSmoothLoading(isLoading || !isAuthenticated, 120, 220);
 
   useEffect(() => {
-    // Чекаємо завантаження auth стану
     if (isLoading) return;
-
-    // Якщо не залогінений - перенаправляємо на головну
     if (!isAuthenticated) {
       router.replace('/');
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Показуємо loading поки перевіряємо аутентифікацію
   if (showSpinner) {
     return <FullscreenSpinner />;
   }

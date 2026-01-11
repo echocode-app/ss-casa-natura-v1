@@ -276,6 +276,7 @@
     "noFieldsProvided": "Inserisci almeno un campo da aggiornare",
     "currentPasswordIncorrect": "La password attuale non e corretta",
     "passwordTooShort": "La password deve essere di almeno 8 caratteri",
+    "tooManyAttempts": "Troppi tentativi. Riprova più tardi.",
     "genericError": "Si e verificato un errore. Riprova.",
     "logoutFailed": "Disconnessione fallita"
   },
@@ -287,6 +288,8 @@
     "profileUpdated": "Profilo aggiornato con successo",
     "messageSent": "Messaggio inviato con successo",
     "loggedOut": "Disconnessione effettuata con successo"
+  },
+  "info": {
+    "logoutMessage": "Verrai disconnesso tra pochi secondi..."
   }
 }
-

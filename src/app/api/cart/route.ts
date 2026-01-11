@@ -50,6 +50,7 @@ export const GET = handleApi(async (req: NextRequest) => {
         id: item._id?.toString() || item.id,
         productId: item.productId,
         variantId: item.variantId,
+        slug: item.slug,
         title: item.title,
         imageSrc: item.imageSrc,
         price: item.price,

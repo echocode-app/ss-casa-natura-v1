@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import ProductCard from './ProductCard';
 import { useTranslations } from 'next-intl';
 
@@ -9,6 +10,16 @@ const LeafR = '/images/home/leaf-right.png';
 
 export default function CategoriesSection() {
   const t = useTranslations('product-categories');
+
+  const handleCategoryClick = () => {
+    // Smooth scroll to products section
+    setTimeout(() => {
+      const productsSection = document.querySelector('main section:nth-of-type(2)');
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
 
   return (
     <section className="py-8 xl:py-12 relative overflow-x-hidden">
@@ -29,11 +40,19 @@ export default function CategoriesSection() {
               height={270}
               className="absolute top-2 right-28 lg:-top-4 lg:-left-40 xl:-top-6 xl:-left-48 z-0 overflow-x-hidden"
             />
-            <ProductCard title={t('Pulizia')} href="/prodotti?category=pulizia" />
+            <ProductCard
+              title={t('Pulizia')}
+              href="/prodotti?category=pulizia"
+              onClick={handleCategoryClick}
+            />
           </div>
 
           <div className="relative snap-start shrink-0 lg:shrink mt-6 md:mt-0">
-            <ProductCard title={t('Bucato')} href="/prodotti?category=bucato" />
+            <ProductCard
+              title={t('Bucato')}
+              href="/prodotti?category=bucato"
+              onClick={handleCategoryClick}
+            />
           </div>
 
           <div className="relative snap-start shrink-0 lg:shrink mt-6 md:mt-0">
@@ -44,7 +63,11 @@ export default function CategoriesSection() {
               height={255}
               className="absolute top-2 -right-28 lg:-top-4 lg:-right-36 xl:-top-8 xl:-right-44 z-0 overflow-x-hidden"
             />
-            <ProductCard title={t('Cucina')} href="/prodotti?category=cucina" />
+            <ProductCard
+              title={t('Cucina')}
+              href="/prodotti?category=cucina"
+              onClick={handleCategoryClick}
+            />
           </div>
         </div>
       </div>

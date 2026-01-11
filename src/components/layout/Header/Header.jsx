@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAuth } from '@/components/layout/AuthContext';
 import Logo from './Logo';
 import Nav from './Nav';
 import HeaderIcons from './HeaderIcons';
@@ -105,8 +104,7 @@ export default function Header() {
   }, [forcedVisible]);
 
   const handleUserClick = () => {
-    // Модалка відкривається тільки якщо не залогінений
-    // Логіка перевірки переведена в HeaderIcons
+    // 📌 Modal opens only if not authenticated - logic in HeaderIcons
     setAuthOpen(true);
   };
 

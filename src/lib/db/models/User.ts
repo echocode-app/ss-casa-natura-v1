@@ -7,7 +7,7 @@ const userSchema = new Schema({
   passwordHash: { type: String, required: true },
   phone: { type: String },
   deliveryAddress: { type: String },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  role: { type: String, enum: ['user', 'admin', 'superadmin', 'developer'], default: 'user' },
   orders: [{ type: Types.ObjectId, ref: 'Order' }],
   verified: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },

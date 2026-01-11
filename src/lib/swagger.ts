@@ -29,7 +29,7 @@ const options = {
       { name: 'Mailchimp', description: "Endpoints per l'integrazione Mailchimp" },
     ],
   },
-  // Спрощений підхід: не використовуємо glob pattern
+  // 📌 Simplified approach: no glob pattern for API discovery
   apis: [],
 };
 
@@ -38,7 +38,7 @@ let swaggerSpec;
 try {
   swaggerSpec = swaggerJSDoc(options);
 } catch {
-  // Fallback якщо swagger-jsdoc не працює
+  // 📌 Fallback if swagger-jsdoc fails
   swaggerSpec = options.definition;
 }
 

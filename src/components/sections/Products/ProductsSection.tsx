@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import ProductsFiltersSection from './ProductsFiltersSection';
 import ProductsGridSection from './ProductsGridSection';
 import { fetchProducts } from '@/lib/utils/fetchProducts';
@@ -20,6 +20,9 @@ export default function ProductsSection({
   initialFilterId,
   initialCategoryIds = [],
 }: ProductsSectionProps) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isFiltering, setIsFiltering] = useState(false);
 
@@ -75,6 +78,11 @@ export default function ProductsSection({
   }, [appliedCategories, products]);
 
   const applyFilters = () => {
+    // Smooth scroll to grid
+    if (gridRef.current) {
+      gridRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     setIsFiltering(true);
 
     setTimeout(() => {
@@ -84,7 +92,7 @@ export default function ProductsSection({
   };
 
   return (
-    <section className="relative py-16 xl:py-20">
+    <section ref={sectionRef} className="relative py-16 xl:py-20">
       <div className="absolute inset-x-0 bottom-0 top-[600px] xl:top-[760px] bg-[#F9F8D6] z-0" />
 
       <ProductsWaveBackground color="#F9F8D6" />
@@ -95,7 +103,7 @@ export default function ProductsSection({
         </h2>
 
         {showInitialSpinner ? (
-          <div className="flex justify-center">
+          <div className="flex justify-center py-12">
             <Spinner size="lg" />
           </div>
         ) : (
@@ -108,9 +116,9 @@ export default function ProductsSection({
               onApply={applyFilters}
             />
 
-            <div className="relative flex-1">
+            <div ref={gridRef} className="relative flex-1 transition-opacity duration-300">
               {showFilteringSpinner && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-lg">
                   <Spinner size="lg" />
                 </div>
               )}

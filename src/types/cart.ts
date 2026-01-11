@@ -4,6 +4,7 @@ export interface CartItemBase {
   id: string;
   productId: string;
   variantId: string;
+  slug: string;
   title: string;
   imageSrc?: string;
   price: number;
@@ -98,6 +99,7 @@ export interface ApiCartItemResponse {
 
 export interface CartItemUI {
   id: string;
+  slug: string;
   title: string;
   imageSrc?: string;
   price: number;
@@ -110,6 +112,7 @@ export interface CartItemUI {
 export function cartItemToUI(item: CartItem): CartItemUI {
   return {
     id: item.id,
+    slug: item.slug || '',
     title: item.title,
     imageSrc: item.imageSrc,
     price: item.price,

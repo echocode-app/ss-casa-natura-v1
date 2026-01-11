@@ -2,15 +2,14 @@ import { cookies as nextCookies } from 'next/headers';
 
 const COOKIE_NAME = 'token';
 
-// async-safe helpers for setting/reading/clearing the auth cookie
 export const setAuthCookie = async (token: string) => {
   const ck = await nextCookies();
   ck.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: true,
+    sameSite: 'strict',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60 * 24 * 7,
   });
 };
 

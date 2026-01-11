@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 export const GET = handleApi(async () => {
-  // TODO: Implement fetching products from DB
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   return NextResponse.json([]);
 });
 
 export const POST = handleApi(async (req: Request) => {
-  // TODO: Implement creating product
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   const body = await req.json();
   return NextResponse.json({ id: 'prod-new', ...body });
 });

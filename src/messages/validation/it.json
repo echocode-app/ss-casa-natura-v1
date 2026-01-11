@@ -1,0 +1,23 @@
+{
+  "fieldRequired": "Campo obbligatorio",
+  "fieldTooShort": "Campo troppo corto",
+  "fieldTooLong": "Campo troppo lungo",
+  "invalidFormat": "Formato non valido",
+  "invalidEmail": "Indirizzo email non valido",
+  "emailRequired": "Email obbligatoria",
+  "nameRequired": "Nome obbligatorio",
+  "nameTooLong": "Nome troppo lungo (max 100 caratteri)",
+  "nameInvalidChars": "Il nome può contenere solo lettere, spazi, apostrofi e trattini",
+  "phoneInvalid": "Numero di telefono non valido",
+  "addressTooLong": "Indirizzo troppo lungo (max 500 caratteri)",
+  "passwordRequired": "Password obbligatoria",
+  "passwordMinLength": "La password deve contenere almeno 8 caratteri",
+  "passwordUppercase": "La password deve contenere almeno una lettera maiuscola",
+  "passwordLowercase": "La password deve contenere almeno una lettera minuscola",
+  "passwordNumber": "La password deve contenere almeno un numero",
+  "passwordConfirmRequired": "Conferma password obbligatoria",
+  "passwordsNotMatch": "Le password non corrispondono",
+  "currentPasswordRequired": "Password attuale obbligatoria",
+  "messageMinLength": "Il messaggio deve contenere almeno 10 caratteri",
+  "messageTooLong": "Il messaggio è troppo lungo (max 1000 caratteri)"
+}

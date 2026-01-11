@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 export const PUT = handleApi(async (req: Request, { params }: { params: { id: string } }) => {
-  // TODO: Implement updating order status
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
   const body = await req.json();
   return NextResponse.json({ id: params.id, ...body });
 });

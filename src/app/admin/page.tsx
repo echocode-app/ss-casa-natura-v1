@@ -6,7 +6,7 @@ import { useAuth } from '@/components/layout/AuthContext';
 export default function AdminPage() {
   const { user } = useAuth();
 
-  // Layout вже перевірив доступ, тут просто рендеримо контент
+  // 📌 Layout already checked access - render admin content
   const adminMenuItems = [
     {
       title: 'Esportazione Mailchimp',

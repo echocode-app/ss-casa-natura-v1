@@ -97,6 +97,7 @@ export default function SearchModal({ isOpen, onClose }) {
           {query && (
             <button
               onClick={() => setQuery('')}
+              aria-label="close"
               className="p-1 md:p-4 flex items-center justify-center text-text-gray hover:text-text-primary transition-all duration-300 md:hover:scale-105"
             >
               <Icon id="close" className="w-3 h-3 md:w-5 md:h-5" />

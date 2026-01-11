@@ -4,14 +4,16 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChangePasswordData } from '@/types/user';
 import { useCapsLockDetector } from '@/lib/utils/useCapsLock';
+import { authSchemas } from '@/lib/validation/schemas';
+import { validateField as validateSingleField } from '@/lib/validation/helpers';
+import FormError from '@/components/ui/Form/FormError';
+import notify from '@/lib/notify';
 
 interface ChangePasswordFormProps {
   onLogout?: () => void;
   changePasswordData?: ChangePasswordData;
   setChangePasswordData?: React.Dispatch<React.SetStateAction<ChangePasswordData>>;
   passwordLoading?: boolean;
-  passwordError?: string;
-  passwordSuccess?: string;
   onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
   userEmail?: string;
 }
@@ -21,8 +23,6 @@ export default function ChangePasswordForm({
   changePasswordData,
   setChangePasswordData,
   passwordLoading,
-  passwordError,
-  passwordSuccess,
   onSubmit,
   userEmail,
 }: ChangePasswordFormProps) {
@@ -31,26 +31,39 @@ export default function ChangePasswordForm({
     newPassword: '',
   });
   const [internalLoading, setInternalLoading] = useState(false);
-  const [internalError, setInternalError] = useState('');
-  const [internalSuccess, setInternalSuccess] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const data = changePasswordData || internalChangePasswordData;
   const setData = setChangePasswordData || setInternalChangePasswordData;
   const loading = passwordLoading !== undefined ? passwordLoading : internalLoading;
-  const error = passwordError !== undefined ? passwordError : internalError;
-  const success = passwordSuccess !== undefined ? passwordSuccess : internalSuccess;
   const handleSubmit = onSubmit || handleInternalSubmit;
 
   const t = useTranslations('user.account.password');
-  const tCommon = useTranslations('common.form');
+  const tValidation = useTranslations('validation');
+  const tCommon = useTranslations('common');
   const { capsLockOn } = useCapsLockDetector();
+
+  const validateField = (field: string, value: string) => {
+    const error = validateSingleField(authSchemas.changePassword, field, value, tValidation);
+    if (error) {
+      setFieldErrors((prev) => ({ ...prev, [field]: error }));
+    } else {
+      setFieldErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
 
   async function handleInternalSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setInternalError('');
-    setInternalSuccess('');
+    setFieldErrors({});
     setInternalLoading(true);
+
     try {
+      authSchemas.changePassword.parse(data);
+
       const res = await fetch('/api/users/me/password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,23 +71,35 @@ export default function ChangePasswordForm({
         body: JSON.stringify(data),
       });
       const responseData = await res.json();
+
       if (!res.ok) {
-        setInternalError(
-          responseData?.error === 'Unauthorized'
-            ? t('unauthorized', { defaultValue: 'Unauthorized. Please log in.' })
-            : t('error', { defaultValue: 'Something went wrong. Please try again.' }),
-        );
+        if (responseData?.error === 'Unauthorized') {
+          notify.error(t('unauthorized', { defaultValue: 'Non autorizzato. Effettua il login.' }));
+        } else {
+          notify.error(t('error', { defaultValue: 'Errore. Riprova più tardi.' }));
+        }
         return;
       }
-      setInternalSuccess(
-        responseData.message || t('success', { defaultValue: 'Password changed successfully.' }),
-      );
+
+      notify.success(responseData.message || t('success'));
+      notify.info(t('logoutMessage'));
+
       setInternalChangePasswordData({ currentPassword: '', newPassword: '' });
+
       setTimeout(() => {
         if (onLogout) onLogout();
       }, 2000);
-    } catch {
-      setInternalError(t('error', { defaultValue: 'Something went wrong. Please try again.' }));
+    } catch (err) {
+      if ((err as any).errors) {
+        const errors: Record<string, string> = {};
+        (err as any).errors.forEach((error: any) => {
+          errors[error.path[0]] = tValidation(error.message);
+        });
+        setFieldErrors(errors);
+        notify.error(tCommon('errors.validationFailed'));
+      } else {
+        notify.error(tCommon('errors.genericError'));
+      }
     } finally {
       setInternalLoading(false);
     }
@@ -85,47 +110,13 @@ export default function ChangePasswordForm({
       setData((prev) => ({ ...prev, [field]: e.target.value }));
     };
 
+  const handleBlur =
+    (field: keyof ChangePasswordData) => (e: React.FocusEvent<HTMLInputElement>) => {
+      validateField(field, e.target.value);
+    };
+
   return (
     <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md" role="alert">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md" role="alert">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-green-800">{success}</p>
-              <p className="text-sm text-green-700 mt-1">{t('logoutMessage')}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* 📌 Hidden email field for password manager accessibility */}
         {userEmail && (
@@ -151,6 +142,7 @@ export default function ChangePasswordForm({
               type="password"
               value={data.currentPassword}
               onChange={handleInputChange('currentPassword')}
+              onBlur={handleBlur('currentPassword')}
               required
               minLength={8}
               autoComplete="current-password"
@@ -180,6 +172,7 @@ export default function ChangePasswordForm({
               {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
             </p>
           )}
+          <FormError message={fieldErrors.currentPassword} />
           <p id="currentPassword-help" className="mt-1 text-sm text-gray-500">
             {t('currentPasswordHelp', { defaultValue: 'Enter your current password' })}
           </p>
@@ -195,6 +188,7 @@ export default function ChangePasswordForm({
               type="password"
               value={data.newPassword}
               onChange={handleInputChange('newPassword')}
+              onBlur={handleBlur('newPassword')}
               required
               minLength={8}
               autoComplete="new-password"
@@ -222,6 +216,7 @@ export default function ChangePasswordForm({
               {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
             </p>
           )}
+          <FormError message={fieldErrors.newPassword} />
           <p id="newPassword-help" className="mt-1 text-sm text-gray-500">
             {t('newPasswordHelp', {
               defaultValue: 'Choose a strong password with at least 8 characters',

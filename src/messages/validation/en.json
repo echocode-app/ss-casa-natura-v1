@@ -1,0 +1,23 @@
+{
+  "fieldRequired": "This field is required",
+  "fieldTooShort": "This field is too short",
+  "fieldTooLong": "This field is too long",
+  "invalidFormat": "Invalid format",
+  "invalidEmail": "Invalid email address",
+  "emailRequired": "Email is required",
+  "nameRequired": "Name is required",
+  "nameTooLong": "Name is too long (max 100 characters)",
+  "nameInvalidChars": "Name can only contain letters, spaces, apostrophes and hyphens",
+  "phoneInvalid": "Invalid phone number",
+  "addressTooLong": "Address is too long (max 500 characters)",
+  "passwordRequired": "Password is required",
+  "passwordMinLength": "Password must contain at least 8 characters",
+  "passwordUppercase": "Password must contain at least one uppercase letter",
+  "passwordLowercase": "Password must contain at least one lowercase letter",
+  "passwordNumber": "Password must contain at least one number",
+  "passwordConfirmRequired": "Password confirmation is required",
+  "passwordsNotMatch": "Passwords do not match",
+  "currentPasswordRequired": "Current password is required",
+  "messageMinLength": "Message must contain at least 10 characters",
+  "messageTooLong": "Message is too long (max 1000 characters)"
+}

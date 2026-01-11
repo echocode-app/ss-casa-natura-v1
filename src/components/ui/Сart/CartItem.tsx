@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import Delite from '@/components/ui/Buttons/Delite';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { CartItemUI } from '@/types/cart';
@@ -32,35 +33,37 @@ export default function CartItem({
         ${isUpdating ? 'opacity-60' : ''}
       `}
     >
-      {/* Image */}
-      <div className="relative w-[70px] h-auto md:w-[93px] md:h-[120px]">
-        <Image
-          src={imageSrc || '/images/home/product.png'}
-          alt={title}
-          fill
-          className="object-contain"
-        />
-      </div>
+      <Link href={`/prodotti/${item.slug}`} className="contents">
+        {/* Image */}
+        <div className="relative w-[70px] h-auto md:w-[93px] md:h-[120px]">
+          <Image
+            src={imageSrc || '/images/home/product.png'}
+            alt={title}
+            fill
+            className="object-contain"
+          />
+        </div>
 
-      {/* Info */}
-      <div
-        className="flex flex-col justify-center gap-2 text-text-soft
+        {/* Info */}
+        <div
+          className="flex flex-col justify-center gap-2 text-text-soft
         ml-1 md:ml-8"
-      >
-        <span className="font-semibold text-[clamp(12px,3vw,18px)] lg:max-w-48 line-clamp-2">
-          {title}
-        </span>
-
-        {volume && (
-          <span className="text-[clamp(10px,3vw,15px)] md:mt-2">
-            {unit} {volume}
+        >
+          <span className="font-semibold text-[clamp(12px,3vw,18px)] lg:max-w-48 line-clamp-2">
+            {title}
           </span>
-        )}
 
-        <span className="font-semibold text-[clamp(12px,3vw,18px)] md:mt-1">
-          € {price.toFixed(2)}
-        </span>
-      </div>
+          {volume && (
+            <span className="text-[clamp(10px,3vw,15px)] md:mt-2">
+              {unit} {volume}
+            </span>
+          )}
+
+          <span className="font-semibold text-[clamp(12px,3vw,18px)] md:mt-1">
+            € {price.toFixed(2)}
+          </span>
+        </div>
+      </Link>
 
       {/* Actions */}
       <div className="flex flex-col items-end justify-between pt-2 pl-3 md:pt-3 md:pl-6">
