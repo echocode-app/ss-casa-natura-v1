@@ -2,12 +2,11 @@ export interface User {
   id: string;
   nome?: string;
   cognome?: string;
+  name?: string;
+  surname?: string;
   email: string;
   phone?: string;
-  address?: {
-    street?: string;
-    city?: string;
-  };
+  deliveryAddress?: string;
 }
 
 export interface Order {

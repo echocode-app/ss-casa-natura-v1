@@ -6,12 +6,7 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true },
   phone: { type: String },
-  address: {
-    street: String,
-    city: String,
-    postalCode: String,
-    country: String,
-  },
+  deliveryAddress: { type: String },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   orders: [{ type: Types.ObjectId, ref: 'Order' }],
   verified: { type: Boolean, default: false },

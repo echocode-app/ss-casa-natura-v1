@@ -10,6 +10,7 @@ export interface IPromoCode extends Document {
   activeUntil?: Date;
   usageLimit?: number;
   usedCount?: number;
+  usedByEmails: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +26,7 @@ const promoCodeSchema = new Schema<IPromoCode>(
     activeUntil: Date,
     usageLimit: Number,
     usedCount: { type: Number, default: 0 },
+    usedByEmails: { type: [String], default: [] },
   },
   { timestamps: true },
 );

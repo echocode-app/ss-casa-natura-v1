@@ -9,6 +9,7 @@ import { Product } from '@/config/products/product.types';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { useTranslations } from 'next-intl';
 import ProductsWaveBackground from '@/components/ui/Parts/ProductsWaveBackground';
+import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
 interface ProductsSectionProps {
   initialFilterId?: string;
@@ -27,6 +28,8 @@ export default function ProductsSection({
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const showInitialSpinner = useSmoothLoading(loading, 150, 300);
+  const showFilteringSpinner = useSmoothLoading(isFiltering, 100, 220);
 
   const t = useTranslations('prodotti.list');
 
@@ -91,7 +94,7 @@ export default function ProductsSection({
           {t('title')}
         </h2>
 
-        {loading ? (
+        {showInitialSpinner ? (
           <div className="flex justify-center">
             <Spinner size="lg" />
           </div>
@@ -106,7 +109,7 @@ export default function ProductsSection({
             />
 
             <div className="relative flex-1">
-              {isFiltering && (
+              {showFilteringSpinner && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm">
                   <Spinner size="lg" />
                 </div>

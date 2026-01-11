@@ -9,10 +9,12 @@ export const runtime = 'nodejs';
 interface UserResponse {
   id: string;
   name?: string;
+  nome?: string;
   surname?: string;
+  cognome?: string;
   email: string;
   phone?: string;
-  address?: string;
+  deliveryAddress?: string;
   role?: 'user' | 'admin';
   createdAt?: Date | string;
 }
@@ -26,7 +28,7 @@ export const GET = handleApi(async (_req: NextRequest) => {
   await connectToDB();
 
   const dbUser = await User.findById(user.id).select(
-    'name surname email phone address role createdAt',
+    'name surname email phone deliveryAddress role createdAt',
   );
 
   if (!dbUser) {
@@ -36,10 +38,12 @@ export const GET = handleApi(async (_req: NextRequest) => {
   const response: UserResponse = {
     id: dbUser._id.toString(),
     name: dbUser.name,
+    nome: dbUser.name,
     surname: dbUser.surname,
+    cognome: dbUser.surname,
     email: dbUser.email,
     phone: dbUser.phone,
-    address: dbUser.address,
+    deliveryAddress: dbUser.deliveryAddress || (dbUser as any).address?.street || undefined,
     role: dbUser.role,
     createdAt: dbUser.createdAt,
   };
@@ -60,14 +64,26 @@ export const PUT = handleApi(async (_req: NextRequest) => {
     return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
   }
 
-  const { nome, cognome, phone, address } = body;
+  const { nome, cognome, phone, deliveryAddress, email } = body;
 
   // at least one field should be provided
-  if (!nome && !cognome && !phone && !address) {
+  if (!nome && !cognome && !phone && !deliveryAddress && !email) {
     return NextResponse.json({ error: 'At least one field must be provided' }, { status: 400 });
   }
 
   await connectToDB();
+
+  const existing = await User.findById(user.id).select('email');
+  if (!existing) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  if (email && email !== existing.email) {
+    const emailTaken = await User.findOne({ email });
+    if (emailTaken) {
+      return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
+    }
+  }
 
   const updated = await User.findByIdAndUpdate(
     user.id,
@@ -75,11 +91,12 @@ export const PUT = handleApi(async (_req: NextRequest) => {
       ...(nome && { name: nome }),
       ...(cognome && { surname: cognome }),
       ...(phone && { phone }),
-      ...(address && { address }),
+      ...(deliveryAddress !== undefined && { deliveryAddress }),
+      ...(email && { email }),
       updatedAt: new Date(),
     },
     { new: true },
-  ).select('name surname email phone address role createdAt');
+  ).select('name surname email phone deliveryAddress role createdAt');
 
   if (!updated) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -88,10 +105,12 @@ export const PUT = handleApi(async (_req: NextRequest) => {
   return NextResponse.json({
     id: updated._id,
     name: updated.name,
+    nome: updated.name,
     surname: updated.surname,
+    cognome: updated.surname,
     email: updated.email,
     phone: updated.phone,
-    address: updated.address,
+    deliveryAddress: updated.deliveryAddress,
     role: updated.role,
     createdAt: updated.createdAt,
   });

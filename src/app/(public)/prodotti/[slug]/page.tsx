@@ -7,6 +7,8 @@ import { fetchProduct, fetchProducts } from '@/lib/utils/fetchProducts';
 import { Product } from '@/config/products/product.types';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
+import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
 export default function ProductPageClient() {
   const params = useParams();
@@ -16,6 +18,7 @@ export default function ProductPageClient() {
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const showSpinner = useSmoothLoading(loading, 150, 280);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -42,7 +45,7 @@ export default function ProductPageClient() {
     loadProduct();
   }, [slug]);
 
-  if (loading) return <div>Loading...</div>;
+  if (showSpinner) return <FullscreenSpinner />;
   if (!slug || !product) return <div>{t('notFound')}</div>;
 
   return (

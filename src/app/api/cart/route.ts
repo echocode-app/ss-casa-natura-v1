@@ -38,6 +38,8 @@ export const GET = handleApi(async (req: NextRequest) => {
     });
   }
 
+  const total = cart.subtotal - (cart.discount || 0) - (cart.promoDiscount || 0);
+
   return NextResponse.json({
     success: true,
     cart: {
@@ -60,7 +62,7 @@ export const GET = handleApi(async (req: NextRequest) => {
       discount: cart.discount,
       promoCode: cart.promoCode,
       promoDiscount: cart.promoDiscount,
-      total: cart.total,
+      total,
       createdAt: cart.createdAt,
       updatedAt: cart.updatedAt,
     },

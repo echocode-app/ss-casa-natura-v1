@@ -3,10 +3,13 @@
 import { useAuth } from '@/components/layout/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
+import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const showSpinner = useSmoothLoading(isLoading || !isAuthenticated, 120, 220);
 
   useEffect(() => {
     // Чекаємо завантаження auth стану
@@ -19,14 +22,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   }, [isAuthenticated, isLoading, router]);
 
   // Показуємо loading поки перевіряємо аутентифікацію
-  if (isLoading || !isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-lg font-semibold">Loading...</p>
-        </div>
-      </div>
-    );
+  if (showSpinner) {
+    return <FullscreenSpinner />;
   }
 
   return <>{children}</>;

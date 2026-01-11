@@ -1,6 +1,7 @@
 import '@/app/globals.css';
 import Script from 'next/script';
 import type { Metadata, Viewport } from 'next';
+import type { ReactNode } from 'react';
 import { Raleway } from 'next/font/google';
 import ClientLoader from '@/components/layout/ClientLoader';
 import { AuthProvider } from '@/components/layout/AuthContext';
@@ -25,18 +26,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
   const locale = await getLocale();
   const messages = await getMessages();
 
   return (
     <html lang={locale}>
-      <head>
-        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
-        <link rel="manifest" href="/favicon/site.webmanifest" />
-      </head>
       <body className={raleway.className}>
         {process.env.NEXT_PUBLIC_IUBENDA_ENABLED === 'true' && (
           <Script

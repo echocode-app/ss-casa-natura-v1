@@ -13,7 +13,6 @@ import AuthModal from '@/components/ui/Modal/AuthModal';
 import { CartDropdown } from '@/components/ui/Сart';
 
 export default function Header() {
-  const { isAuthenticated } = useAuth();
   const t = useTranslations('header.actions');
 
   const [menuOpen, setMenuOpen] = useState(false);

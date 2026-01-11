@@ -94,7 +94,7 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   // Recalculate totals
   cart.subtotal = cart.items.reduce((sum: number, item: CartItemDB) => sum + item.totalPrice, 0);
-  cart.total = cart.subtotal - (cart.discount || 0);
+  cart.total = cart.subtotal - (cart.discount || 0) - (cart.promoDiscount || 0);
 
   await cart.save();
 

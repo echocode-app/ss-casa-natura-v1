@@ -12,7 +12,8 @@
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && next build --turbo",
-    "reinstall": "rm -rf node_modules package-lock.json && npm install --legacy-peer-deps"
+    "reinstall": "rm -rf node_modules package-lock.json && npm install --legacy-peer-deps",
+    "mailchimp:export": "node scripts/mailchimp-export.js"
   },
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.80",

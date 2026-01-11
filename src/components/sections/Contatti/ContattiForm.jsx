@@ -54,8 +54,7 @@ export default function ContattiForm() {
         messaggio: '',
       });
       setSubmitStatus('success');
-    } catch (error) {
-      console.error('Form submission error:', error);
+    } catch {
       setSubmitStatus('error');
     } finally {
       setLoading(false);

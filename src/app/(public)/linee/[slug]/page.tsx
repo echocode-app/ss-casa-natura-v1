@@ -11,6 +11,7 @@ import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 import { LineBannerSection } from '@/components/sections/BannerSection';
 import LeLineeBreadcrumbs from '@/components/sections/LeLinee/LeLineeBreadcrumbs';
 import { useTranslations } from 'next-intl';
+import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
 interface LinePageProps {
   params: { slug: string } | Promise<{ slug: string }>;
@@ -20,6 +21,7 @@ export default function LinePage({ params }: LinePageProps) {
   const [line, setLine] = useState<LineConfigItem | null>(null);
   const [loading, setLoading] = useState(true);
   const t = useTranslations('linee');
+  const showSpinner = useSmoothLoading(loading, 150, 280);
 
   useEffect(() => {
     async function loadLine() {
@@ -34,7 +36,7 @@ export default function LinePage({ params }: LinePageProps) {
     loadLine();
   }, [params]);
 
-  if (loading) return <FullscreenSpinner />;
+  if (showSpinner) return <FullscreenSpinner />;
 
   if (!line) return <div>{t('lineNotFound')}</div>;
 

@@ -5,17 +5,17 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AccountLayout from '@/components/layout/User/AccountLayout';
 import ProfileSection from '@/components/account/ProfileSection';
-import OrdersSection from '@/components/account/OrdersSection';
 import ChangePasswordForm from '@/components/account/ChangePasswordForm';
+import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
+import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
-import { User, Order, ChangePasswordData } from '@/types/user';
+import { User, ChangePasswordData } from '@/types/user';
 
 export default function AccountPage() {
   const { isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
 
   const [userProfile, setUserProfile] = useState<User | null>(null);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [changePasswordData, setChangePasswordData] = useState<ChangePasswordData>({
@@ -25,8 +25,9 @@ export default function AccountPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
+  const showSpinner = useSmoothLoading(isLoading || loading || !isAuthenticated, 120, 220);
 
-  // Fetch user data and orders
+  // Fetch user data
   useEffect(() => {
     if (isLoading) return;
     if (!isAuthenticated) {
@@ -42,16 +43,8 @@ export default function AccountPage() {
         } else {
           setUserProfile(null);
         }
-        const resOrders = await fetch('/api/users/me/orders', { credentials: 'include' });
-        if (resOrders.ok) {
-          const ordersData = await resOrders.json();
-          setOrders(ordersData);
-        } else {
-          setOrders([]);
-        }
       } catch {
         setUserProfile(null);
-        setOrders([]);
       } finally {
         setLoading(false);
       }
@@ -107,18 +100,13 @@ export default function AccountPage() {
     setUserProfile(updatedUser);
   };
 
-  if (isLoading || !isAuthenticated || loading) {
-    return (
-      <div className="p-6 text-center">
-        <h1 className="text-2xl font-bold">Loading...</h1>
-      </div>
-    );
+  if (showSpinner) {
+    return <FullscreenSpinner />;
   }
 
   return (
     <AccountLayout>
       <ProfileSection user={userProfile!} onUpdate={handleUserUpdate} />
-      <OrdersSection orders={orders} />
       <ChangePasswordForm
         changePasswordData={changePasswordData}
         setChangePasswordData={setChangePasswordData}

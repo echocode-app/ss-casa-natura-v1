@@ -57,6 +57,7 @@ export interface RemoveFromCartRequest {
 
 export interface ApplyPromoCodeRequest {
   promoCode: string;
+  email?: string;
 }
 
 export interface RemovePromoCodeRequest {}

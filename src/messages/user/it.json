@@ -32,8 +32,7 @@
       "lastName": "Cognome",
       "email": "Email",
       "phone": "Telefono",
-      "street": "Via",
-      "city": "Città",
+      "deliveryAddress": "Indirizzo di consegna",
       "required": "Richiesto",
       "invalidEmail": "Email non valida",
       "invalidPhone": "Numero di telefono non valido",
@@ -45,6 +44,7 @@
     },
     "orders": {
       "title": "Ordini",
+      "all": "Tutti gli ordini",
       "noOrders": "Ancora nessun ordine",
       "orderNumber": "Ordine #{number}",
       "status": "Stato",

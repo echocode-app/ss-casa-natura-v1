@@ -86,14 +86,7 @@ export default function ChangePasswordForm({
     };
 
   return (
-    <section
-      className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm"
-      aria-labelledby="password-heading"
-    >
-      <h2 id="password-heading" className="text-xl font-semibold text-gray-900 mb-6">
-        {t('title')}
-      </h2>
-
+    <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md" role="alert">
           <div className="flex">

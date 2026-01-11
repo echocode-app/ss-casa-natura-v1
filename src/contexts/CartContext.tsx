@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { CartItemUI, cartItemToUI } from '@/types/cart';
+import { ApplyPromoCodeRequest, CartItemUI, cartItemToUI } from '@/types/cart';
 import { cartService } from '@/lib/services/cart';
 import { useAuth } from '@/components/layout/AuthContext';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
@@ -53,7 +53,7 @@ interface CartContextType {
   updateItem: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
-  applyPromoCode: (code: string) => Promise<void>;
+  applyPromoCode: (code: string, email?: string) => Promise<void>;
   removePromoCode: () => Promise<void>;
   getItemCount: () => number;
   getSubtotal: () => number;
@@ -257,18 +257,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const applyPromoCode = useCallback(
-    async (code: string) => {
+    async (code: string, email?: string) => {
       setIsLoading(true);
       setError(null);
 
+      const payload: ApplyPromoCodeRequest = { promoCode: code };
+      const resolvedEmail = user?.email || email;
+
+      if (resolvedEmail) {
+        payload.email = resolvedEmail.toLowerCase();
+      } else {
+        setIsLoading(false);
+        setError('promo: Email is required to apply a promo code');
+        return;
+      }
+
       try {
-        if (!user) return;
-        const cart = await cartService.applyPromoCode({ promoCode: code });
+        const cart = await cartService.applyPromoCode(payload);
         setItems(cart.items.map(cartItemToUI));
         setPromoCode(cart.promoCode);
         setPromoDiscount(cart.promoDiscount);
-      } catch {
-        setError('Failed to apply promo code');
+      } catch (err: any) {
+        setError(`promo: ${err?.message || 'Failed to apply promo code'}`);
       } finally {
         setIsLoading(false);
       }
@@ -281,17 +291,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      if (!user) return;
       const cart = await cartService.removePromoCode();
       setItems(cart.items.map(cartItemToUI));
       setPromoCode(cart.promoCode);
       setPromoDiscount(cart.promoDiscount);
-    } catch {
-      setError('Failed to remove promo code');
+    } catch (err: any) {
+      setError(`promo: ${err?.message || 'Failed to remove promo code'}`);
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, []);
 
   const getItemCount = useCallback(() => items.reduce((t, i) => t + i.quantity, 0), [items]);
 

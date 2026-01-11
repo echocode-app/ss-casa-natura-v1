@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { Order } from '@/types/user';
+import CartEmpty from '@/components/ui/Сart/CartEmpty';
 
 interface OrdersSectionProps {
   orders: Order[];
@@ -36,7 +37,10 @@ export default function OrdersSection({ orders }: OrdersSectionProps) {
       </h2>
 
       {orders.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">{t('noOrders')}</p>
+        <div className="text-gray-500 text-center py-8">
+          <p className="mb-4">{t('noOrders')}</p>
+          <CartEmpty onClose={() => {}} />
+        </div>
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (

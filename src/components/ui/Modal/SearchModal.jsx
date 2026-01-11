@@ -9,6 +9,7 @@ import Spinner from '@/components/ui/Spinner/Spinner';
 import { Icon } from '@/components/ui';
 import { searchProducts } from '@/helpers/searchProducts';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
 const MIN_QUERY_LENGTH = 3;
 const MAX_RESULTS = 10;
@@ -42,6 +43,7 @@ export default function SearchModal({ isOpen, onClose }) {
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState([]);
   const [showTopProducts, setShowTopProducts] = useState(true);
+  const showSpinner = useSmoothLoading(isSearching, 120, 220);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -119,7 +121,7 @@ export default function SearchModal({ isOpen, onClose }) {
           )}
 
           {/* Loading Spinner */}
-          {isSearching && (
+          {showSpinner && (
             <div className="flex justify-center m-auto py-8">
               <Spinner size="md" colorScheme="muted" />
             </div>

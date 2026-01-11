@@ -12,14 +12,12 @@ interface ProfileSectionProps {
 export default function ProfileSection({ user, onUpdate }: ProfileSectionProps) {
   const t = useTranslations('user.account.profile');
 
+  const firstName = user.nome || (user as any).name || '';
+  const lastName = user.cognome || (user as any).surname || '';
+  const deliveryAddress = user.deliveryAddress || '';
+
   const handleSaveField = async (name: string, value: string) => {
-    let body: any = {};
-    if (name.startsWith('address.')) {
-      const field = name.split('.')[1];
-      body = { address: { ...user.address, [field]: value } };
-    } else {
-      body = { [name]: value };
-    }
+    const body: any = { [name]: value };
     const res = await fetch('/api/users/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -50,29 +48,20 @@ export default function ProfileSection({ user, onUpdate }: ProfileSectionProps) 
   };
 
   return (
-    <section
-      className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm"
-      aria-labelledby="profile-heading"
-    >
-      <h2 id="profile-heading" className="text-xl font-semibold text-gray-900 mb-6">
-        {t('title')}
-      </h2>
-
-      <div className="space-y-1">
+    <section className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
+      <div className="flex flex-col gap-5">
         <EditableField
           label={t('firstName')}
-          value={user.nome}
+          value={firstName}
           name="nome"
           onSave={handleSaveField}
-          required
         />
 
         <EditableField
           label={t('lastName')}
-          value={user.cognome}
+          value={lastName}
           name="cognome"
           onSave={handleSaveField}
-          required
         />
 
         <EditableField
@@ -82,7 +71,6 @@ export default function ProfileSection({ user, onUpdate }: ProfileSectionProps) 
           type="email"
           onSave={handleSaveField}
           validate={validateEmail}
-          required
         />
 
         <EditableField
@@ -95,17 +83,10 @@ export default function ProfileSection({ user, onUpdate }: ProfileSectionProps) 
         />
 
         <EditableField
-          label={t('street')}
-          value={user.address?.street}
-          name="street"
-          onSave={(name, value) => handleSaveField('address.street', value)}
-        />
-
-        <EditableField
-          label={t('city')}
-          value={user.address?.city}
-          name="city"
-          onSave={(name, value) => handleSaveField('address.city', value)}
+          label={t('deliveryAddress')}
+          value={deliveryAddress}
+          name="deliveryAddress"
+          onSave={handleSaveField}
         />
       </div>
     </section>

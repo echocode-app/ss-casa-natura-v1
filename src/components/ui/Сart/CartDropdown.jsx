@@ -6,14 +6,17 @@ import CartItem from './CartItem.tsx';
 import CartFooter from './CartFooter';
 import CartEmpty from './CartEmpty';
 import { useCart } from '@/contexts/CartContext';
+import Spinner from '@/components/ui/Spinner/Spinner';
+import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
 export default function CartDropdown({ parentRef, isOpen, onClose }) {
-  const { items, updateItem, removeItem } = useCart();
+  const { items, updateItem, removeItem, isLoading } = useCart();
   const [mounted, setMounted] = useState(false);
   const [coords, setCoords] = useState({ top: 0, right: 0 });
   const [dropdownWidth, setDropdownWidth] = useState('90vw');
   const containerRef = useRef(null);
   const [isUpdating, setIsUpdating] = useState(null);
+  const showOverlay = useSmoothLoading(isLoading, 120, 220);
 
   useEffect(() => setMounted(true), []);
 
@@ -109,13 +112,19 @@ export default function CartDropdown({ parentRef, isOpen, onClose }) {
       onMouseLeave={() => window.innerWidth >= 1024 && onClose()}
     >
       <div
-        className="bg-white flex flex-col max-h-[80vh] overflow-y-auto"
+        className="relative bg-white flex flex-col max-h-[80vh] overflow-y-auto"
         style={{
           boxShadow:
             '0px 2px 4.9px -1px rgba(0, 0, 0, 0.25), inset 0 5px 5.2px -3px rgba(0,0,0,0.25)',
           width: dropdownWidth,
         }}
       >
+        {showOverlay && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+            <Spinner size="md" />
+          </div>
+        )}
+
         <div className="overflow-y-auto max-h-[50vw] flex-1 py-3 px-1 md:py-4 flex flex-col gap-2 md:gap-4">
           {items.length === 0 ? (
             <CartEmpty />

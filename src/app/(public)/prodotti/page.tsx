@@ -7,6 +7,7 @@ import { ProductsCategoriesSection, ProductsSection } from '@/components/section
 import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 
 import { PRODUCT_FILTERS } from '@/config/products/product.filters';
+import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
 export default function ProdottiPage() {
   const searchParams = useSearchParams();
@@ -39,9 +40,11 @@ export default function ProdottiPage() {
     });
   }, [categoryParam, subcategoryParam]);
 
+  const showSpinner = useSmoothLoading(isPending, 150, 280);
+
   return (
     <main className="relative">
-      {isPending && <FullscreenSpinner />}
+      {showSpinner && <FullscreenSpinner />}
 
       <ProductsCategoriesSection />
 
