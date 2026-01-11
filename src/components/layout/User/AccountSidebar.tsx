@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../AuthContext';
 import { useTranslations } from 'next-intl';
+import { Logout } from '@/components/ui/Buttons';
 
 export default function AccountSidebar() {
   const router = useRouter();
@@ -10,13 +11,19 @@ export default function AccountSidebar() {
   const { logout } = useAuth();
   const t = useTranslations('user.account');
 
-  const linkBaseClasses =
-    'w-full text-left px-3 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-between';
+  const linkBaseClasses = `
+    group w-full text-right
+    p-4 md:p-10 lg:pl-16 lg:pr-24 lg:pt-20 lg:pb-16
+    text-h-accent text-[clamp(18px,3vw,28px)]
+    transition-colors
+    focus:outline-none
+    flex items-center justify-center
+    md:transition-transform md:duration-300 md:will-change-transform
+    md:group-hover:scale-105 md:group-focus-visible:scale-105
+    `;
 
   const getNavClasses = (active: boolean) =>
-    active
-      ? `${linkBaseClasses} bg-[#fbfbe9] text-gray-900 border border-gray-200`
-      : `${linkBaseClasses} text-gray-700 hover:bg-gray-50 hover:text-gray-900`;
+    active ? `${linkBaseClasses} bg-brand-light` : `${linkBaseClasses} bg-transparent`;
 
   const handleLogout = async () => {
     await logout();
@@ -24,8 +31,8 @@ export default function AccountSidebar() {
   };
 
   return (
-    <aside className="w-64 bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-      <nav className="space-y-2">
+    <aside className="bg-background-sidebar shadow-sidebar-right w-full max-w-[200px] md:max-w-[300px] xl:max-w-[400px]">
+      <nav className="flex flex-col justify-center items-center text-center">
         <button
           onClick={() => router.push('/account')}
           className={getNavClasses(pathname === '/account')}
@@ -33,6 +40,7 @@ export default function AccountSidebar() {
         >
           {t('title')}
         </button>
+
         <button
           onClick={() => router.push('/account/orders')}
           className={getNavClasses(pathname === '/account/orders')}
@@ -40,12 +48,27 @@ export default function AccountSidebar() {
         >
           {t('orders.all')}
         </button>
-        <hr className="my-4 border-gray-200" />
+
         <button
           onClick={handleLogout}
-          className="w-full text-left px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          className={`
+            group w-full text-right
+            p-10 lg:p-16
+            text-h-accent text-[clamp(18px,3vw,28px)]
+            transition-colors
+            focus:outline-none
+            flex items-center justify-center
+            md:transition-transform md:duration-300 md:will-change-transform
+            md:group-hover:scale-105 md:group-focus-visible:scale-105
+          `}
         >
-          {t('actions.logout')}
+          <Logout
+            className="
+              w-6 h-6
+              lg:w-[72px] lg:h-[72px]
+              flex-shrink-0
+            "
+          />
         </button>
       </nav>
     </aside>

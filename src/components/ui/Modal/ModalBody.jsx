@@ -30,11 +30,16 @@ export default function ModalBody({
   };
 
   const inputClass =
-    'w-full border border-input bg-background-primary outline-none ' +
+    'w-full border bg-background-primary outline-none ' +
     'text-text-primary text-[clamp(14px,2vw,18px)] placeholder:text-text-gray ' +
     'rounded-input-sm md:rounded-input-xl px-4 py-3 md:px-7 md:py-4 ' +
     'transition-all duration-300 hover:outline-none ' +
-    'focus-within:ring-1 focus-within:ring-border-input focus:outline-none';
+    'focus-within:ring-1 focus:outline-none';
+
+  const getInputClass = (field) => {
+    const hasError = fieldErrors[field];
+    return `${inputClass} ${hasError ? 'border-red-500 focus-within:ring-red-500' : 'border-input focus-within:ring-border-input'}`;
+  };
 
   return (
     <div className="flex flex-col items-center gap-3 w-full">
@@ -48,8 +53,7 @@ export default function ModalBody({
               onBlur={handleBlur('nome')}
               placeholder={t('form.nome', { defaultValue: 'First Name' })}
               autoComplete="given-name"
-              className={inputClass}
-              required
+              className={getInputClass('nome')}
             />
             <FormError message={fieldErrors.nome} />
           </div>
@@ -61,8 +65,7 @@ export default function ModalBody({
               onBlur={handleBlur('cognome')}
               placeholder={t('form.cognome', { defaultValue: 'Last Name' })}
               autoComplete="family-name"
-              className={inputClass}
-              required
+              className={getInputClass('cognome')}
             />
             <FormError message={fieldErrors.cognome} />
           </div>
@@ -78,8 +81,7 @@ export default function ModalBody({
             onBlur={handleBlur('email')}
             placeholder={t('form.email', { defaultValue: 'Email' })}
             autoComplete="email"
-            className={inputClass}
-            required
+            className={getInputClass('email')}
           />
           <FormError message={fieldErrors.email} />
         </div>
@@ -98,9 +100,7 @@ export default function ModalBody({
                 onKeyUp={handleKeyEvent}
                 placeholder={t('form.password', { defaultValue: 'Password' })}
                 autoComplete="new-password"
-                className={inputClass}
-                minLength={8}
-                required
+                className={getInputClass('password')}
               />
               {capsLockOn && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-yellow-600 pointer-events-none">
@@ -134,9 +134,7 @@ export default function ModalBody({
                   onKeyUp={handleKeyEvent}
                   placeholder={t('form.confermaPassword', { defaultValue: 'Confirm Password' })}
                   autoComplete="new-password"
-                  className={inputClass}
-                  minLength={8}
-                  required
+                  className={getInputClass('confermaPassword')}
                 />
                 {capsLockOn && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 text-yellow-600 pointer-events-none">

@@ -34,6 +34,7 @@ const config: Config = {
 
       boxShadow: {
         header: '0px 5px 5.2px rgba(0,0,0,0.25)', // use shadow-header
+        'sidebar-right': '5px 0px 5.2px rgba(0,0,0,0.25)', // use shadow-sidebar-right
       },
 
       borderRadius: {
@@ -75,6 +76,7 @@ const config: Config = {
           overlay: 'rgba(0,0,0,0.58)', // bg-background-overlay
           gray: '#595959', // bg-background-gray
           green: '#D4FFAD', // bg-background-green
+          sidebar: '#EEEEEE', // bg-background-sidebar
         },
       },
 

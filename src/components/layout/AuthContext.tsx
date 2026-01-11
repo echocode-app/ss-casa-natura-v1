@@ -2,13 +2,20 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { AuthUser } from '@/lib/auth/types';
 
+interface ExtendedAuthUser extends AuthUser {
+  name?: string;
+  surname?: string;
+  phone?: string;
+  deliveryAddress?: string;
+}
+
 interface AuthContextProps {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: () => Promise<boolean>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<boolean>;
-  user: AuthUser | null;
+  user: ExtendedAuthUser | null;
 }
 
 const AuthContext = createContext<AuthContextProps>({
@@ -22,7 +29,7 @@ const AuthContext = createContext<AuthContextProps>({
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<ExtendedAuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshUser = useCallback(async (): Promise<boolean> => {
@@ -32,21 +39,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: 'GET',
         credentials: 'include',
       });
+
       if (res.ok) {
         const userData = await res.json();
+
         setUser({
           id: userData.id,
           email: userData.email,
           role: userData.role,
+          name: userData.name || userData.nome,
+          surname: userData.surname || userData.cognome,
+          phone: userData.phone,
+          deliveryAddress: userData.deliveryAddress,
         });
         setIsAuthenticated(true);
         return true;
       } else {
+        // 401 is expected for non-authenticated users - don't log as error
+        if (res.status !== 401) {
+        }
         setIsAuthenticated(false);
         setUser(null);
         return false;
       }
-    } catch {
+    } catch (error) {
+      console.error('[AuthContext] Error refreshing user:', error);
       setIsAuthenticated(false);
       setUser(null);
       return false;

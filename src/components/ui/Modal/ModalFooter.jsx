@@ -4,22 +4,15 @@ import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
-export default function ModalFooter({
-  type = 'register',
-  onSubmit,
-  onSwitch,
-  onForgot,
-  loading = false,
-}) {
+export default function ModalFooter({ type = 'register', onSwitch, onForgot, loading = false }) {
   const t = useTranslations('modal.auth');
-  const tCommon = useTranslations('common');
+  const tCommon = useTranslations();
 
   return (
     <div className="flex flex-col items-center mt-4 lg:mt-8 w-full gap-4 lg:gap-5">
       {/* Submit Button */}
       <PrimaryButton
         type="submit"
-        onClick={onSubmit}
         disabled={loading}
         className="min-w-[140px] lg:min-w-[220px] px-6 py-3 lg:py-4 disabled:opacity-50 disabled:cursor-not-allowed"
       >

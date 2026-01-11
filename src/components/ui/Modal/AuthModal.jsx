@@ -33,7 +33,24 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
 
   const validateField = (field, value) => {
     const currentSchema = type === 'register' ? authSchemas.register : authSchemas.login;
+
+    // Special handling for confermaPassword
+    if (field === 'confermaPassword') {
+      if (value !== formData.password) {
+        setFieldErrors((prev) => ({ ...prev, [field]: tValidation('passwordsNotMatch') }));
+        return;
+      } else {
+        setFieldErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+        return;
+      }
+    }
+
     const error = validateSingleField(currentSchema, field, value, tValidation);
+
     if (error) {
       setFieldErrors((prev) => ({ ...prev, [field]: error }));
     } else {
@@ -57,13 +74,15 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
       } else if (type === 'forgot') {
         authSchemas.forgotPassword.parse({ email: formData.email });
       }
+
       return {};
     } catch (err) {
       const errors = {};
       if (err?.issues) {
         err.issues.forEach((error) => {
           const field = error.path[0];
-          errors[field] = tValidation(error.message);
+          const message = tValidation(error.message);
+          errors[field] = message;
         });
       }
       return errors;
@@ -72,10 +91,11 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFieldErrors({});
+    e.stopPropagation();
     setLoading(true);
 
     const clientErrors = validate();
+
     if (Object.keys(clientErrors).length > 0) {
       setFieldErrors(clientErrors);
       setLoading(false);
@@ -101,6 +121,7 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const data = await res.json();
 
         if (!res.ok) {
+          console.error('[AuthModal] Registration failed:', res.status, data);
           if (data.details) {
             // API validation errors - just show first error without field mapping
             const firstFieldErrors = Object.values(data.details)[0];
@@ -119,7 +140,6 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
 
         notify.success(tSuccess('registrationSuccess'));
         const isLoggedIn = await login();
-
         if (isLoggedIn) {
           onClose?.();
           router.replace('/account');
@@ -140,6 +160,7 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const data = await res.json();
 
         if (!res.ok) {
+          console.error('[AuthModal] Login failed:', res.status, data);
           if (res.status === 429) {
             notify.error(tErrors('tooManyAttempts'));
           } else if (data.details) {
@@ -159,7 +180,6 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
 
         notify.success(tSuccess('loginSuccess'));
         const isLoggedIn = await login();
-
         if (isLoggedIn) {
           onClose?.();
           router.replace('/account');
@@ -172,7 +192,8 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
           handleSwitch('login');
         }, 2000);
       }
-    } catch {
+    } catch (error) {
+      console.error('[AuthModal] Unexpected error:', error);
       notify.error(tErrors('genericError'));
     } finally {
       setLoading(false);

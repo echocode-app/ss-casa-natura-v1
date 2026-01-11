@@ -3,14 +3,15 @@
 import { useTranslations } from 'next-intl';
 import EditableField from './EditableField';
 import { User } from '@/types/user';
+import { useAuth } from '@/components/layout/AuthContext';
 
 interface ProfileSectionProps {
   user: User;
-  onUpdate: (updatedUser: User) => void;
 }
 
-export default function ProfileSection({ user, onUpdate }: ProfileSectionProps) {
+export default function ProfileSection({ user }: ProfileSectionProps) {
   const t = useTranslations('user.account.profile');
+  const { refreshUser } = useAuth();
 
   const firstName = user.nome || (user as any).name || '';
   const lastName = user.cognome || (user as any).surname || '';
@@ -31,7 +32,8 @@ export default function ProfileSection({ user, onUpdate }: ProfileSectionProps) 
           ? 'Unauthorized. Please log in.'
           : 'Something went wrong. Please try again.',
       );
-    if (onUpdate) onUpdate(data);
+    // Refresh user data in AuthContext after successful update
+    await refreshUser();
   };
 
   const validateEmail = (value: string) => {
@@ -48,7 +50,7 @@ export default function ProfileSection({ user, onUpdate }: ProfileSectionProps) 
   };
 
   return (
-    <section className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
+    <section className=" p-8">
       <div className="flex flex-col gap-5">
         <EditableField
           label={t('firstName')}

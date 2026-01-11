@@ -7,6 +7,7 @@ export interface User {
   email: string;
   phone?: string;
   deliveryAddress?: string;
+  role?: 'user' | 'admin' | 'superadmin' | 'developer';
 }
 
 export interface Order {

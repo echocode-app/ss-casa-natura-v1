@@ -28,17 +28,13 @@ export default function OrdersSection({ orders }: OrdersSectionProps) {
   };
 
   return (
-    <section
-      className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm"
-      aria-labelledby="orders-heading"
-    >
+    <section className="p-6" aria-labelledby="orders-heading">
       <h2 id="orders-heading" className="text-xl font-semibold text-gray-900 mb-6">
         {t('title')}
       </h2>
 
       {orders.length === 0 ? (
         <div className="text-gray-500 text-center py-8">
-          <p className="mb-4">{t('noOrders')}</p>
           <CartEmpty onClose={() => {}} />
         </div>
       ) : (

@@ -1,13 +1,14 @@
 import { cookies as nextCookies } from 'next/headers';
 
 const COOKIE_NAME = 'token';
+const isProduction = process.env.NODE_ENV === 'production';
 
 export const setAuthCookie = async (token: string) => {
   const ck = await nextCookies();
   ck.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
+    secure: isProduction,
+    sameSite: 'lax',
     path: '/',
     maxAge: 60 * 60 * 24 * 7,
   });

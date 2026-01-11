@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Spinner from '@/components/ui/Spinner/Spinner';
 
 export default function PrimaryButton({
   children,
@@ -8,13 +9,26 @@ export default function PrimaryButton({
   type = 'button',
   delay = 500,
   disabled: externalDisabled = false,
+  loading = false,
 }) {
   const [disabled, setDisabled] = useState(false);
 
-  const isDisabled = disabled || externalDisabled;
+  const isDisabled = disabled || externalDisabled || loading;
 
   const handleClick = async (e) => {
-    if (isDisabled) return;
+    if (isDisabled) {
+      e.preventDefault();
+      return;
+    }
+
+    // For submit buttons, don't prevent default or set disabled state
+    if (type === 'submit') {
+      if (onClick) {
+        await onClick(e);
+      }
+      return;
+    }
+
     setDisabled(true);
 
     if (onClick) {
@@ -49,7 +63,14 @@ export default function PrimaryButton({
         ${className}
       `}
     >
-      {children}
+      {loading ? (
+        <span className="flex items-center justify-center gap-2">
+          <Spinner size="sm" colorScheme="muted" className="!w-5 !h-5 !border-[2px]" />
+          <span className="opacity-0 absolute">{children}</span>
+        </span>
+      ) : (
+        children
+      )}
     </button>
   );
 }
