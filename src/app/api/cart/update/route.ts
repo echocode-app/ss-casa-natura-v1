@@ -45,9 +45,8 @@ export const POST = handleApi(async (req: NextRequest) => {
   const cart = await Cart.findOne({
     $or: [{ userId }, { sessionId }],
   });
-
-  if (!cart) {
-    return NextResponse.json({ success: false, error: 'Cart not found' }, { status: 404 });
+  if (!cart || !cart.items || cart.items.length === 0) {
+    return NextResponse.json({ success: false, error: 'Cart not found or empty' }, { status: 404 });
   }
 
   // Find and update item

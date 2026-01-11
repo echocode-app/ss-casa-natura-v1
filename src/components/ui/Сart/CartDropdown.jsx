@@ -8,7 +8,7 @@ import CartEmpty from './CartEmpty';
 import { useCart } from '@/contexts/CartContext';
 
 export default function CartDropdown({ parentRef, isOpen, onClose }) {
-  const { items, updateItem, removeItem, isInitializing } = useCart();
+  const { items, updateItem, removeItem } = useCart();
   const [mounted, setMounted] = useState(false);
   const [coords, setCoords] = useState({ top: 0, right: 0 });
   const [dropdownWidth, setDropdownWidth] = useState('90vw');

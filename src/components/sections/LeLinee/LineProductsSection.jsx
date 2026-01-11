@@ -4,12 +4,19 @@ import { useState, useEffect } from 'react';
 import ProductCard from '@/components/ui/Products/ProductCard';
 import WaveBackground from '@/components/ui/Parts/WaveBackground';
 import { fetchProducts } from '@/lib/utils/fetchProducts';
-// import { Product } from '@/config/products/product.types';
 import { useTranslations } from 'next-intl';
+import { useCart } from '@/contexts/CartContext';
 
 export default function LineProductsSection({ lineSlug, bgColor }) {
   const [products, setProducts] = useState([]);
   const t = useTranslations('linee');
+  const { addItem } = useCart();
+
+  const handleAddToCart = async (product) => {
+    const variant = product.variants?.[0];
+    if (!variant) return;
+    await addItem(product.id, variant.id);
+  };
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -45,7 +52,7 @@ export default function LineProductsSection({ lineSlug, bgColor }) {
               discountPrice={product.discountPrice}
               imageSrc={product.images?.[0]?.src || product.imageSrc || '/images/home/product.png'}
               slug={product.slug}
-              onAddClick={() => ('Add to cart:', product.id)}
+              onAddClick={() => handleAddToCart(product)}
               isBestSeller={product.isBestSeller}
               isEco={product.isEco}
               isNew={product.isNew}

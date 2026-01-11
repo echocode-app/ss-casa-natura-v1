@@ -59,7 +59,6 @@ export function CartPageClient() {
       await applyPromoCode(promoInput.trim().toUpperCase());
       setPromoInput('');
     } catch {
-      // error handled by context
     } finally {
       setIsApplyingPromo(false);
     }
@@ -70,7 +69,6 @@ export function CartPageClient() {
     try {
       await removePromoCode();
     } catch {
-      // error handled by context
     } finally {
       setIsApplyingPromo(false);
     }
@@ -84,13 +82,28 @@ export function CartPageClient() {
     );
   }
 
+  if (error && !error.includes('promo')) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
+        <div className="text-red-600 text-lg font-semibold" role="alert">
+          {t('error', { defaultValue: 'Something went wrong. Please try again.' })}
+        </div>
+        <Link href="/prodotti" passHref>
+          <PrimaryButton onClick={() => {}} className="px-8 py-4">
+            {t('continueShopping', { defaultValue: 'Continue Shopping' })}
+          </PrimaryButton>
+        </Link>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
         <CartEmpty onClose={() => {}} />
         <Link href="/prodotti" passHref>
           <PrimaryButton onClick={() => {}} className="px-8 py-4">
-            {t('continueShopping')}
+            {t('continueShopping', { defaultValue: 'Continue Shopping' })}
           </PrimaryButton>
         </Link>
       </div>
@@ -102,7 +115,7 @@ export function CartPageClient() {
       <h1 className="heading-default heading-sm lg:heading-lg mb-8 lg:mb-12">{t('title')}</h1>
 
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-        {/* Cart Items */}
+        {/* 📌 Cart Items */}
         <div className="flex-1">
           <div className="space-y-4">
             {items.map((item) => (
@@ -130,7 +143,7 @@ export function CartPageClient() {
           </div>
         </div>
 
-        {/* Cart Summary */}
+        {/* 📌 Cart Summary */}
         <div className="lg:w-[400px]">
           <div className="bg-background-secondary rounded-[20px] p-6 lg:p-8">
             <h2 className="font-semibold text-xl mb-6">{t('summary')}</h2>
@@ -143,9 +156,11 @@ export function CartPageClient() {
                 <span className="font-semibold">€ {subtotal.toFixed(2)}</span>
               </div>
 
-              {/* Promo Code Section */}
+              {/* 📌 Promo Code Section */}
               {error && error.includes('promo') && (
-                <div className="text-red-500 text-sm">{error}</div>
+                <div className="text-red-500 text-sm" role="alert">
+                  {t('discountError', { defaultValue: 'Invalid code, please try again' })}
+                </div>
               )}
               {!promoCode ? (
                 <div className="space-y-2">

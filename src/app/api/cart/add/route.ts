@@ -43,12 +43,19 @@ export const POST = handleApi(async (req: NextRequest) => {
   const sessionId = await getCartSessionId();
   const userId = await getUserIdFromRequest(req);
 
-  // Find or create cart
+  // Find or create cart only if adding item
   let cart = await Cart.findOne({
     $or: [{ userId }, { sessionId }],
   });
 
   if (!cart) {
+    // Only create cart if adding at least 1 item
+    if (!productId || !variantId || !quantity || quantity < 1) {
+      return NextResponse.json(
+        { success: false, error: 'Cannot create empty cart' },
+        { status: 409 },
+      );
+    }
     cart = await Cart.create({
       userId: userId || undefined,
       sessionId,

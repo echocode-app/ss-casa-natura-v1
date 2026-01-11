@@ -1,4 +1,28 @@
 {
+  "success": "Operazione completata con successo.",
+  "error": "Si è verificato un errore. Riprova.",
+  "unauthorized": "Non autorizzato. Effettua il login.",
+  "invalidCredentials": "Credenziali non valide.",
+  "updateSuccess": "Aggiornamento completato.",
+  "updateError": "Errore durante l'aggiornamento. Riprova.",
+  "cartMergeSuccess": "Carrello unito con successo.",
+  "cartMergeError": "Errore durante la fusione del carrello.",
+  "loading": "Caricamento...",
+  "save": "Salva",
+  "edit": "Modifica",
+  "close": "Chiudi",
+  "cancel": "Annulla",
+  "confirm": "Conferma",
+  "delete": "Elimina",
+  "form": {
+    "capsLockWarning": "Blocco Maiuscole attivo",
+    "required": "Campo obbligatorio",
+    "invalidEmail": "Email non valida",
+    "invalidPhone": "Numero di telefono non valido",
+    "submitSuccess": "Inviato con successo",
+    "submitError": "Errore durante l'invio. Riprova.",
+    "submitting": "Invio in corso..."
+  },
   "header": {
     "nav": {
       "products": "Prodotti",
@@ -263,13 +287,6 @@
     "profileUpdated": "Profilo aggiornato con successo",
     "messageSent": "Messaggio inviato con successo",
     "loggedOut": "Disconnessione effettuata con successo"
-  },
-  "loading": "Caricamento...",
-  "close": "Chiudi",
-  "cancel": "Annulla",
-  "confirm": "Conferma",
-  "save": "Salva",
-  "delete": "Elimina",
-  "edit": "Modifica"
+  }
 }
 

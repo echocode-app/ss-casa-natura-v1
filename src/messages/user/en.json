@@ -40,7 +40,8 @@
       "saving": "Saving...",
       "save": "Save",
       "cancel": "Cancel",
-      "edit": "Edit"
+      "edit": "Edit",
+      "error": "Something went wrong. Please try again."
     },
     "orders": {
       "title": "Orders",
@@ -54,12 +55,17 @@
       "title": "Change Password",
       "currentPassword": "Current Password",
       "newPassword": "New Password",
+      "currentPasswordLabel": "Current password",
+      "newPasswordLabel": "New password",
+      "currentPasswordHelp": "Enter your current password",
+      "newPasswordHelp": "Choose a strong password with at least 8 characters",
       "updatePassword": "Update Password",
       "updating": "Updating...",
       "success": "Password changed successfully",
       "error": "Failed to change password",
       "genericError": "An error occurred",
-      "logoutMessage": "You will be logged out in 2 seconds"
+      "logoutMessage": "You will be logged out in 2 seconds",
+      "unauthorized": "Unauthorized. Please log in."
     },
     "actions": {
       "logout": "Logout",
@@ -67,5 +73,15 @@
       "error": "Error",
       "retry": "Retry"
     }
-  }
+  },
+  "updateSuccess": "Profile updated successfully.",
+  "updateError": "Something went wrong. Please try again.",
+  "invalidCredentials": "Invalid credentials.",
+  "unauthorized": "Unauthorized. Please log in.",
+  "somethingWrong": "Something went wrong. Please try again.",
+  "fieldRequired": "This field is required.",
+  "invalidEmail": "Invalid email address.",
+  "invalidPassword": "Password must be at least 8 characters.",
+  "cartMergeSuccess": "Cart merged successfully.",
+  "cartMergeError": "Error merging cart."
 }

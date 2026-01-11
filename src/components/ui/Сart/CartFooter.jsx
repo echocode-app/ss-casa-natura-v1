@@ -9,7 +9,6 @@ export default function CartFooter({ items = [] }) {
 
   const [discountCode, setDiscountCode] = useState('');
   const [discountStatus, setDiscountStatus] = useState(null);
-  // null | 'success' | 'error'
 
   const totalQuantity = useMemo(() => items.reduce((acc, i) => acc + i.quantity, 0), [items]);
 
@@ -20,7 +19,6 @@ export default function CartFooter({ items = [] }) {
   const handleApplyDiscount = () => {
     if (!discountCode.trim()) return;
 
-    // 🔧
     if (discountCode.toLowerCase() === '10') {
       setDiscountStatus('success');
     } else {
@@ -32,7 +30,7 @@ export default function CartFooter({ items = [] }) {
 
   return (
     <div className="flex flex-col gap-2 lg:gap-0 pt-2 lg:pt-4 pb-3 lg:pb-8">
-      {/* subtotal */}
+      {/* 📌 Subtotal */}
       <div className="flex justify-between px-2 md:px-6 xl:px-10">
         <span>
           {totalQuantity} {t('items')}
@@ -40,13 +38,13 @@ export default function CartFooter({ items = [] }) {
         <span className="font-semibold text-text-extrablack">€ {subtotal.toFixed(2)}</span>
       </div>
 
-      {/* shipping */}
+      {/* 📌 Shipping */}
       <div className="flex justify-between gap-2 mt-2 lg:mt-4 px-2 md:px-6 xl:px-10 text-text-muted">
         <span>{t('shipping')}</span>
         <span className="font-semibold text-right">{t('calculated')}</span>
       </div>
 
-      {/* discount */}
+      {/* 📌 Discount */}
       <div className="px-2 md:px-5 mt-3 lg:mt-6">
         <div
           className={`
@@ -86,7 +84,7 @@ export default function CartFooter({ items = [] }) {
           </div>
         </div>
 
-        {/* feedback */}
+        {/* 📌 Feedback */}
         {discountStatus && (
           <p
             className={`
@@ -99,7 +97,7 @@ export default function CartFooter({ items = [] }) {
         )}
       </div>
 
-      {/* total */}
+      {/* 📌 Total */}
       <div className="flex justify-between items-center mt-3 lg:mt-8 px-2 md:px-6 xl:px-10">
         <div className="flex gap-2 items-baseline">
           <span className="font-semibold">{t('total')}</span>
@@ -109,7 +107,7 @@ export default function CartFooter({ items = [] }) {
         <span className="font-semibold text-text-extrablack">€ {total.toFixed(2)}</span>
       </div>
 
-      {/* proceed */}
+      {/* 📌 Proceed */}
       <div className="flex justify-end mt-3 lg:mt-6 px-2 lg:px-5 xl:px-8 pb-2">
         <PrimaryButton className="w-[180px] lg:w-[220px] py-3 px-5 lg:py-4 lg:px-6">
           {t('proceed')}

@@ -1,4 +1,21 @@
 {
+  "success": "Operation completed successfully.",
+  "error": "Something went wrong. Please try again.",
+  "unauthorized": "Unauthorized. Please log in.",
+  "invalidCredentials": "Invalid credentials.",
+  "updateSuccess": "Update successful.",
+  "updateError": "Update failed. Please try again.",
+  "cartMergeSuccess": "Cart merged successfully.",
+  "cartMergeError": "Error merging cart.",
+  "form": {
+    "capsLockWarning": "Caps Lock is on",
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "invalidPhone": "Invalid phone number",
+    "submitSuccess": "Submitted successfully",
+    "submitError": "Error submitting. Please try again.",
+    "submitting": "Submitting..."
+  },
   "header": {
     "nav": {
       "products": "Products",

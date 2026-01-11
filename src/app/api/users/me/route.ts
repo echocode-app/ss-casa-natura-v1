@@ -17,7 +17,7 @@ interface UserResponse {
   createdAt?: Date | string;
 }
 
-export const GET = handleApi(async (req: NextRequest) => {
+export const GET = handleApi(async (_req: NextRequest) => {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -47,7 +47,7 @@ export const GET = handleApi(async (req: NextRequest) => {
   return NextResponse.json(response);
 });
 
-export const PUT = handleApi(async (req: NextRequest) => {
+export const PUT = handleApi(async (_req: NextRequest) => {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -55,7 +55,7 @@ export const PUT = handleApi(async (req: NextRequest) => {
 
   let body;
   try {
-    body = await req.json();
+    body = await _req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
   }

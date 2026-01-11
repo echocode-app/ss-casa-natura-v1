@@ -2,11 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-
-interface ChangePasswordData {
-  currentPassword: string;
-  newPassword: string;
-}
+import { ChangePasswordData } from '@/types/user';
+import { useCapsLockDetector } from '@/lib/utils/useCapsLock';
 
 interface ChangePasswordFormProps {
   onLogout?: () => void;
@@ -16,6 +13,7 @@ interface ChangePasswordFormProps {
   passwordError?: string;
   passwordSuccess?: string;
   onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
+  userEmail?: string;
 }
 
 export default function ChangePasswordForm({
@@ -26,8 +24,8 @@ export default function ChangePasswordForm({
   passwordError,
   passwordSuccess,
   onSubmit,
+  userEmail,
 }: ChangePasswordFormProps) {
-  // Internal state for standalone usage
   const [internalChangePasswordData, setInternalChangePasswordData] = useState<ChangePasswordData>({
     currentPassword: '',
     newPassword: '',
@@ -36,7 +34,6 @@ export default function ChangePasswordForm({
   const [internalError, setInternalError] = useState('');
   const [internalSuccess, setInternalSuccess] = useState('');
 
-  // Use props if provided, otherwise use internal state
   const data = changePasswordData || internalChangePasswordData;
   const setData = setChangePasswordData || setInternalChangePasswordData;
   const loading = passwordLoading !== undefined ? passwordLoading : internalLoading;
@@ -45,13 +42,14 @@ export default function ChangePasswordForm({
   const handleSubmit = onSubmit || handleInternalSubmit;
 
   const t = useTranslations('user.account.password');
+  const tCommon = useTranslations('common.form');
+  const { capsLockOn } = useCapsLockDetector();
 
   async function handleInternalSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setInternalError('');
     setInternalSuccess('');
     setInternalLoading(true);
-
     try {
       const res = await fetch('/api/users/me/password', {
         method: 'POST',
@@ -59,22 +57,24 @@ export default function ChangePasswordForm({
         credentials: 'include',
         body: JSON.stringify(data),
       });
-
       const responseData = await res.json();
-
       if (!res.ok) {
-        setInternalError(responseData.error || responseData.message || t('error'));
+        setInternalError(
+          responseData?.error === 'Unauthorized'
+            ? t('unauthorized', { defaultValue: 'Unauthorized. Please log in.' })
+            : t('error', { defaultValue: 'Something went wrong. Please try again.' }),
+        );
         return;
       }
-
-      setInternalSuccess(responseData.message || t('success'));
+      setInternalSuccess(
+        responseData.message || t('success', { defaultValue: 'Password changed successfully.' }),
+      );
       setInternalChangePasswordData({ currentPassword: '', newPassword: '' });
-
       setTimeout(() => {
         if (onLogout) onLogout();
       }, 2000);
-    } catch (err: unknown) {
-      setInternalError(err instanceof Error ? err.message : t('genericError'));
+    } catch {
+      setInternalError(t('error', { defaultValue: 'Something went wrong. Please try again.' }));
     } finally {
       setInternalLoading(false);
     }
@@ -134,22 +134,61 @@ export default function ChangePasswordForm({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* 📌 Hidden email field for password manager accessibility */}
+        {userEmail && (
+          <input
+            type="email"
+            name="username"
+            value={userEmail}
+            autoComplete="username"
+            readOnly
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+        )}
+
         <div>
           <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
             {t('currentPassword')}
           </label>
-          <input
-            id="currentPassword"
-            type="password"
-            value={data.currentPassword}
-            onChange={handleInputChange('currentPassword')}
-            required
-            minLength={8}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            aria-describedby="currentPassword-help"
-          />
+          <div className="relative">
+            <input
+              id="currentPassword"
+              type="password"
+              value={data.currentPassword}
+              onChange={handleInputChange('currentPassword')}
+              required
+              minLength={8}
+              autoComplete="current-password"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              aria-describedby={
+                capsLockOn
+                  ? 'currentPassword-capslock currentPassword-help'
+                  : 'currentPassword-help'
+              }
+              aria-label={t('currentPasswordLabel', { defaultValue: 'Current password' })}
+              name="currentPassword"
+            />
+            {capsLockOn && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-yellow-600">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            )}
+          </div>
+          {capsLockOn && (
+            <p id="currentPassword-capslock" className="mt-1 text-sm text-yellow-600">
+              {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
+            </p>
+          )}
           <p id="currentPassword-help" className="mt-1 text-sm text-gray-500">
-            Enter your current password
+            {t('currentPasswordHelp', { defaultValue: 'Enter your current password' })}
           </p>
         </div>
 
@@ -157,18 +196,43 @@ export default function ChangePasswordForm({
           <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
             {t('newPassword')}
           </label>
-          <input
-            id="newPassword"
-            type="password"
-            value={data.newPassword}
-            onChange={handleInputChange('newPassword')}
-            required
-            minLength={8}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            aria-describedby="newPassword-help"
-          />
+          <div className="relative">
+            <input
+              id="newPassword"
+              type="password"
+              value={data.newPassword}
+              onChange={handleInputChange('newPassword')}
+              required
+              minLength={8}
+              autoComplete="new-password"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              aria-describedby={
+                capsLockOn ? 'newPassword-capslock newPassword-help' : 'newPassword-help'
+              }
+              aria-label={t('newPasswordLabel', { defaultValue: 'New password' })}
+              name="newPassword"
+            />
+            {capsLockOn && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-yellow-600">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            )}
+          </div>
+          {capsLockOn && (
+            <p id="newPassword-capslock" className="mt-1 text-sm text-yellow-600">
+              {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
+            </p>
+          )}
           <p id="newPassword-help" className="mt-1 text-sm text-gray-500">
-            Minimum 8 characters
+            {t('newPasswordHelp', {
+              defaultValue: 'Choose a strong password with at least 8 characters',
+            })}
           </p>
         </div>
 

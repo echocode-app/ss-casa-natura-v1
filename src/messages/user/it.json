@@ -40,7 +40,8 @@
       "saving": "Salvataggio...",
       "save": "Salva",
       "cancel": "Annulla",
-      "edit": "Modifica"
+      "edit": "Modifica",
+      "error": "Si è verificato un errore. Riprova."
     },
     "orders": {
       "title": "Ordini",
@@ -54,12 +55,17 @@
       "title": "Cambia password",
       "currentPassword": "Password attuale",
       "newPassword": "Nuova password",
+      "currentPasswordLabel": "Password attuale",
+      "newPasswordLabel": "Nuova password",
+      "currentPasswordHelp": "Inserisci la tua password attuale",
+      "newPasswordHelp": "Scegli una password sicura con almeno 8 caratteri",
       "updatePassword": "Aggiorna password",
       "updating": "Aggiornamento...",
       "success": "Password cambiata con successo",
       "error": "Impossibile cambiare la password",
       "genericError": "Si è verificato un errore",
-      "logoutMessage": "Verrai disconnesso tra 2 secondi"
+      "logoutMessage": "Verrai disconnesso tra 2 secondi",
+      "unauthorized": "Non autorizzato. Effettua il login."
     },
     "actions": {
       "logout": "Esci",
@@ -67,5 +73,15 @@
       "error": "Errore",
       "retry": "Riprova"
     }
-  }
+  },
+  "updateSuccess": "Profilo aggiornato con successo.",
+  "updateError": "Si è verificato un errore. Riprova.",
+  "invalidCredentials": "Credenziali non valide.",
+  "unauthorized": "Non autorizzato. Effettua il login.",
+  "somethingWrong": "Si è verificato un errore. Riprova.",
+  "fieldRequired": "Campo obbligatorio.",
+  "invalidEmail": "Email non valida.",
+  "invalidPassword": "La password deve contenere almeno 8 caratteri.",
+  "cartMergeSuccess": "Carrello unito con successo.",
+  "cartMergeError": "Errore durante la fusione del carrello."
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/layout/AuthContext';
@@ -8,6 +9,7 @@ import AuthModal from '@/components/ui/Modal/AuthModal';
 
 export default function Client() {
   const t = useTranslations('footer');
+  const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -24,9 +26,11 @@ export default function Client() {
   ];
 
   const handleAccountClick = (e: any) => {
+    e.preventDefault();
     if (!isAuthenticated) {
-      e.preventDefault();
       setShowModal(true);
+    } else {
+      router.push('/account');
     }
   };
 

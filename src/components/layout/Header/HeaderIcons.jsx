@@ -3,6 +3,7 @@
 import { Cart, User, Search } from '@/components/ui/Buttons';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/components/layout/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function HeaderIcons({
   className = '',
@@ -13,6 +14,7 @@ export default function HeaderIcons({
 }) {
   const { getItemCount, isInitializing } = useCart();
   const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   const size = isMobile ? 'w-6 h-6' : 'w-5 h-5 md:w-6 md:h-6';
   const iconClass = `${size} transition-transform duration-300 will-change-transform 
@@ -22,6 +24,17 @@ export default function HeaderIcons({
 
   const itemCount = isInitializing ? 0 : getItemCount();
 
+  // Обробник кліку на кнопку користувача
+  const handleUserButtonClick = () => {
+    if (isAuthenticated) {
+      // Залогінений юзер - переходимо на його сторінку
+      router.push('/account');
+    } else {
+      // Не залогінений - викликаємо колбек для відкриття модалки
+      onUserClick?.();
+    }
+  };
+
   return (
     <div className={`flex items-center ${className}`}>
       {!isMobile && (
@@ -30,7 +43,7 @@ export default function HeaderIcons({
         </button>
       )}
 
-      <button type="button" onClick={onUserClick} aria-label="User" className={btn}>
+      <button type="button" onClick={handleUserButtonClick} aria-label="User" className={btn}>
         <User className={iconClass} />
       </button>
 

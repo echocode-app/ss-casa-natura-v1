@@ -6,10 +6,18 @@ import Spinner from '@/components/ui/Spinner/Spinner';
 import { useState, useEffect } from 'react';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import { useTranslations } from 'next-intl';
+import { useCart } from '@/contexts/CartContext';
 
 export default function TopProductsSection({ products }) {
   const [loading, setLoading] = useState(true);
   const t = useTranslations('topProductsSection');
+  const { addItem } = useCart();
+
+  const handleAddToCart = async (product) => {
+    const variant = product.variants?.[0];
+    if (!variant) return;
+    await addItem(product.id, variant.id);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1000);
@@ -50,6 +58,7 @@ export default function TopProductsSection({ products }) {
               imageSrc={product.images?.[0]?.src}
               slug={product.slug}
               isBestSeller={product.isBestSeller}
+              onAddClick={() => handleAddToCart(product)}
             />
           ))}
         </div>

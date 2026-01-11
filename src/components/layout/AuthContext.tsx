@@ -1,22 +1,22 @@
 'use client';
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { AuthUser } from '@/lib/auth/types';
 
 interface AuthContextProps {
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: () => Promise<void>;
+  login: () => Promise<boolean>;
   logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+  refreshUser: () => Promise<boolean>;
   user: AuthUser | null;
 }
 
 const AuthContext = createContext<AuthContextProps>({
   isAuthenticated: false,
   isLoading: true,
-  login: async () => {},
+  login: async () => false,
   logout: async () => {},
-  refreshUser: async () => {},
+  refreshUser: async () => false,
   user: null,
 });
 
@@ -25,13 +25,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async (): Promise<boolean> => {
+    setIsLoading(true);
     try {
       const res = await fetch('/api/users/me', {
         method: 'GET',
         credentials: 'include',
       });
-
       if (res.ok) {
         const userData = await res.json();
         setUser({
@@ -40,25 +40,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: userData.role,
         });
         setIsAuthenticated(true);
+        return true;
       } else {
         setIsAuthenticated(false);
         setUser(null);
+        return false;
       }
     } catch {
       setIsAuthenticated(false);
       setUser(null);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    refreshUser().finally(() => setIsLoading(false));
   }, []);
 
-  const login = async () => {
-    await refreshUser();
-  };
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
-  const logout = async () => {
+  const login = useCallback(async (): Promise<boolean> => {
+    const result = await refreshUser();
+    return result;
+  }, [refreshUser]);
+
+  const logout = useCallback(async () => {
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',
@@ -69,7 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setIsAuthenticated(false);
     setUser(null);
-  };
+    setIsLoading(false);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, refreshUser, user }}>

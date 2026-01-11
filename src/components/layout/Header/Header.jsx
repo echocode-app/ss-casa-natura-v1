@@ -11,11 +11,9 @@ import { Menu, Search } from '@/components/ui/Buttons';
 import SearchModal from '@/components/ui/Modal/SearchModal';
 import AuthModal from '@/components/ui/Modal/AuthModal';
 import { CartDropdown } from '@/components/ui/Сart';
-import { useCart } from '@/contexts/CartContext';
 
 export default function Header() {
   const { isAuthenticated } = useAuth();
-  const { items: _cartItems } = useCart();
   const t = useTranslations('header.actions');
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -108,8 +106,9 @@ export default function Header() {
   }, [forcedVisible]);
 
   const handleUserClick = () => {
-    if (!isAuthenticated) setAuthOpen(true);
-    else window.location.href = '/account';
+    // Модалка відкривається тільки якщо не залогінений
+    // Логіка перевірки переведена в HeaderIcons
+    setAuthOpen(true);
   };
 
   return (

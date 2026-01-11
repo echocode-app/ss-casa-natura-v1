@@ -21,8 +21,8 @@ export default function ProductMain({ product }) {
     try {
       await addItem(product.id, selectedVariant.id);
       // Could add toast notification here
-    } catch (err) {
-      console.error('Failed to add to cart:', err);
+    } catch {
+      // handle error (optionally show toast)
     } finally {
       setIsAdding(false);
     }

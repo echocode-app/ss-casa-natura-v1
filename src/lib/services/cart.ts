@@ -1,6 +1,5 @@
 import {
   Cart,
-  CartItem,
   AddToCartRequest,
   UpdateCartItemRequest,
   RemoveFromCartRequest,

@@ -4,36 +4,14 @@ import { useAuth } from '@/components/layout/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AccountLayout from '@/components/layout/User/AccountLayout';
-// import ProfileSection from '@/components/account/ProfileSection';
+import ProfileSection from '@/components/account/ProfileSection';
 import OrdersSection from '@/components/account/OrdersSection';
 import ChangePasswordForm from '@/components/account/ChangePasswordForm';
 
-interface User {
-  id: string;
-  nome?: string;
-  cognome?: string;
-  email: string;
-  phone?: string;
-  address?: {
-    street?: string;
-    city?: string;
-  };
-}
-
-interface Order {
-  id: string;
-  status: string;
-  totalPrice: number;
-  createdAt: string;
-}
-
-interface ChangePasswordData {
-  currentPassword: string;
-  newPassword: string;
-}
+import { User, Order, ChangePasswordData } from '@/types/user';
 
 export default function AccountPage() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
 
   const [userProfile, setUserProfile] = useState<User | null>(null);
@@ -50,33 +28,36 @@ export default function AccountPage() {
 
   // Fetch user data and orders
   useEffect(() => {
+    if (isLoading) return;
     if (!isAuthenticated) {
-      router.push('/');
+      router.replace('/');
       return;
     }
-
     const fetchUserData = async () => {
       try {
         const resUser = await fetch('/api/users/me', { credentials: 'include' });
         if (resUser.ok) {
           const data = await resUser.json();
           setUserProfile(data);
+        } else {
+          setUserProfile(null);
         }
-
         const resOrders = await fetch('/api/users/me/orders', { credentials: 'include' });
         if (resOrders.ok) {
           const ordersData = await resOrders.json();
           setOrders(ordersData);
+        } else {
+          setOrders([]);
         }
-      } catch (err: unknown) {
-        console.error('Error fetching user data or orders:', err);
+      } catch {
+        setUserProfile(null);
+        setOrders([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchUserData();
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
 
   // Logout
   const handleLogout = async () => {
@@ -102,23 +83,20 @@ export default function AccountPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setPasswordError(data.error || data.message || 'Failed to change password');
+        setPasswordError(
+          data?.error === 'Unauthorized'
+            ? 'Unauthorized. Please log in.'
+            : 'Something went wrong. Please try again.',
+        );
         return;
       }
-
-      setPasswordSuccess(data.message);
+      setPasswordSuccess(data.message || 'Password changed successfully.');
       setChangePasswordData({ currentPassword: '', newPassword: '' });
-
-      // Logout after password change
       setTimeout(() => {
         handleLogout();
       }, 2000);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setPasswordError(err.message);
-      } else {
-        setPasswordError('An error occurred');
-      }
+    } catch {
+      setPasswordError('Something went wrong. Please try again.');
     } finally {
       setPasswordLoading(false);
     }
@@ -129,7 +107,7 @@ export default function AccountPage() {
     setUserProfile(updatedUser);
   };
 
-  if (!isAuthenticated || loading) {
+  if (isLoading || !isAuthenticated || loading) {
     return (
       <div className="p-6 text-center">
         <h1 className="text-2xl font-bold">Loading...</h1>
@@ -139,7 +117,7 @@ export default function AccountPage() {
 
   return (
     <AccountLayout>
-      {/* <ProfileSection user={userProfile!} onUpdate={handleUserUpdate} /> */}
+      <ProfileSection user={userProfile!} onUpdate={handleUserUpdate} />
       <OrdersSection orders={orders} />
       <ChangePasswordForm
         changePasswordData={changePasswordData}
@@ -149,6 +127,7 @@ export default function AccountPage() {
         passwordSuccess={passwordSuccess}
         onSubmit={handleChangePassword}
         onLogout={handleLogout}
+        userEmail={userProfile?.email}
       />
     </AccountLayout>
   );

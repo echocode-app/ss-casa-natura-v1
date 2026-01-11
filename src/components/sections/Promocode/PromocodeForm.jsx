@@ -32,9 +32,9 @@ export default function PromocodeForm() {
     setLoading(true);
 
     try {
-      // API call simulation
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
+      setEmail('');
       setSubmitted(true);
       notify.success(t('success'));
     } catch {

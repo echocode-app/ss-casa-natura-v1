@@ -28,6 +28,7 @@ export default getRequestConfig(async () => {
   const messages =
     locale === 'en'
       ? {
+          common: commonEn,
           ...commonEn,
           contatti: contattiEn,
           linee: lineeEn,
@@ -37,6 +38,7 @@ export default getRequestConfig(async () => {
           user: userEn,
         }
       : {
+          common: commonIt,
           ...commonIt,
           contatti: contattiIt,
           linee: lineeIt,

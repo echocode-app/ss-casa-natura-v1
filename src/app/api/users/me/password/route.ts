@@ -4,6 +4,7 @@ import { verifyPassword, hashPassword } from '@/lib/auth/hash';
 import User from '@/lib/db/models/User';
 import connectToDB from '@/lib/db/mongo';
 import { clearAuthCookie } from '@/lib/auth/cookies';
+import { getUser } from '@/lib/auth/getUser';
 import { z } from 'zod';
 
 const changePasswordSchema = z.object({
@@ -12,10 +13,12 @@ const changePasswordSchema = z.object({
 });
 
 export const POST = handleApi(async (req: NextRequest) => {
-  const userId = req.headers.get('x-user-id');
-  if (!userId) {
+  const user = await getUser();
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const userId = user.id;
 
   let body;
   try {
@@ -34,19 +37,19 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   await connectToDB();
 
-  const user = await User.findById(userId);
-  if (!user) {
+  const dbUser = await User.findById(userId);
+  if (!dbUser) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const isValid = await verifyPassword(currentPassword, user.passwordHash);
+  const isValid = await verifyPassword(currentPassword, dbUser.passwordHash);
   if (!isValid) {
     return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
   }
 
   const newPasswordHash = await hashPassword(newPassword);
-  user.passwordHash = newPasswordHash;
-  await user.save();
+  dbUser.passwordHash = newPasswordHash;
+  await dbUser.save();
 
   await clearAuthCookie();
 

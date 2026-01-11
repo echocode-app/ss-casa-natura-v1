@@ -10,6 +10,7 @@ import Arrow from '@/components/ui/Buttons/Arrow';
 import { ProductCard } from '@/components/ui/Products';
 import { WaveBackground } from '@/components/ui/Parts';
 import { useTranslations } from 'next-intl';
+import { useCart } from '@/contexts/CartContext';
 
 export default function RelatedProductsSection({ products }) {
   const swiperRef = useRef(null);
@@ -20,6 +21,13 @@ export default function RelatedProductsSection({ products }) {
   const [canSlidePrev, setCanSlidePrev] = useState(false);
   const [canSlideNext, setCanSlideNext] = useState(false);
   const t = useTranslations('prodotti.related');
+  const { addItem } = useCart();
+
+  const handleAddToCart = async (product) => {
+    const variant = product.variants?.[0];
+    if (!variant) return;
+    await addItem(product.id, variant.id);
+  };
 
   if (!products || products.length === 0) return null;
 
@@ -137,6 +145,7 @@ export default function RelatedProductsSection({ products }) {
                   price={p.price}
                   imageSrc={p.images?.[0]?.src}
                   slug={p.slug}
+                  onAddClick={() => handleAddToCart(p)}
                 />
               </SwiperSlide>
             ))}

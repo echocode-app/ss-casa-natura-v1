@@ -41,6 +41,3 @@ jobs:
       - name: Build
         run: NEXT_TELEMETRY_DISABLED=1 npm run build
 
-      # run: npm run check
-      # git push origin main
-      # git push vercel-temp main

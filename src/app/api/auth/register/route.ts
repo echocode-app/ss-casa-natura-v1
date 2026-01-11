@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import User from '@/lib/db/models/User';
+import Cart from '@/lib/db/models/Cart';
 import { hashPassword } from '@/lib/auth/hash';
 import { signToken } from '@/lib/auth/jwt';
 import { setAuthCookie } from '@/lib/auth/cookies';
+import { getCartSessionId } from '@/lib/utils/cartSession';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -50,6 +52,16 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   const token = await signToken({ id: user._id.toString(), email: user.email, role: user.role });
   await setAuthCookie(token);
+
+  // Merge guest cart into user cart
+  const sessionId = await getCartSessionId();
+  const guestCart = await Cart.findOne({ sessionId, userId: { $exists: false } });
+
+  if (guestCart && guestCart.items.length > 0) {
+    // Assign guest cart to user
+    guestCart.userId = user._id.toString();
+    await guestCart.save();
+  }
 
   return NextResponse.json({
     user: {

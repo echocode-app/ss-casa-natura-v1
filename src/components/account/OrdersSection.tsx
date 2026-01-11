@@ -1,11 +1,7 @@
-import { useTranslations } from 'next-intl';
+'use client';
 
-interface Order {
-  id: string;
-  status: string;
-  totalPrice: number;
-  createdAt: string;
-}
+import { useTranslations, useLocale } from 'next-intl';
+import { Order } from '@/types/user';
 
 interface OrdersSectionProps {
   orders: Order[];
@@ -13,9 +9,10 @@ interface OrdersSectionProps {
 
 export default function OrdersSection({ orders }: OrdersSectionProps) {
   const t = useTranslations('user.account.orders');
+  const locale = useLocale();
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

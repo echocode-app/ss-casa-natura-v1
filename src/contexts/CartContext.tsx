@@ -1,16 +1,48 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-  useCallback,
-  useRef,
-} from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { CartItemUI, cartItemToUI } from '@/types/cart';
 import { cartService } from '@/lib/services/cart';
+import { useAuth } from '@/components/layout/AuthContext';
+import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+
+const GUEST_CART_KEY = 'guest_cart_v1';
+const GUEST_CART_TTL = 1000 * 60 * 60 * 24 * 7;
+
+type GuestCart = {
+  items: CartItemUI[];
+  promoCode?: string;
+  promoDiscount?: number;
+  ts: number;
+};
+
+function loadGuestCart(): GuestCart | null {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem(GUEST_CART_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed: GuestCart = JSON.parse(raw);
+    if (Date.now() - parsed.ts > GUEST_CART_TTL) {
+      localStorage.removeItem(GUEST_CART_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    localStorage.removeItem(GUEST_CART_KEY);
+    return null;
+  }
+}
+
+function saveGuestCart(cart: Omit<GuestCart, 'ts'>) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(GUEST_CART_KEY, JSON.stringify({ ...cart, ts: Date.now() }));
+}
+
+function clearGuestCart() {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(GUEST_CART_KEY);
+}
 
 interface CartContextType {
   items: CartItemUI[];
@@ -21,7 +53,7 @@ interface CartContextType {
   updateItem: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
-  applyPromoCode: (promoCode: string) => Promise<void>;
+  applyPromoCode: (code: string) => Promise<void>;
   removePromoCode: () => Promise<void>;
   getItemCount: () => number;
   getSubtotal: () => number;
@@ -30,155 +62,241 @@ interface CartContextType {
   promoDiscount?: number;
 }
 
-const CartContext = createContext<CartContextType>({
-  items: [],
-  isLoading: false,
-  isInitializing: true,
-  error: null,
-  addItem: async () => {},
-  updateItem: async () => {},
-  removeItem: async () => {},
-  clearCart: async () => {},
-  applyPromoCode: async () => {},
-  removePromoCode: async () => {},
-  getItemCount: () => 0,
-  getSubtotal: () => 0,
-  getTotal: () => 0,
-});
-
-const CART_STORAGE_KEY = 'casa_natura_cart';
+const CartContext = createContext<CartContextType>(null as any);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { user, isLoading: authLoading } = useAuth();
+
   const [items, setItems] = useState<CartItemUI[]>([]);
+  const [promoCode, setPromoCode] = useState<string | undefined>();
+  const [promoDiscount, setPromoDiscount] = useState<number | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [promoCode, setPromoCode] = useState<string>();
-  const [promoDiscount, setPromoDiscount] = useState<number>();
-  const initialized = useRef(false);
+
+  // 📌 Initialize cart state
 
   useEffect(() => {
-    const initCart = async () => {
-      if (initialized.current) return;
-      initialized.current = true;
+    if (authLoading) return;
+
+    const init = async () => {
+      setIsInitializing(true);
+      setError(null);
 
       try {
-        const cart = await cartService.getCart();
-        setItems(cart.items.map(cartItemToUI));
-        setPromoCode(cart.promoCode);
-        setPromoDiscount(cart.promoDiscount);
+        if (user) {
+          const cart = await cartService.getCart();
+          setItems(cart.items.map(cartItemToUI));
+          setPromoCode(cart.promoCode);
+          setPromoDiscount(cart.promoDiscount);
 
-        localStorage.setItem(
-          CART_STORAGE_KEY,
-          JSON.stringify({
-            items: cart.items.map(cartItemToUI),
-            promoCode: cart.promoCode,
-            promoDiscount: cart.promoDiscount,
-            timestamp: Date.now(),
-          }),
-        );
-      } catch {
-        try {
-          const stored = localStorage.getItem(CART_STORAGE_KEY);
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            setItems(parsed.items || []);
-            setPromoCode(parsed.promoCode);
-            setPromoDiscount(parsed.promoDiscount);
+          const guest = loadGuestCart();
+          if (guest?.items?.length) {
+            clearGuestCart();
           }
-        } catch {}
+        } else {
+          const guest = loadGuestCart();
+          if (guest) {
+            setItems(guest.items || []);
+            setPromoCode(guest.promoCode);
+            setPromoDiscount(guest.promoDiscount);
+          } else {
+            setItems([]);
+            setPromoCode(undefined);
+            setPromoDiscount(undefined);
+          }
+        }
+      } catch {
         setError('Failed to load cart');
       } finally {
         setIsInitializing(false);
       }
     };
 
-    initCart();
-  }, []);
+    init();
+  }, [authLoading, user]);
 
+  // 📌 Persist guest cart locally
   useEffect(() => {
-    if (!isInitializing) {
-      try {
-        localStorage.setItem(
-          CART_STORAGE_KEY,
-          JSON.stringify({ items, promoCode, promoDiscount, timestamp: Date.now() }),
-        );
-      } catch {}
+    if (isInitializing) return;
+    if (!user) {
+      saveGuestCart({ items, promoCode, promoDiscount });
     }
-  }, [items, promoCode, promoDiscount, isInitializing]);
+  }, [items, promoCode, promoDiscount, isInitializing, user]);
 
   const addItem = useCallback(
-    async (productId: string, variantId: string, quantity: number = 1) => {
-      const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const optimisticItem: CartItemUI = { id: tempId, title: 'Loading...', price: 0, quantity };
-      setItems((prev) => [...prev, optimisticItem]);
+    async (productId: string, variantId: string, quantity = 1) => {
+      setIsLoading(true);
       setError(null);
 
       try {
-        const cart = await cartService.addItem({ productId, variantId, quantity });
-        setItems(cart.items.map(cartItemToUI));
-      } catch (err) {
-        setItems((prev) => prev.filter((item) => item.id !== tempId));
-        setError(err instanceof Error ? err.message : 'Failed to add item');
-        throw err;
+        if (user) {
+          const cart = await cartService.addItem({ productId, variantId, quantity });
+          setItems(cart.items.map(cartItemToUI));
+          setPromoCode(cart.promoCode);
+          setPromoDiscount(cart.promoDiscount);
+        } else {
+          // 📌 Guest cart: read product data from mock
+          const product = PRODUCTS_MOCK.find((p) => p.id === productId);
+          if (!product) {
+            setError('Product not found');
+            return;
+          }
+
+          const variant = product.variants?.find((v) => v.id === variantId);
+          if (!variant) {
+            setError('Variant not found');
+            return;
+          }
+
+          const price = variant.priceModifier
+            ? product.price + variant.priceModifier
+            : product.price;
+          const imageSrc = product.images?.[0]?.src || '/images/home/product.png';
+
+          const existingItemIndex = items.findIndex(
+            (item) => item.id === `${productId}-${variantId}`,
+          );
+
+          if (existingItemIndex >= 0) {
+            setItems((prev) =>
+              prev.map((item, idx) =>
+                idx === existingItemIndex ? { ...item, quantity: item.quantity + quantity } : item,
+              ),
+            );
+          } else {
+            const newItem: CartItemUI = {
+              id: `${productId}-${variantId}`,
+              title: product.title,
+              imageSrc,
+              price,
+              volume: variant.volume,
+              unit: variant.unit,
+              quantity,
+            };
+            setItems((prev) => [...prev, newItem]);
+          }
+        }
+      } catch {
+        setError('Failed to add item');
+      } finally {
+        setIsLoading(false);
       }
     },
-    [],
+    [user, items],
   );
 
-  const updateItem = useCallback(async (itemId: string, quantity: number) => {
-    setItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, quantity } : item)));
-    setError(null);
+  const updateItem = useCallback(
+    async (itemId: string, quantity: number) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const cart = await cartService.updateItem({ itemId, quantity });
-      setItems(cart.items.map(cartItemToUI));
-    } catch (err) {
       try {
-        const cart = await cartService.getCart();
-        setItems(cart.items.map(cartItemToUI));
-      } catch {}
-      setError(err instanceof Error ? err.message : 'Failed to update item');
-      throw err;
-    }
-  }, []);
+        if (user) {
+          const cart = await cartService.updateItem({ itemId, quantity });
+          setItems(cart.items.map(cartItemToUI));
+          setPromoCode(cart.promoCode);
+          setPromoDiscount(cart.promoDiscount);
+        } else {
+          if (quantity <= 0) {
+            setItems((prev) => prev.filter((i) => i.id !== itemId));
+          } else {
+            setItems((prev) => prev.map((i) => (i.id === itemId ? { ...i, quantity } : i)));
+          }
+        }
+      } catch {
+        setError('Failed to update item');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [user],
+  );
 
   const removeItem = useCallback(
     async (itemId: string) => {
-      const previousItems = [...items];
-      setItems((prev) => prev.filter((item) => item.id !== itemId));
+      setIsLoading(true);
       setError(null);
 
       try {
-        await cartService.removeItem({ itemId });
-      } catch (err) {
-        setItems(previousItems);
-        setError(err instanceof Error ? err.message : 'Failed to remove item');
-        throw err;
+        if (user) {
+          const cart = await cartService.removeItem({ itemId });
+          setItems(cart.items.map(cartItemToUI));
+          setPromoCode(cart.promoCode);
+          setPromoDiscount(cart.promoDiscount);
+        } else {
+          setItems((prev) => prev.filter((i) => i.id !== itemId));
+        }
+      } catch {
+        setError('Failed to remove item');
+      } finally {
+        setIsLoading(false);
       }
     },
-    [items],
+    [user],
   );
 
   const clearCart = useCallback(async () => {
-    setItems([]);
+    setIsLoading(true);
     setError(null);
 
     try {
-      await cartService.clearCart();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to clear cart');
-      throw err;
+      if (user) {
+        await cartService.clearCart();
+      } else {
+        clearGuestCart();
+      }
+      setItems([]);
+      setPromoCode(undefined);
+      setPromoDiscount(undefined);
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [user]);
 
-  const getItemCount = useCallback(
-    () => items.reduce((total, item) => total + item.quantity, 0),
-    [items],
+  const applyPromoCode = useCallback(
+    async (code: string) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        if (!user) return;
+        const cart = await cartService.applyPromoCode({ promoCode: code });
+        setItems(cart.items.map(cartItemToUI));
+        setPromoCode(cart.promoCode);
+        setPromoDiscount(cart.promoDiscount);
+      } catch {
+        setError('Failed to apply promo code');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [user],
   );
 
+  const removePromoCode = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      if (!user) return;
+      const cart = await cartService.removePromoCode();
+      setItems(cart.items.map(cartItemToUI));
+      setPromoCode(cart.promoCode);
+      setPromoDiscount(cart.promoDiscount);
+    } catch {
+      setError('Failed to remove promo code');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  const getItemCount = useCallback(() => items.reduce((t, i) => t + i.quantity, 0), [items]);
+
   const getSubtotal = useCallback(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    () => items.reduce((s, i) => s + i.price * i.quantity, 0),
     [items],
   );
 
@@ -186,32 +304,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     () => getSubtotal() - (promoDiscount || 0),
     [getSubtotal, promoDiscount],
   );
-
-  const applyPromoCode = useCallback(async (code: string) => {
-    setError(null);
-    try {
-      const cart = await cartService.applyPromoCode({ promoCode: code });
-      setItems(cart.items.map(cartItemToUI));
-      setPromoCode(cart.promoCode);
-      setPromoDiscount(cart.promoDiscount);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to apply promo code');
-      throw err;
-    }
-  }, []);
-
-  const removePromoCode = useCallback(async () => {
-    setError(null);
-    try {
-      const cart = await cartService.removePromoCode();
-      setItems(cart.items.map(cartItemToUI));
-      setPromoCode(cart.promoCode);
-      setPromoDiscount(cart.promoDiscount);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove promo code');
-      throw err;
-    }
-  }, []);
 
   return (
     <CartContext.Provider

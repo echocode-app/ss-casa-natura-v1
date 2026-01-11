@@ -19,18 +19,23 @@ export const GET = handleApi(async (req: NextRequest) => {
   });
 
   if (!cart) {
-    // Create empty cart
-    cart = await Cart.create({
-      userId: userId || undefined,
-      sessionId,
-      items: [],
-      subtotal: 0,
-      total: 0,
+    // Return empty cart without creating in DB to prevent empty cart documents
+    return NextResponse.json({
+      success: true,
+      cart: {
+        id: null,
+        userId: userId || undefined,
+        sessionId,
+        items: [],
+        subtotal: 0,
+        discount: 0,
+        promoCode: null,
+        promoDiscount: 0,
+        total: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
     });
-  } else if (userId && cart.sessionId !== sessionId) {
-    // Update cart with userId if it was a session cart
-    cart.userId = userId;
-    await cart.save();
   }
 
   return NextResponse.json({

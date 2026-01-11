@@ -37,11 +37,7 @@ export const productService: ProductService = {
     return fetchFromApi<Product>(`/api/products/${productId}`);
   },
 
-  async getProductForCart(
-    productId: string,
-    variantId: string,
-    quantity: number = 1,
-  ): Promise<ProductLookupResult> {
+  async getProductForCart(productId: string, variantId: string): Promise<ProductLookupResult> {
     const product = await this.getProduct(productId);
     if (!product) {
       throw new Error(`Product not found: ${productId}`);
