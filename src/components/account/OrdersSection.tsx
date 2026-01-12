@@ -28,7 +28,7 @@ export default function OrdersSection({ orders }: OrdersSectionProps) {
   };
 
   return (
-    <section className="p-6" aria-labelledby="orders-heading">
+    <section className="" aria-labelledby="orders-heading">
       <h2 id="orders-heading" className="text-xl font-semibold text-gray-900 mb-6">
         {t('title')}
       </h2>

@@ -27,7 +27,8 @@
   "account": {
     "title": "My Account",
     "profile": {
-      "title": "Contact Information",
+      "title": "Your account",
+      "subtitle": "Contact Information",
       "firstName": "First Name",
       "lastName": "Last Name",
       "email": "Email",

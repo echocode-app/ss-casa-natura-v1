@@ -30,10 +30,14 @@ export default function Header() {
   const forcedVisible = menuOpen || searchOpen || authOpen || cartOpen;
 
   useEffect(() => {
+    if (!headerRef.current) return;
+
     const updateHeaderHeight = () => {
-      if (!headerRef.current) return;
-      setHeaderHeight(headerRef.current.offsetHeight);
+      const h = headerRef.current.offsetHeight;
+      setHeaderHeight(h);
+      document.documentElement.style.setProperty('--header-h', `${h}px`);
     };
+
     updateHeaderHeight();
     window.addEventListener('resize', updateHeaderHeight);
     return () => window.removeEventListener('resize', updateHeaderHeight);

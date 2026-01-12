@@ -25,9 +25,10 @@
     "summary": "Riepilogo"
   },
   "account": {
-    "title": "Il mio account",
+    "title": "Account",
     "profile": {
-      "title": "Informazioni di contatto",
+      "title": "Il tuo account",
+      "subtitle": "Informazioni di contatto",
       "firstName": "Nome",
       "lastName": "Cognome",
       "email": "Email",

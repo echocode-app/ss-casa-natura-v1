@@ -12,15 +12,15 @@ export default function AccountSidebar() {
   const t = useTranslations('user.account');
 
   const linkBaseClasses = `
-    group w-full text-right
-    p-4 md:p-10 lg:pl-16 lg:pr-24 lg:pt-20 lg:pb-16
-    text-h-accent text-[clamp(18px,3vw,28px)]
+    w-full text-center md:text-left
+    p-4 md:p-20 lg:pl-40
+    lg:pl-40
+    font-semibold text-[clamp(14px,3vw,28px)]
     transition-colors
     focus:outline-none
-    flex items-center justify-center
-    md:transition-transform md:duration-300 md:will-change-transform
-    md:group-hover:scale-105 md:group-focus-visible:scale-105
-    `;
+    flex items-center justify-center md:justify-start
+    md:transition-transform md:duration-300
+`;
 
   const getNavClasses = (active: boolean) =>
     active ? `${linkBaseClasses} bg-brand-light` : `${linkBaseClasses} bg-transparent`;
@@ -31,16 +31,16 @@ export default function AccountSidebar() {
   };
 
   return (
-    <aside className="bg-background-sidebar shadow-sidebar-right w-full max-w-[200px] md:max-w-[300px] xl:max-w-[400px]">
-      <nav className="flex flex-col justify-center items-center text-center">
-        <button
-          onClick={() => router.push('/account')}
-          className={getNavClasses(pathname === '/account')}
-          aria-current={pathname === '/account' ? 'page' : undefined}
-        >
-          {t('title')}
-        </button>
-
+    <aside className="bg-background-sidebar w-full mx-auto md:mx-0 md:max-w-[300px] lg:max-w-[400px] xl:max-w-[500px]">
+      <div className="pointer-events-none shadow-sidebar-right" />
+      <nav
+        className="
+          flex flex-row md:flex-col
+          justify-center md:justify-start
+          items-center
+          overflow-x-auto
+        "
+      >
         <button
           onClick={() => router.push('/account/orders')}
           className={getNavClasses(pathname === '/account/orders')}
@@ -50,25 +50,40 @@ export default function AccountSidebar() {
         </button>
 
         <button
+          onClick={() => router.push('/account')}
+          className={getNavClasses(pathname === '/account')}
+          aria-current={pathname === '/account' ? 'page' : undefined}
+        >
+          {t('title')}
+        </button>
+
+        <button
           onClick={handleLogout}
-          className={`
-            group w-full text-right
-            p-10 lg:p-16
-            text-h-accent text-[clamp(18px,3vw,28px)]
-            transition-colors
-            focus:outline-none
-            flex items-center justify-center
-            md:transition-transform md:duration-300 md:will-change-transform
-            md:group-hover:scale-105 md:group-focus-visible:scale-105
-          `}
+          aria-label={t('actions.logout')}
+          className={`${linkBaseClasses} group`}
         >
           <Logout
             className="
-              w-6 h-6
+              w-5 h-5
+              md:w-6 md:h-6
               lg:w-[72px] lg:h-[72px]
               flex-shrink-0
+              transition-transform duration-300
+              group-hover:scale-110 group-focus-visible:scale-110
             "
           />
+          <span
+            className="
+            hidden md:inline-block
+              ml-6
+              opacity-0
+              md:group-hover:opacity-100
+              md:group-focus-visible:opacity-100
+              transition-opacity duration-300
+            "
+          >
+            {t('actions.logout')}
+          </span>
         </button>
       </nav>
     </aside>

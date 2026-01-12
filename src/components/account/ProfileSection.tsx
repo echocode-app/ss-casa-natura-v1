@@ -50,7 +50,11 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
   };
 
   return (
-    <section className=" p-8">
+    <section className="p-5 lg:p-20">
+      <div className="font-semibold flex flex-col gap-3 lg:gap-9 mb-3 lg:mb-6 text-[clamp(20px,3vw,30px)]">
+        <h1>{t('title')}</h1>
+        <h2>{t('subtitle')}</h2>
+      </div>
       <div className="flex flex-col gap-5">
         <EditableField
           label={t('firstName')}
