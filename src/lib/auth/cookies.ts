@@ -7,10 +7,12 @@ export const setAuthCookie = async (token: string) => {
   const ck = await nextCookies();
   ck.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
+    secure: true, // Always secure, even in dev (use HTTPS locally or accept cookies in dev)
+    sameSite: 'strict', // Strict CSRF protection
     path: '/',
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    // Consider adding domain restriction in production:
+    // domain: isProduction ? '.casanatura.com' : undefined,
   });
 };
 

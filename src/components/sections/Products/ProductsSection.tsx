@@ -85,9 +85,9 @@ export default function ProductsSection({
   }, [appliedCategories, products]);
 
   const { displayedProducts, hasMore, loadMore, reset } = usePaginatedProducts({
-      products: filteredProducts,
-      pageSize: PRODUCTS_PER_PAGE,
-    });
+    products: filteredProducts,
+    pageSize: PRODUCTS_PER_PAGE,
+  });
 
   const loadMoreRef = useInfiniteScroll({
     onLoadMore: loadMore,
