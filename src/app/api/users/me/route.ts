@@ -66,23 +66,21 @@ export const PUT = handleApi(async (_req: NextRequest) => {
 
   const { nome, cognome, phone, deliveryAddress, email } = body;
 
+  // 🚫 Email modification is not allowed
+  if (email) {
+    return NextResponse.json({ error: 'Email modification is not allowed' }, { status: 403 });
+  }
+
   // at least one field should be provided
-  if (!nome && !cognome && !phone && !deliveryAddress && !email) {
+  if (!nome && !cognome && !phone && !deliveryAddress) {
     return NextResponse.json({ error: 'At least one field must be provided' }, { status: 400 });
   }
 
   await connectToDB();
 
-  const existing = await User.findById(user.id).select('email');
+  const existing = await User.findById(user.id);
   if (!existing) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
-  }
-
-  if (email && email !== existing.email) {
-    const emailTaken = await User.findOne({ email });
-    if (emailTaken) {
-      return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
-    }
   }
 
   const updated = await User.findByIdAndUpdate(
@@ -92,7 +90,6 @@ export const PUT = handleApi(async (_req: NextRequest) => {
       ...(cognome && { surname: cognome }),
       ...(phone && { phone }),
       ...(deliveryAddress !== undefined && { deliveryAddress }),
-      ...(email && { email }),
       updatedAt: new Date(),
     },
     { new: true },

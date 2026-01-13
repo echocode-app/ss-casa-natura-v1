@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import AccountLayout from '@/components/layout/User/AccountLayout';
 import ProfileSection from '@/components/account/ProfileSection';
-import ChangePasswordForm from '@/components/account/ChangePasswordForm';
 import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
@@ -46,8 +45,7 @@ export default function AccountPage() {
 
   return (
     <AccountLayout>
-      <ProfileSection user={userProfile} />
-      <ChangePasswordForm onLogout={handleLogout} userEmail={user.email} />
+      <ProfileSection user={userProfile} onLogout={handleLogout} />
     </AccountLayout>
   );
 }

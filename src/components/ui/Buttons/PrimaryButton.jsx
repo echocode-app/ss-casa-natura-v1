@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import Spinner from '@/components/ui/Spinner/Spinner';
 
@@ -21,23 +22,15 @@ export default function PrimaryButton({
       return;
     }
 
-    // For submit buttons, don't prevent default or set disabled state
     if (type === 'submit') {
-      if (onClick) {
-        await onClick(e);
-      }
+      if (onClick) await onClick(e);
       return;
     }
 
     setDisabled(true);
+    if (onClick) await onClick(e);
 
-    if (onClick) {
-      await onClick(e);
-    }
-
-    setTimeout(() => {
-      setDisabled(false);
-    }, delay);
+    setTimeout(() => setDisabled(false), delay);
   };
 
   return (
@@ -46,13 +39,14 @@ export default function PrimaryButton({
       onClick={handleClick}
       disabled={isDisabled}
       className={`
+        relative
         bg-brand-accent
         text-black
         font-semibold
         text-[clamp(14px,2vw,22px)]
         rounded-[25px]
         transition-all duration-300
-        hover:shadow-header 
+        hover:shadow-header
         hover:opacity-90
         focus:outline-none 
         focus:shadow-header 
@@ -63,13 +57,12 @@ export default function PrimaryButton({
         ${className}
       `}
     >
-      {loading ? (
-        <span className="flex items-center justify-center gap-2">
-          <Spinner size="sm" colorScheme="muted" className="!w-5 !h-5 !border-[2px]" />
-          <span className="opacity-0 absolute">{children}</span>
-        </span>
-      ) : (
-        children
+      <span className={loading ? 'opacity-0' : 'inline-block w-full text-center'}>{children}</span>
+
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Spinner size="sm" colorScheme="muted" />
+        </div>
       )}
     </button>
   );

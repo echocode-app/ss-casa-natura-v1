@@ -66,7 +66,8 @@
       "error": "Impossibile cambiare la password",
       "genericError": "Si è verificato un errore",
       "logoutMessage": "Verrai disconnesso tra 2 secondi",
-      "unauthorized": "Non autorizzato. Effettua il login."
+      "unauthorized": "Non autorizzato. Effettua il login.",
+      "passwordsMustBeDifferent": "La nuova password deve essere diversa da quella attuale"
     },
     "actions": {
       "logout": "Esci",

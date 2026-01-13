@@ -66,7 +66,8 @@
       "error": "Failed to change password",
       "genericError": "An error occurred",
       "logoutMessage": "You will be logged out in 2 seconds",
-      "unauthorized": "Unauthorized. Please log in."
+      "unauthorized": "Unauthorized. Please log in.",
+      "passwordsMustBeDifferent": "New password must be different from the current one"
     },
     "actions": {
       "logout": "Logout",

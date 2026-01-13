@@ -6,8 +6,9 @@ import { ChangePasswordData } from '@/types/user';
 import { useCapsLockDetector } from '@/lib/utils/useCapsLock';
 import { authSchemas } from '@/lib/validation/schemas';
 import { validateField as validateSingleField } from '@/lib/validation/helpers';
-import FormError from '@/components/ui/Form/FormError';
 import notify from '@/lib/notify';
+import Edit from '../ui/Buttons/Edit';
+import Check from '../ui/Buttons/Check';
 
 interface ChangePasswordFormProps {
   onLogout?: () => void;
@@ -32,6 +33,7 @@ export default function ChangePasswordForm({
   });
   const [internalLoading, setInternalLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [editingNew, setEditingNew] = useState(false);
 
   const data = changePasswordData || internalChangePasswordData;
   const setData = setChangePasswordData || setInternalChangePasswordData;
@@ -39,9 +41,13 @@ export default function ChangePasswordForm({
   const handleSubmit = onSubmit || handleInternalSubmit;
 
   const t = useTranslations('user.account.password');
+  const p = useTranslations('user.account.profile');
   const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const { capsLockOn } = useCapsLockDetector();
+
+  const hasCurrent = Boolean(data.currentPassword);
+  const hasNewChanges = Boolean(data.newPassword);
 
   const validateField = (field: string, value: string) => {
     const error = validateSingleField(authSchemas.changePassword, field, value, tValidation);
@@ -49,9 +55,9 @@ export default function ChangePasswordForm({
       setFieldErrors((prev) => ({ ...prev, [field]: error }));
     } else {
       setFieldErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
+        const next = { ...prev };
+        delete next[field];
+        return next;
       });
     }
   };
@@ -85,6 +91,7 @@ export default function ChangePasswordForm({
       notify.info(t('logoutMessage'));
 
       setInternalChangePasswordData({ currentPassword: '', newPassword: '' });
+      setEditingNew(false);
 
       setTimeout(() => {
         if (onLogout) onLogout();
@@ -98,7 +105,7 @@ export default function ChangePasswordForm({
         setFieldErrors(errors);
         notify.error(tCommon('errors.validationFailed'));
       } else {
-        notify.error(tCommon('errors.genericError'));
+        notify.error(t('genericError'));
       }
     } finally {
       setInternalLoading(false);
@@ -107,7 +114,26 @@ export default function ChangePasswordForm({
 
   const handleInputChange =
     (field: keyof ChangePasswordData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setData((prev) => ({ ...prev, [field]: e.target.value }));
+      const value = e.target.value;
+
+      setData((prev) => {
+        const next = { ...prev, [field]: value };
+
+        if (field === 'newPassword' && next.currentPassword && next.currentPassword === value) {
+          setFieldErrors((prev) => ({
+            ...prev,
+            newPassword: t('passwordsMustBeDifferent'),
+          }));
+        } else if (field === 'newPassword') {
+          setFieldErrors((prev) => {
+            const copy = { ...prev };
+            delete copy.newPassword;
+            return copy;
+          });
+        }
+
+        return next;
+      });
     };
 
   const handleBlur =
@@ -116,9 +142,8 @@ export default function ChangePasswordForm({
     };
 
   return (
-    <section className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* 📌 Hidden email field for password manager accessibility */}
+    <div className="flex flex-col">
+      <form onSubmit={handleSubmit} className="flex flex-col">
         {userEmail && (
           <input
             type="email"
@@ -132,11 +157,14 @@ export default function ChangePasswordForm({
           />
         )}
 
-        <div>
-          <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="mb-6">
+          <label
+            htmlFor="currentPassword"
+            className="block text-[16px] md:text-h-default mb-2 lg:mb-1"
+          >
             {t('currentPassword')}
           </label>
-          <div className="relative">
+          <div className="relative flex items-center">
             <input
               id="currentPassword"
               type="password"
@@ -146,99 +174,110 @@ export default function ChangePasswordForm({
               required
               minLength={8}
               autoComplete="current-password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full pr-10 md:pr-14 py-3 pl-4 md:pl-10 border rounded-input-xl
+                h-[40px] lg:h-[70px]
+                text-[clamp(14px,3vw,24px)]
+                focus:outline-none font-variant-tabular
+                text-text-extrablack bg-white border-input focus:border-gray-600"
               aria-describedby={
                 capsLockOn
-                  ? 'currentPassword-capslock currentPassword-help'
-                  : 'currentPassword-help'
+                  ? 'currentPassword-capslock currentPassword-error'
+                  : 'currentPassword-error'
               }
               aria-label={t('currentPasswordLabel', { defaultValue: 'Current password' })}
               name="currentPassword"
             />
-            {capsLockOn && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-yellow-600">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            )}
           </div>
           {capsLockOn && (
             <p id="currentPassword-capslock" className="mt-1 text-sm text-yellow-600">
               {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
             </p>
           )}
-          <FormError message={fieldErrors.currentPassword} />
-          <p id="currentPassword-help" className="mt-1 text-sm text-gray-500">
-            {t('currentPasswordHelp', { defaultValue: 'Enter your current password' })}
-          </p>
+          {fieldErrors.currentPassword && (
+            <p id="currentPassword-error" className="mt-1 text-sm text-red-600" role="alert">
+              {fieldErrors.currentPassword}
+            </p>
+          )}
         </div>
 
-        <div>
-          <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+        {/* New password Edit → Check */}
+        <div className="mb-6">
+          <label htmlFor="newPassword" className="block text-[16px] md:text-h-default mb-2 lg:mb-1">
             {t('newPassword')}
           </label>
-          <div className="relative">
+          <div className="relative flex items-center">
             <input
               id="newPassword"
               type="password"
               value={data.newPassword}
-              onChange={handleInputChange('newPassword')}
+              onChange={(e) => {
+                setData((prev) => ({ ...prev, newPassword: e.target.value }));
+                if (!editingNew) setEditingNew(true);
+              }}
+              onFocus={() => setEditingNew(true)}
               onBlur={handleBlur('newPassword')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && hasCurrent && hasNewChanges) {
+                  e.preventDefault();
+                  handleSubmit(e as any);
+                }
+              }}
               required
               minLength={8}
               autoComplete="new-password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full pr-10 md:pr-14 py-3 pl-4 md:pl-10 border rounded-input-xl
+                h-[40px] lg:h-[70px]
+                text-[clamp(14px,3vw,24px)]
+                focus:outline-none font-variant-tabular
+                text-text-extrablack bg-white border-input focus:border-gray-600"
               aria-describedby={
-                capsLockOn ? 'newPassword-capslock newPassword-help' : 'newPassword-help'
+                capsLockOn ? 'newPassword-capslock newPassword-error' : 'newPassword-error'
               }
               aria-label={t('newPasswordLabel', { defaultValue: 'New password' })}
               name="newPassword"
             />
-            {capsLockOn && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-yellow-600">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
+
+            {!editingNew && (
+              <button
+                type="button"
+                onClick={() => setEditingNew(true)}
+                className="absolute right-3 md:right-5 flex items-center justify-center
+                  transition-transform duration-300 md:hover:scale-105 md:focus-visible:scale-105"
+                aria-label={p('edit')}
+              >
+                <Edit />
+              </button>
+            )}
+
+            {editingNew && hasCurrent && hasNewChanges && (
+              <button
+                type="submit"
+                disabled={loading}
+                className="absolute right-3 md:right-5 flex items-center justify-center
+                  transition-transform duration-300 md:hover:scale-105 md:focus-visible:scale-105"
+                aria-label={t('updatePassword')}
+              >
+                {loading ? (
+                  <span className="inline-block w-5 h-5 border-2 border-gray-700 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Check />
+                )}
+              </button>
             )}
           </div>
+
           {capsLockOn && (
             <p id="newPassword-capslock" className="mt-1 text-sm text-yellow-600">
               {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
             </p>
           )}
-          <FormError message={fieldErrors.newPassword} />
-          <p id="newPassword-help" className="mt-1 text-sm text-gray-500">
-            {t('newPasswordHelp', {
-              defaultValue: 'Choose a strong password with at least 8 characters',
-            })}
-          </p>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? (
-            <>
-              <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-              {t('updating')}
-            </>
-          ) : (
-            t('updatePassword')
+          {fieldErrors.newPassword && (
+            <p id="newPassword-error" className="mt-1 text-sm text-red-600" role="alert">
+              {fieldErrors.newPassword}
+            </p>
           )}
-        </button>
+        </div>
       </form>
-    </section>
+    </div>
   );
 }

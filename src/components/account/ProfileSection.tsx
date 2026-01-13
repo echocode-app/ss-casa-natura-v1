@@ -2,14 +2,16 @@
 
 import { useTranslations } from 'next-intl';
 import EditableField from './EditableField';
+import ChangePasswordForm from './ChangePasswordForm';
 import { User } from '@/types/user';
 import { useAuth } from '@/components/layout/AuthContext';
 
 interface ProfileSectionProps {
   user: User;
+  onLogout?: () => void;
 }
 
-export default function ProfileSection({ user }: ProfileSectionProps) {
+export default function ProfileSection({ user, onLogout }: ProfileSectionProps) {
   const t = useTranslations('user.account.profile');
   const { refreshUser } = useAuth();
 
@@ -77,6 +79,7 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
           type="email"
           onSave={handleSaveField}
           validate={validateEmail}
+          disabled={true}
         />
 
         <EditableField
@@ -94,6 +97,8 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
           name="deliveryAddress"
           onSave={handleSaveField}
         />
+
+        <ChangePasswordForm onLogout={onLogout} userEmail={user.email} />
       </div>
     </section>
   );

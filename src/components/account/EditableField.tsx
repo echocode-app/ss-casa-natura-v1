@@ -15,6 +15,7 @@ interface EditableFieldProps {
   type?: string;
   validate?: (value: string) => string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 export default function EditableField({
@@ -25,6 +26,7 @@ export default function EditableField({
   type = 'text',
   validate,
   required = false,
+  disabled = false,
 }: EditableFieldProps) {
   const [editing, setEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value || '');
@@ -36,7 +38,6 @@ export default function EditableField({
   const tCommon = useTranslations('common.form');
   const { capsLockOn } = useCapsLockDetector();
 
-  // Відслідковуємо, чи є зміни
   useEffect(() => {
     setHasChanges(inputValue !== (value || ''));
   }, [inputValue, value]);
@@ -44,7 +45,7 @@ export default function EditableField({
   const handleSave = async () => {
     const val = normalizeInputValue(inputValue.trim(), name);
 
-    if (!hasChanges) return; // якщо нічого не змінилось, не зберігати
+    if (!hasChanges) return;
 
     if (validate) {
       const validationError = validate(val);
@@ -85,7 +86,7 @@ export default function EditableField({
   };
 
   const activateEditing = () => {
-    if (!editing) {
+    if (!editing && !disabled) {
       setEditing(true);
       setInputValue(value || '');
       setError('');
@@ -109,20 +110,20 @@ export default function EditableField({
           {...(name === 'deliveryAddress' && { autoComplete: 'street-address' })}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onClick={activateEditing} // активація по кліку на інпут
+          onClick={disabled ? undefined : activateEditing}
           onKeyDown={handleKeyDown}
-          readOnly={!editing}
+          readOnly={!editing || disabled}
           autoFocus={editing}
           aria-label={label}
           aria-describedby={error ? `error-${name}` : capsLockOn ? `capslock-${name}` : undefined}
           className={`w-full pr-10 md:pr-14 py-3 pl-4 md:pl-10 border rounded-input-xl
-            h-[40px] lg:h-[70px]
+            h-[50px] md:h-[70px]
             text-[clamp(14px,3vw,24px)]
-            focus:outline-none
-            ${editing ? 'text-text-extrablack bg-white border-gray-600' : 'text-text-soft bg-transparent border-input cursor-text'}`}
+            focus:outline-none font-variant-tabular
+            ${disabled ? 'text-text-soft bg-gray-50 border-input cursor-not-allowed' : editing ? 'text-text-extrablack bg-white border-gray-600' : 'text-text-soft bg-transparent border-input cursor-text'}`}
         />
 
-        {editing && hasChanges && (
+        {editing && hasChanges && !disabled && (
           <button
             type="button"
             onClick={handleSave}
@@ -139,7 +140,7 @@ export default function EditableField({
           </button>
         )}
 
-        {!editing && (
+        {!editing && !disabled && (
           <button
             type="button"
             onClick={activateEditing}

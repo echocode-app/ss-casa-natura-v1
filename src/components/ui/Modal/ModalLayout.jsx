@@ -1,5 +1,6 @@
 'use client';
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function ModalLayout({ isOpen, onClose, children }) {
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function ModalLayout({ isOpen, onClose, children }) {
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <>
       {/* Overlay */}
       <div className="fixed inset-0 bg-background-overlay z-40" onClick={onClose} />
@@ -49,4 +50,6 @@ export default function ModalLayout({ isOpen, onClose, children }) {
       </div>
     </>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null;
 }

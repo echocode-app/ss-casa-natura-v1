@@ -41,10 +41,15 @@ export const authSchemas = {
     email: emailSchema,
   }),
 
-  changePassword: z.object({
-    currentPassword: z.string().min(1, 'currentPasswordRequired'),
-    newPassword: passwordSchema,
-  }),
+  changePassword: z
+    .object({
+      currentPassword: z.string().min(1, 'currentPasswordRequired'),
+      newPassword: passwordSchema,
+    })
+    .refine((data) => data.currentPassword !== data.newPassword, {
+      path: ['newPassword'],
+      message: 'passwordsMustBeDifferent',
+    }),
 };
 
 export const contactSchema = z.object({
