@@ -11,7 +11,6 @@ import { useTranslations } from 'next-intl';
 import ProductsWaveBackground from '@/components/ui/Parts/ProductsWaveBackground';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 import { usePaginatedProducts } from '@/hooks/usePaginatedProducts';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useDebounce } from '@/hooks/useDebounce';
 
 interface ProductsSectionProps {
@@ -19,7 +18,7 @@ interface ProductsSectionProps {
   initialCategoryIds?: string[];
 }
 
-const PRODUCTS_PER_PAGE = 6;
+const PRODUCTS_PER_PAGE = 12;
 const FILTER_DEBOUNCE_MS = 300;
 
 export default function ProductsSection({
@@ -43,18 +42,31 @@ export default function ProductsSection({
   const t = useTranslations('prodotti.list');
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadProducts = async () => {
       try {
         setError(null);
         const data = await fetchProducts(true);
-        setProducts(data);
+        if (!cancelled) {
+          setProducts(data);
+        }
       } catch {
-        setError('fetchError');
+        if (!cancelled) {
+          setError('fetchError');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
+
     loadProducts();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -89,13 +101,31 @@ export default function ProductsSection({
     pageSize: PRODUCTS_PER_PAGE,
   });
 
-  const loadMoreRef = useInfiniteScroll({
-    onLoadMore: loadMore,
-    hasMore,
-    isLoading: isFiltering,
-    threshold: 0.5,
-    rootMargin: '200px',
-  });
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // Scroll listener for infinite scroll (more reliable than IntersectionObserver)
+  useEffect(() => {
+    if (!hasMore || isFiltering) return;
+
+    const handleScroll = () => {
+      if (!loadMoreRef.current || isFiltering) return;
+
+      const rect = loadMoreRef.current.getBoundingClientRect();
+      const isVisible = rect.top <= window.innerHeight + 300; // 300px before visible
+
+      if (isVisible && hasMore && !isFiltering) {
+        loadMore();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Check immediately in case already visible
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [hasMore, isFiltering, loadMore]);
 
   const debouncedApplyFilters = useDebounce(() => {
     setAppliedCategories([...selectedCategories]);

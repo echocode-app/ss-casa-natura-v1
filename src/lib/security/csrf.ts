@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server';
-import { randomBytes } from 'crypto';
 
 const CSRF_TOKEN_LENGTH = 32;
 const CSRF_COOKIE_NAME = 'csrf-token';
@@ -7,9 +6,12 @@ const CSRF_HEADER_NAME = 'x-csrf-token';
 
 /**
  * Generate a cryptographically secure CSRF token
+ * Uses Web Crypto API for Edge Runtime compatibility
  */
 export function generateCsrfToken(): string {
-  return randomBytes(CSRF_TOKEN_LENGTH).toString('hex');
+  const array = new Uint8Array(CSRF_TOKEN_LENGTH);
+  crypto.getRandomValues(array);
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**

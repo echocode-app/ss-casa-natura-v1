@@ -8,6 +8,7 @@ import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 
 import { PRODUCT_FILTERS } from '@/config/products/product.filters';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
+import { getSeoMeta, buildBreadcrumbs, JsonLd, ClientSeoHead } from '@/lib/seo';
 
 export default function ProdottiPage() {
   const searchParams = useSearchParams();
@@ -42,13 +43,33 @@ export default function ProdottiPage() {
 
   const showSpinner = useSmoothLoading(isPending, 150, 280);
 
+  // Determine SEO based on filters
+  const seoType = subcategoryParam ? 'subcategory' : categoryParam ? 'category' : 'homepage';
+  const seoSlug = subcategoryParam || categoryParam || undefined;
+
+  const breadcrumbs = buildBreadcrumbs([{ label: 'Prodotti', href: '/prodotti' }]);
+
+  const seo = getSeoMeta({
+    type: seoType,
+    slug: seoSlug,
+    breadcrumbs,
+    path: `/prodotti${categoryParam ? `?category=${categoryParam}` : ''}${subcategoryParam ? `?subcategory=${subcategoryParam}` : ''}`,
+  });
+
   return (
-    <main className="relative">
-      {showSpinner && <FullscreenSpinner />}
+    <>
+      <ClientSeoHead seo={seo} />
+      <JsonLd data={seo.structuredData} />
+      <main className="relative">
+        {showSpinner && <FullscreenSpinner />}
 
-      <ProductsCategoriesSection />
+        <ProductsCategoriesSection />
 
-      <ProductsSection initialFilterId={initialFilterId} initialCategoryIds={initialCategoryIds} />
-    </main>
+        <ProductsSection
+          initialFilterId={initialFilterId}
+          initialCategoryIds={initialCategoryIds}
+        />
+      </main>
+    </>
   );
 }

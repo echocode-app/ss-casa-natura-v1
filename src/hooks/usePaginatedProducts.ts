@@ -23,7 +23,7 @@ export function usePaginatedProducts({ products, pageSize = 12 }: UsePaginatedPr
     if (hasMore) {
       setCurrentPage((prev) => prev + 1);
     }
-  }, [hasMore]);
+  }, [hasMore, currentPage, totalPages]);
 
   const reset = useCallback(() => {
     setCurrentPage(1);

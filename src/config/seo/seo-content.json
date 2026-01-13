@@ -1,0 +1,226 @@
+{
+  "homepage": {
+    "title": "Casa Natura - Prodotti Ecologici per la Casa | Naturali",
+    "description": "Scopri i prodotti ecologici Casa Natura: detersivi naturali, detergenti bio per bucato, cucina e pulizia. Rispetta l'ambiente con ingredienti naturali.",
+    "h1": "Prodotti Ecologici per la Tua Casa",
+    "intro": "Casa Natura offre una linea completa di prodotti ecologici per la pulizia della casa. Formulati con ingredienti naturali e rispettosi dell'ambiente, i nostri detergenti garantiscono efficacia e sostenibilità per ogni esigenza domestica."
+  },
+
+  "brand": {
+    "title": "Casa Natura - Chi Siamo",
+    "description": "Casa Natura: dal 1995 produciamo detergenti ecologici con ingredienti naturali. Scopri la nostra filosofia sostenibile e il nostro impegno per l'ambiente.",
+    "paragraphs": [
+      "Casa Natura nasce dalla passione per l'ambiente e dalla volontà di offrire prodotti di pulizia efficaci e completamente naturali. Da oltre 25 anni sviluppiamo formulazioni ecologiche che rispettano la tua casa e il pianeta.",
+      "La nostra filosofia si basa su tre pilastri fondamentali: ingredienti naturali certificati, processi produttivi sostenibili e packaging riciclabile. Ogni prodotto è testato dermatologicamente ed è biodegradabile al 100%.",
+      "Scegliere Casa Natura significa fare una scelta consapevole per la salute della tua famiglia e per la tutela dell'ambiente. I nostri prodotti sono privi di sostanze aggressive e profumati con essenze naturali italiane."
+    ]
+  },
+
+  "categories": {
+    "bucato": {
+      "title": "Detersivi Bucato Ecologici | Casa Natura",
+      "description": "Detersivi bucato naturali ed ecologici: efficaci su macchie, delicati sui tessuti. Ammorbidenti bio e prodotti per lavatrice certificati.",
+      "h1": "Prodotti per il Bucato Ecologici",
+      "intro": "La linea bucato Casa Natura offre detersivi e ammorbidenti formulati con ingredienti naturali per un pulito perfetto rispettando i tessuti. Prodotti concentrati, efficaci anche a basse temperature, certificati eco-bio e dermatologicamente testati."
+    },
+    "cucina": {
+      "title": "Detersivi Cucina Ecologici | Piatti e Lavastoviglie",
+      "description": "Detersivi piatti e lavastoviglie ecologici: sgrassanti naturali, brillantanti bio. Pulisci la cucina con prodotti certificati biodegradabili.",
+      "h1": "Prodotti per la Cucina Naturali",
+      "intro": "Detergenti ecologici per piatti e lavastoviglie formulati per sgrassare efficacemente senza danneggiare mani e ambiente. La nostra linea cucina combina potere pulente e ingredienti naturali certificati per stoviglie brillanti e igienizzate."
+    },
+    "pulizia": {
+      "title": "Detergenti Casa Ecologici | Sgrassatori e Pavimenti",
+      "description": "Prodotti pulizia casa naturali: sgrassatori bio, detergenti pavimenti ecologici. Pulisci ogni superficie con formulazioni biodegradabili certificate.",
+      "h1": "Detergenti per la Pulizia della Casa",
+      "intro": "Sgrassatori e detergenti per pavimenti formulati con tensioattivi vegetali per una pulizia profonda ed ecologica. Prodotti versatili, concentrati e profumati con essenze naturali, ideali per tutte le superfici domestiche."
+    }
+  },
+
+  "subcategories": {
+    "detersivi-piatti": {
+      "title": "Detersivi Piatti Ecologici | Naturali e Sgrassanti",
+      "description": "Detersivi piatti naturali: sgrassano efficacemente, delicati sulle mani. Certificati eco-bio, biodegradabili, con profumazioni naturali.",
+      "h1": "Detersivi per Piatti Naturali",
+      "intro": "I nostri detersivi per piatti sono formulati con tensioattivi vegetali che sgrassano a fondo rispettando le mani. Concentrati, biodegradabili e dermatologicamente testati, garantiscono stoviglie brillanti e profumate naturalmente."
+    },
+    "cura-lavastoviglie": {
+      "title": "Prodotti Lavastoviglie Ecologici | Sale, Brillantante",
+      "description": "Pastiglie, sale e brillantante lavastoviglie ecologici. Formulazioni naturali per stoviglie pulite e brillanti, certificati biodegradabili.",
+      "h1": "Cura Lavastoviglie Ecologica",
+      "intro": "La linea lavastoviglie Casa Natura comprende pastiglie, sale e brillantante formulati con ingredienti naturali. Prodotti concentrati ed efficaci che garantiscono risultati impeccabili proteggendo l'ambiente."
+    },
+    "detersivi-bucato": {
+      "title": "Detersivi Lavatrice Ecologici | Liquidi e in Polvere",
+      "description": "Detersivi bucato ecologici: liquidi, in polvere, per bianchi e colorati. Efficaci anche a freddo, biodegradabili, con profumazioni naturali.",
+      "h1": "Detersivi per Lavatrice Naturali",
+      "intro": "Detersivi bucato formulati per rimuovere le macchie rispettando i tessuti e i colori. Efficaci anche a basse temperature, concentrati e certificati eco-bio con fragranze naturali italiane."
+    },
+    "ammorbidenti": {
+      "title": "Ammorbidenti Ecologici | Naturali e Delicati",
+      "description": "Ammorbidenti naturali per bucato: profumati con essenze pure, ipoallergenici. Rendono i tessuti morbidi senza sostanze aggressive.",
+      "h1": "Ammorbidenti Naturali per Bucato",
+      "intro": "Ammorbidenti ecologici che rendono i tessuti soffici e profumati utilizzando solo ingredienti naturali. Formulazioni dermatologicamente testate, senza allergeni, ideali per tutta la famiglia."
+    },
+    "sgrassatori": {
+      "title": "Sgrassatori Ecologici | Multiuso e Cucina",
+      "description": "Sgrassatori naturali universali: rimuovono sporco ostinato, certificati eco-bio. Efficaci su tutte le superfici, biodegradabili.",
+      "h1": "Sgrassatori Universali Naturali",
+      "intro": "Sgrassatori multiuso formulati con tensioattivi vegetali per eliminare grasso e sporco da cucina, bagno e superfici. Prodotti concentrati, biodegradabili al 100% e sicuri per tutte le superfici."
+    },
+    "lavapavimenti": {
+      "title": "Detergenti Pavimenti Ecologici | Per Ogni Superficie",
+      "description": "Detergenti pavimenti naturali: per parquet, gres, marmo. Puliscono in profondità senza aloni, certificati eco-bio, profumazioni naturali.",
+      "h1": "Detergenti per Pavimenti Naturali",
+      "intro": "Detergenti pavimenti specifici per ogni tipo di superficie: parquet, ceramica, marmo e pietra. Formulazioni ecologiche che puliscono senza lasciare aloni, profumando naturalmente gli ambienti."
+    }
+  },
+
+  "lines": {
+    "lavanda": {
+      "title": "Linea Lavanda | Prodotti Naturali Profumati",
+      "description": "Linea Lavanda Casa Natura: detersivi e detergenti con essenza naturale di lavanda italiana. Puliscono e profumano in modo delicato.",
+      "h1": "Linea Lavanda - Profumo Naturale Rilassante",
+      "intro": "La linea Lavanda è arricchita con olio essenziale di lavanda italiana per un profumo naturale e rilassante. Prodotti ecologici che uniscono efficacia pulente e benessere aromaterapico, ideali per chi cerca fragranze delicate."
+    },
+    "brezza-marina": {
+      "title": "Linea Brezza Marina | Freschezza del Mediterraneo",
+      "description": "Linea Brezza Marina: detergenti ecologici con note marine fresche. Puliscono efficacemente lasciando una sensazione di freschezza naturale.",
+      "h1": "Linea Brezza Marina - Freschezza Mediterranea",
+      "intro": "La linea Brezza Marina cattura l'essenza del Mediterraneo con note fresche e marine. Formulazioni naturali che donano una sensazione di pulizia e freschezza duratura, perfette per ambienti vivaci."
+    },
+    "agrumi-di-sicilia": {
+      "title": "Linea Agrumi di Sicilia | Energia Naturale degli Agrumi",
+      "description": "Linea Agrumi di Sicilia: detergenti con oli essenziali di limone e arancia. Sgrassano naturalmente profumando con essenze mediterranee.",
+      "h1": "Linea Agrumi di Sicilia - Profumo Energizzante",
+      "intro": "La linea Agrumi di Sicilia è arricchita con oli essenziali di limone e arancia siciliana che uniscono potere sgrassante naturale e profumazione agrumata. Prodotti energizzanti che portano il sole mediterraneo in casa."
+    },
+    "fiore-di-loto": {
+      "title": "Linea Fiore di Loto | Delicatezza Orientale Naturale",
+      "description": "Linea Fiore di Loto: detergenti ecologici con fragranza floreale delicata. Puliscono con dolcezza rispettando pelli sensibili.",
+      "h1": "Linea Fiore di Loto - Purezza e Delicatezza",
+      "intro": "La linea Fiore di Loto si ispira alla purezza orientale con una fragranza floreale delicata e avvolgente. Prodotti ipoallergenici ideali per chi cerca una pulizia efficace unita a profumazioni raffinate e discrete."
+    },
+    "marsiglia": {
+      "title": "Linea Marsiglia | Tradizione e Naturalità",
+      "description": "Linea Marsiglia Casa Natura: detergenti tradizionali con vero sapone di Marsiglia. Efficaci, delicati, certificati eco-bio.",
+      "h1": "Linea Marsiglia - Tradizione Saponiera Naturale",
+      "intro": "La linea Marsiglia è formulata con autentico sapone di Marsiglia, simbolo di pulizia tradizionale e naturale. Prodotti testati nel tempo che uniscono semplicità degli ingredienti ed efficacia, perfetti per tutta la famiglia."
+    },
+    "neutro": {
+      "title": "Linea Neutro | Senza Profumo, Massima Delicatezza",
+      "description": "Linea Neutro Casa Natura: detergenti ecologici senza profumo. Ipoallergenici, certificati, ideali per pelli sensibili e neonati.",
+      "h1": "Linea Neutro - Pulizia Ipoallergenica",
+      "intro": "La linea Neutro è priva di profumazione per garantire massima tollerabilità. Formulazioni dermatologicamente testate, certificate eco-bio, ideali per persone con pelli sensibili, neonati e chi preferisce prodotti senza fragranze."
+    }
+  },
+
+  "templates": {
+    "category": {
+      "title": "{{categoryName}} Ecologici | Casa Natura",
+      "description": "Prodotti {{categoryName}} naturali ed ecologici: efficaci, certificati bio, biodegradabili. Scegli la qualità sostenibile Casa Natura.",
+      "h1": "Prodotti {{categoryName}} Naturali ed Ecologici",
+      "intro": "La linea {{categoryName}} Casa Natura offre prodotti formulati con ingredienti naturali certificati. Soluzioni efficaci e rispettose dell'ambiente per la cura della tua casa e della tua famiglia."
+    },
+    "subcategory": {
+      "title": "{{subcategoryName}} Ecologici | Naturali Casa Natura",
+      "description": "{{subcategoryName}} naturali: certificati eco-bio, biodegradabili, efficaci. Prodotti ecologici per una pulizia sostenibile e sicura.",
+      "h1": "{{subcategoryName}} Naturali e Certificati",
+      "intro": "I nostri {{subcategoryName}} sono formulati con ingredienti naturali per garantire risultati eccellenti nel rispetto dell'ambiente. Prodotti concentrati, certificati eco-bio e dermatologicamente testati."
+    },
+    "line": {
+      "title": "Linea {{lineName}} | Prodotti Naturali Casa Natura",
+      "description": "Linea {{lineName}}: detergenti e detersivi ecologici con profumazione naturale {{lineName}}. Efficaci, certificati, biodegradabili.",
+      "h1": "Linea {{lineName}} - Profumazione Naturale",
+      "intro": "La linea {{lineName}} Casa Natura unisce l'efficacia dei nostri prodotti ecologici a una profumazione naturale caratteristica. Formulazioni certificate che puliscono rispettando ambiente e salute."
+    }
+  },
+
+  "keywords": {
+    "primary": [
+      "detersivi ecologici",
+      "detergenti naturali",
+      "prodotti pulizia bio",
+      "detersivi biodegradabili",
+      "prodotti eco-friendly"
+    ],
+    "secondary": [
+      "detersivi casa naturali",
+      "detergenti certificati eco-bio",
+      "prodotti pulizia sostenibili",
+      "detersivi ipoallergenici",
+      "detergenti dermatologicamente testati",
+      "prodotti pulizia made in Italy"
+    ],
+    "long_tail": [
+      "detersivi bucato naturali efficaci",
+      "detergenti piatti ecologici senza sostanze aggressive",
+      "sgrassatori naturali per cucina biodegradabili",
+      "ammorbidenti naturali senza allergeni",
+      "detergenti pavimenti ecologici profumati",
+      "prodotti lavastoviglie certificati eco-bio"
+    ]
+  },
+
+  "structured_data": {
+    "organization": {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Casa Natura",
+      "description": "Produttore di detersivi e detergenti ecologici naturali per la casa",
+      "url": "https://casanatura.it",
+      "logo": "https://casanatura.it/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/casanatura",
+        "https://www.instagram.com/casanatura"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+39-XXX-XXXXXXX",
+        "contactType": "Customer Service",
+        "areaServed": "IT",
+        "availableLanguage": "Italian"
+      }
+    },
+    "product_template": {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "{{productName}}",
+      "description": "{{productDescription}}",
+      "brand": {
+        "@type": "Brand",
+        "name": "Casa Natura"
+      },
+      "category": "{{categoryName}}",
+      "eco_label": "Certificato Eco-Bio",
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Biodegradabile",
+          "value": "100%"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Ingredienti",
+          "value": "Naturali"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Test dermatologico",
+          "value": "Testato"
+        }
+      ]
+    }
+  },
+
+  "breadcrumb_labels": {
+    "home": "Home",
+    "products": "Prodotti",
+    "lines": "Linee",
+    "categories": "Categorie",
+    "about": "Chi Siamo",
+    "contact": "Contatti",
+    "cart": "Carrello",
+    "account": "Il Mio Account"
+  }
+}

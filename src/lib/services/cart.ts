@@ -5,6 +5,7 @@ import {
   RemoveFromCartRequest,
   ApplyPromoCodeRequest,
 } from '@/types/cart';
+import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 
 const API_BASE = '/api/cart';
 
@@ -48,7 +49,7 @@ export const cartService: CartService = {
   async addItem(data: AddToCartRequest): Promise<Cart> {
     const response = await fetch(`${API_BASE}/add`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
       credentials: 'include',
     });
@@ -66,7 +67,7 @@ export const cartService: CartService = {
   async updateItem(data: UpdateCartItemRequest): Promise<Cart> {
     const response = await fetch(`${API_BASE}/update`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
       credentials: 'include',
     });
@@ -84,7 +85,7 @@ export const cartService: CartService = {
   async removeItem(data: RemoveFromCartRequest): Promise<Cart> {
     const response = await fetch(`${API_BASE}/remove`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
       credentials: 'include',
     });
@@ -102,6 +103,7 @@ export const cartService: CartService = {
   async clearCart(): Promise<Cart> {
     const response = await fetch(`${API_BASE}/clear`, {
       method: 'POST',
+      headers: getCsrfHeaders(),
       credentials: 'include',
     });
     const result = await handleResponse<{
@@ -118,7 +120,7 @@ export const cartService: CartService = {
   async applyPromoCode(data: ApplyPromoCodeRequest): Promise<Cart> {
     const response = await fetch(`${API_BASE}/promo/apply`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
       credentials: 'include',
     });
@@ -136,6 +138,7 @@ export const cartService: CartService = {
   async removePromoCode(): Promise<Cart> {
     const response = await fetch(`${API_BASE}/promo/remove`, {
       method: 'POST',
+      headers: getCsrfHeaders(),
       credentials: 'include',
     });
     const result = await handleResponse<{

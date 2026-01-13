@@ -11,17 +11,15 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-// import { validateCsrfToken, generateCsrfToken, CSRF_COOKIE_NAME } from '@/lib/security/csrf';
+import { validateCsrfToken, generateCsrfToken, CSRF_COOKIE_NAME } from '@/lib/security/csrf';
 
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // ============================================
-  // CSRF Protection (Currently Disabled)
+  // CSRF Protection
   // ============================================
-  // Uncomment when client-side CSRF token support is added
   
-  /*
   // Generate CSRF token for all requests if not present
   if (!request.cookies.get(CSRF_COOKIE_NAME)) {
     const token = generateCsrfToken();
@@ -55,7 +53,6 @@ export function middleware(request: NextRequest) {
       );
     }
   }
-  */
 
   // ============================================
   // Additional Security Measures

@@ -6,6 +6,7 @@ import { useAuth } from '@/components/layout/AuthContext';
 import { useTranslations } from 'next-intl';
 import { authSchemas } from '@/lib/validation/schemas';
 import { validateField as validateSingleField } from '@/lib/validation/helpers';
+import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 import notify from '@/lib/notify';
 import ModalLayout from './ModalLayout';
 import ModalHeader from './ModalHeader';
@@ -108,7 +109,7 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
       if (type === 'register') {
         const res = await fetch('/api/auth/register', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
           credentials: 'include',
           body: JSON.stringify({
             nome: formData.nome,
@@ -148,7 +149,7 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
       } else if (type === 'login') {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
           credentials: 'include',
           body: JSON.stringify({
             email: formData.email,

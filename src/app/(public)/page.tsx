@@ -6,17 +6,36 @@ import { MissionSection } from '@/components/sections/Mission';
 import { PromocodeSection } from '@/components/sections/Promocode';
 import { TopProductsSection } from '@/components/sections/TopProducts';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import { getSeoMeta, generateMetadata as generateSeoMetadata, JsonLd } from '@/lib/seo';
+import type { Metadata } from 'next';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = getSeoMeta({
+    type: 'homepage',
+    path: '/',
+  });
+
+  return generateSeoMetadata(seo);
+}
 
 export default function Page() {
+  const seo = getSeoMeta({
+    type: 'homepage',
+    path: '/',
+  });
+
   return (
-    <main>
-      <HeroSection />
-      <CategoriesSection />
-      <LeLineSectionon />
-      <TopProductsSection products={PRODUCTS_MOCK} />
-      <GreenProductionSection />
-      <MissionSection />
-      <PromocodeSection />
-    </main>
+    <>
+      <JsonLd data={seo.structuredData} />
+      <main>
+        <HeroSection />
+        <CategoriesSection />
+        <LeLineSectionon />
+        <TopProductsSection products={PRODUCTS_MOCK} />
+        <GreenProductionSection />
+        <MissionSection />
+        <PromocodeSection />
+      </main>
+    </>
   );
 }
