@@ -12,5 +12,8 @@
   "linesSection": {
     "title": "The Lines"
   },
-  "lineNotFound": "Line not found"
+  "lineNotFound": "Line not found",
+  "fetchError": "Error loading products. Please check your connection.",
+  "retry": "Retry",
+  "allProductsLoaded": "All products have been loaded"
 }

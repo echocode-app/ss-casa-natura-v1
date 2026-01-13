@@ -62,8 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
         return false;
       }
-    } catch (error) {
-      console.error('[AuthContext] Error refreshing user:', error);
+    } catch {
       setIsAuthenticated(false);
       setUser(null);
       return false;

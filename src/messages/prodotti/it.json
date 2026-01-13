@@ -12,7 +12,10 @@
   },
 
   "list": {
-    "title": "I nostri prodotti"
+    "title": "I nostri prodotti",
+    "allProductsLoaded": "Tutti i prodotti caricati ({displayed} di {total})",
+    "loadingMore": "Caricamento...",
+    "noProducts": "Nessun prodotto trovato"
   },
 
   "breadcrumbs": {
@@ -31,6 +34,8 @@
     "title": "Ti potrebbero interessare",
     "home": "Home",
     "details": "Dettagli prodotto",
-    "addToCart": "Aggiungi"
+    "addToCart": "Aggiungi",
+    "outOfStock": "Non disponibile",
+    "variantUnavailable": "Il volume selezionato non è disponibile. Scegli un'altra opzione."
   }
 }

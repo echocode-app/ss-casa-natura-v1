@@ -5,6 +5,7 @@ import Cart from '@/lib/db/models/Cart';
 import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { CartItemDB } from '@/types/cart';
+import { extendCartExpiration } from '@/lib/constants/cart';
 
 // POST /api/cart/promo/remove - Remove promo code from cart
 export const POST = handleApi(async (req: NextRequest) => {
@@ -26,6 +27,10 @@ export const POST = handleApi(async (req: NextRequest) => {
   cart.promoCode = undefined;
   cart.promoDiscount = undefined;
   cart.total = cart.subtotal - (cart.discount || 0);
+
+  // Extend expiration on cart activity
+  const isAuthenticated = !!cart.userId;
+  cart.expiresAt = extendCartExpiration(isAuthenticated);
 
   await cart.save();
 

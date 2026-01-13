@@ -5,6 +5,7 @@ import Cart from '@/lib/db/models/Cart';
 import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { UpdateCartItemRequest, CartItemDB } from '@/types/cart';
+import { extendCartExpiration } from '@/lib/constants/cart';
 import { z } from 'zod';
 
 const updateCartItemSchema = z.object({
@@ -65,6 +66,10 @@ export const POST = handleApi(async (req: NextRequest) => {
   // Recalculate totals
   cart.subtotal = cart.items.reduce((sum: number, item: CartItemDB) => sum + item.totalPrice, 0);
   cart.total = cart.subtotal - (cart.discount || 0) - (cart.promoDiscount || 0);
+
+  // Extend expiration on cart activity
+  const isAuthenticated = !!cart.userId;
+  cart.expiresAt = extendCartExpiration(isAuthenticated);
 
   await cart.save();
 

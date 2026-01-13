@@ -5,6 +5,7 @@ import Cart from '@/lib/db/models/Cart';
 import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { CartItemDB } from '@/types/cart';
+import { getCartExpirationDate } from '@/lib/constants/cart';
 
 // POST /api/cart/clear - Clear all items from cart
 export const POST = handleApi(async (req: NextRequest) => {
@@ -31,12 +32,14 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   if (!cart) {
     // Create empty cart if doesn't exist
+    const isAuthenticated = !!userId;
     const newCart = await Cart.create({
       userId: userId || undefined,
       sessionId,
       items: [],
       subtotal: 0,
       total: 0,
+      expiresAt: getCartExpirationDate(isAuthenticated),
     });
 
     return NextResponse.json({

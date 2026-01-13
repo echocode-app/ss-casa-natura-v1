@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/contexts/CartContext';
 import Spinner from '@/components/ui/Spinner/Spinner';
+import { isProductAvailable } from '@/lib/utils/sortProducts';
 
 export default function ProductMain({ product }) {
   const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0] ?? null);
@@ -14,8 +15,13 @@ export default function ProductMain({ product }) {
   const { addItem } = useCart();
   const t = useTranslations('prodotti.related');
 
+  const variantAvailable = selectedVariant
+    ? isProductAvailable(product, selectedVariant.id)
+    : false;
+  const canAddToCart = selectedVariant && variantAvailable;
+
   const handleAddToCart = async () => {
-    if (!selectedVariant) return;
+    if (!canAddToCart) return;
 
     setIsAdding(true);
     try {
@@ -64,11 +70,22 @@ export default function ProductMain({ product }) {
           {/* Buy button */}
           <PrimaryButton
             onClick={handleAddToCart}
-            disabled={!selectedVariant || isAdding}
+            disabled={!canAddToCart || isAdding}
             className="mt-6 p-6 mr-auto w-[200px] md:w-[300px]"
           >
-            {isAdding ? <Spinner size="sm" colorScheme="muted" /> : t('addToCart')}
+            {isAdding ? (
+              <Spinner size="sm" colorScheme="muted" />
+            ) : !variantAvailable ? (
+              t('outOfStock')
+            ) : (
+              t('addToCart')
+            )}
           </PrimaryButton>
+
+          {/* Out of stock message */}
+          {selectedVariant && !variantAvailable && (
+            <p className="mt-2 text-sm text-orange-600">{t('variantUnavailable')}</p>
+          )}
         </div>
 
         {/* Description */}

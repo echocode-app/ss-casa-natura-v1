@@ -47,10 +47,23 @@
       "title": "Orders",
       "all": "All Orders",
       "noOrders": "No orders yet",
-      "orderNumber": "Order #{number}",
+      "orderNumber": "Order {number}",
       "status": "Status",
       "total": "Total",
-      "date": "Date"
+      "date": "Date",
+      "viewDetails": "View Details",
+      "hideDetails": "Hide Details",
+      "loading": "Loading details...",
+      "totalWithVat": "TOTAL VAT incl.",
+      "statuses": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "shipped": "Shipped",
+        "canceled": "Canceled",
+        "completed": "Completed"
+      },
+      "quantity": "Quantity",
+      "productUnavailable": "Product unavailable"
     },
     "password": {
       "title": "Change Password",

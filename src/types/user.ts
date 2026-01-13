@@ -10,11 +10,23 @@ export interface User {
   role?: 'user' | 'admin' | 'superadmin' | 'developer';
 }
 
+export interface OrderProduct {
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    images?: string[];
+  } | null;
+  quantity: number;
+}
+
 export interface Order {
   id: string;
   status: string;
   totalPrice: number;
   createdAt: string;
+  products: OrderProduct[];
 }
 
 export interface ChangePasswordData {

@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/contexts/CartContext';
+import { sortProducts } from '@/lib/utils/sortProducts';
 
 export default function TopProductsSection({ products }) {
   const [loading, setLoading] = useState(true);
@@ -32,9 +33,11 @@ export default function TopProductsSection({ products }) {
     );
   }
 
-  const displayProducts = (
-    Array.isArray(products) && products.length > 0 ? products : PRODUCTS_MOCK
-  ).filter((p) => p.isBestSeller);
+  const displayProducts = sortProducts(
+    (Array.isArray(products) && products.length > 0 ? products : PRODUCTS_MOCK).filter(
+      (p) => p.isBestSeller,
+    ),
+  );
 
   if (displayProducts.length === 0) return null;
 
@@ -58,6 +61,8 @@ export default function TopProductsSection({ products }) {
               imageSrc={product.images?.[0]?.src}
               slug={product.slug}
               isBestSeller={product.isBestSeller}
+              isAvailable={product.isAvailable}
+              stock={product.stock}
               onAddClick={() => handleAddToCart(product)}
             />
           ))}

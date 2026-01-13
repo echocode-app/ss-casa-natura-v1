@@ -17,6 +17,8 @@ export default function ProductCard({
   imageSrc = '/images/home/product.png',
   slug,
   onAddClick,
+  isAvailable = true,
+  stock,
 }) {
   const href = slug ? `/prodotti/${slug}` : '/prodotti';
 
@@ -25,11 +27,15 @@ export default function ProductCard({
   const [visible, setVisible] = useState(false);
   const t = useTranslations('topProductsSection');
 
+  const productAvailable = isAvailable && (stock === undefined || stock > 0);
+  const isLowStock = stock !== undefined && stock > 0 && stock <= 5;
+  const isOutOfStock = !productAvailable;
+
   const handleAddClick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!onAddClick) return;
+    if (!onAddClick || isOutOfStock) return;
 
     setAdding(true);
     try {
@@ -63,6 +69,7 @@ export default function ProductCard({
         border border-bg-brand-soft md:border-none
         transition-all duration-500
         ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+        ${isOutOfStock ? 'opacity-60' : ''}
       `}
     >
       {/* Image */}
@@ -78,6 +85,24 @@ export default function ProductCard({
           xl:w-[230px] xl:h-[300px]  /* fix XL */
         "
       >
+        {/* Out of Stock Badge */}
+        {isOutOfStock && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <span className="bg-white/95 px-4 py-2 rounded-full text-sm font-semibold text-gray-800">
+              Немає в наявності
+            </span>
+          </div>
+        )}
+
+        {/* Low Stock Badge */}
+        {isLowStock && !isOutOfStock && (
+          <div className="absolute top-2 right-2 z-10">
+            <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+              Мало
+            </span>
+          </div>
+        )}
+
         <Image
           src={imageSrc}
           alt={title}
@@ -94,6 +119,7 @@ export default function ProductCard({
             transition-transform duration-300 ease-out
             md:group-hover:scale-110
             ${imageLoading ? 'opacity-0' : 'opacity-100'}
+            ${isOutOfStock ? 'grayscale' : ''}
           `}
           onLoad={handleImageLoaded}
           loading="eager"
@@ -137,7 +163,7 @@ export default function ProductCard({
           <div className="hidden max-[500px]:flex items-center">
             <PrimaryButton
               onClick={handleAddClick}
-              disabled={adding}
+              disabled={adding || isOutOfStock}
               className="w-10 h-10 rounded-full p-0 flex items-center justify-center"
             >
               {adding ? <Spinner size="sm" colorScheme="muted" /> : <CartIcon className="p-1" />}
@@ -148,7 +174,7 @@ export default function ProductCard({
           <div className="hidden min-[501px]:flex lg:hidden items-center">
             <PrimaryButton
               onClick={handleAddClick}
-              disabled={adding}
+              disabled={adding || isOutOfStock}
               className="px-6 py-3 rounded-full text-sm"
             >
               {adding ? <Spinner size="sm" colorScheme="muted" /> : t('button')}
@@ -160,7 +186,7 @@ export default function ProductCard({
         <div className="mt-auto pt-4 hidden lg:block">
           <PrimaryButton
             onClick={handleAddClick}
-            disabled={adding}
+            disabled={adding || isOutOfStock}
             className="w-full p-4 xl:px-8 xl:py-5 flex justify-center"
           >
             {adding ? <Spinner size="sm" colorScheme="muted" /> : t('button')}

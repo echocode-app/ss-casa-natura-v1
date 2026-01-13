@@ -11,6 +11,7 @@ import { ProductCard } from '@/components/ui/Products';
 import { WaveBackground } from '@/components/ui/Parts';
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/contexts/CartContext';
+import { sortProducts } from '@/lib/utils/sortProducts';
 
 export default function RelatedProductsSection({ products }) {
   const swiperRef = useRef(null);
@@ -30,6 +31,8 @@ export default function RelatedProductsSection({ products }) {
   };
 
   if (!products || products.length === 0) return null;
+
+  const sortedProducts = sortProducts(products);
 
   const buttonBaseClass = `
     bg-[#F3F2E3]
@@ -130,7 +133,7 @@ export default function RelatedProductsSection({ products }) {
             speed={400}
             className="py-4"
           >
-            {products.map((p) => (
+            {sortedProducts.map((p) => (
               <SwiperSlide
                 key={p.id}
                 className="flex justify-center items-stretch"
@@ -145,6 +148,8 @@ export default function RelatedProductsSection({ products }) {
                   price={p.price}
                   imageSrc={p.images?.[0]?.src}
                   slug={p.slug}
+                  isAvailable={p.isAvailable}
+                  stock={p.stock}
                   onAddClick={() => handleAddToCart(p)}
                 />
               </SwiperSlide>

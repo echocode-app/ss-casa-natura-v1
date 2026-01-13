@@ -47,10 +47,23 @@
       "title": "Ordini",
       "all": "Tutti gli ordini",
       "noOrders": "Ancora nessun ordine",
-      "orderNumber": "Ordine #{number}",
+      "orderNumber": "Ordine {number}",
       "status": "Stato",
       "total": "Totale",
-      "date": "Data"
+      "date": "Data",
+      "viewDetails": "Visualizza",
+      "hideDetails": "Nascondi",
+      "loading": "Caricamento dettagli...",
+      "totalWithVat": "TOTALE IVA incl.",
+      "statuses": {
+        "pending": "In attesa",
+        "paid": "Pagato",
+        "shipped": "Spedito",
+        "canceled": "Annullato",
+        "completed": "Completato"
+      },
+      "quantity": "Quantità",
+      "productUnavailable": "Prodotto non disponibile"
     },
     "password": {
       "title": "Cambia password",

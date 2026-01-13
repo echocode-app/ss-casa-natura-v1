@@ -22,7 +22,7 @@ export default function ModalBody({
     setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
   };
 
-  const handleBlur = (field) => (e) => {
+  const handleBlur = (field) => (_e) => {
     // 📌 Trigger validation on blur
     if (onInputBlur) {
       onInputBlur(field);

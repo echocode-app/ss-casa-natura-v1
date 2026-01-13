@@ -6,6 +6,7 @@ import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { AddToCartRequest, CartItemDB } from '@/types/cart';
 import { productService } from '@/lib/services/product';
+import { getCartExpirationDate, extendCartExpiration } from '@/lib/constants/cart';
 import { z } from 'zod';
 
 const addToCartSchema = z.object({
@@ -56,13 +57,19 @@ export const POST = handleApi(async (req: NextRequest) => {
         { status: 409 },
       );
     }
+    const isAuthenticated = !!userId;
     cart = await Cart.create({
       userId: userId || undefined,
       sessionId,
       items: [],
       subtotal: 0,
       total: 0,
+      expiresAt: getCartExpirationDate(isAuthenticated),
     });
+  } else {
+    // Extend expiration on cart activity
+    const isAuthenticated = !!cart.userId;
+    cart.expiresAt = extendCartExpiration(isAuthenticated);
   }
 
   // Check if item already exists

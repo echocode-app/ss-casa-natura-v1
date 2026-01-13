@@ -12,5 +12,8 @@
   "linesSection": {
     "title": "Le linee"
   },
-  "lineNotFound": "Linea non trovata"
+  "lineNotFound": "Linea non trovata",
+  "fetchError": "Errore durante il caricamento dei prodotti. Controlla la tua connessione.",
+  "retry": "Riprova",
+  "allProductsLoaded": "Tutti i prodotti sono stati caricati"
 }

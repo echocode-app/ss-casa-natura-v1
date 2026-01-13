@@ -21,6 +21,9 @@ export interface Product {
   price: number;
   currency: 'EUR';
 
+  stock?: number;
+  isAvailable?: boolean;
+
   discount?: ProductDiscount;
   promoEligible?: boolean;
 
@@ -45,6 +48,8 @@ export interface ProductVariant {
   volume: number;
   unit: 'ml' | 'l' | 'kg' | 'g';
   priceModifier?: number; // + / -
+  stock?: number;
+  isAvailable?: boolean;
 }
 
 /* ================= Discounts ================= */

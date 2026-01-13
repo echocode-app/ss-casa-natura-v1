@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import ProductsFiltersSection from './ProductsFiltersSection';
 import ProductsGridSection from './ProductsGridSection';
 import { fetchProducts } from '@/lib/utils/fetchProducts';
@@ -10,11 +10,17 @@ import Spinner from '@/components/ui/Spinner/Spinner';
 import { useTranslations } from 'next-intl';
 import ProductsWaveBackground from '@/components/ui/Parts/ProductsWaveBackground';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
+import { usePaginatedProducts } from '@/hooks/usePaginatedProducts';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface ProductsSectionProps {
   initialFilterId?: string;
   initialCategoryIds?: string[];
 }
+
+const PRODUCTS_PER_PAGE = 6;
+const FILTER_DEBOUNCE_MS = 300;
 
 export default function ProductsSection({
   initialFilterId,
@@ -31,18 +37,19 @@ export default function ProductsSection({
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const showInitialSpinner = useSmoothLoading(loading, 150, 300);
-  const showFilteringSpinner = useSmoothLoading(isFiltering, 100, 220);
 
   const t = useTranslations('prodotti.list');
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const data = await fetchProducts(true); // Start with mock
+        setError(null);
+        const data = await fetchProducts(true);
         setProducts(data);
       } catch {
-        // Handle error silently
+        setError('fetchError');
       } finally {
         setLoading(false);
       }
@@ -77,19 +84,33 @@ export default function ProductsSection({
     );
   }, [appliedCategories, products]);
 
-  const applyFilters = () => {
-    // Smooth scroll to grid
+  const { displayedProducts, hasMore, loadMore, reset } = usePaginatedProducts({
+      products: filteredProducts,
+      pageSize: PRODUCTS_PER_PAGE,
+    });
+
+  const loadMoreRef = useInfiniteScroll({
+    onLoadMore: loadMore,
+    hasMore,
+    isLoading: isFiltering,
+    threshold: 0.5,
+    rootMargin: '200px',
+  });
+
+  const debouncedApplyFilters = useDebounce(() => {
+    setAppliedCategories([...selectedCategories]);
+    setIsFiltering(false);
+  }, FILTER_DEBOUNCE_MS);
+
+  const applyFilters = useCallback(() => {
     if (gridRef.current) {
       gridRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     setIsFiltering(true);
-
-    setTimeout(() => {
-      setAppliedCategories([...selectedCategories]);
-      setIsFiltering(false);
-    }, 200);
-  };
+    reset();
+    debouncedApplyFilters();
+  }, [selectedCategories, reset, debouncedApplyFilters]);
 
   return (
     <section ref={sectionRef} className="relative py-16 xl:py-20">
@@ -106,6 +127,16 @@ export default function ProductsSection({
           <div className="flex justify-center py-12">
             <Spinner size="lg" />
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <p className="text-lg text-red-600 mb-4">{t(error)}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-brand-primary text-white rounded-full hover:bg-brand-primary/90 transition-colors"
+            >
+              {t('retry')}
+            </button>
+          </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">
             <ProductsFiltersSection
@@ -117,13 +148,17 @@ export default function ProductsSection({
             />
 
             <div ref={gridRef} className="relative flex-1 transition-opacity duration-300">
-              {showFilteringSpinner && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-lg">
-                  <Spinner size="lg" />
+              <ProductsGridSection
+                products={displayedProducts}
+                isLoading={isFiltering}
+                showSkeleton={isFiltering && displayedProducts.length === 0}
+              />
+
+              {hasMore && displayedProducts.length > 0 && (
+                <div ref={loadMoreRef} className="flex justify-center py-8">
+                  <Spinner size="md" />
                 </div>
               )}
-
-              <ProductsGridSection products={filteredProducts} />
             </div>
           </div>
         )}

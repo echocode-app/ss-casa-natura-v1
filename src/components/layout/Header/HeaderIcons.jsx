@@ -12,7 +12,6 @@ export default function HeaderIcons({
   isMobile = false,
   onSearchClick,
   onCartClick,
-  onUserClick,
 }) {
   const { getItemCount, isInitializing } = useCart();
   const { isAuthenticated } = useAuth();
@@ -54,7 +53,7 @@ export default function HeaderIcons({
         <button type="button" aria-label="Cart" onClick={onCartClick} className={btn}>
           <Cart className={iconClass} />
           {itemCount > 0 && (
-            <span className="absolute top-4 right-0 lg:top-5 lg:right-0 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+            <span className="absolute top-4 right-0 lg:top-5 lg:right-0 bg-background-green text-xs w-5 h-5 rounded-full flex items-center justify-center">
               {itemCount > 99 ? '99+' : itemCount}
             </span>
           )}

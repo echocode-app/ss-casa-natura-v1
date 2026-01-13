@@ -16,7 +16,7 @@ export default function Spinner({ size = 'md', colorScheme = 'accent', className
 
   return (
     <div
-      className={`${sizes[size]} ${colors[colorScheme]} rounded-full animate-spin ${className}`}
+      className={`${sizes[size]} ${colors[colorScheme]} rounded-full animate-spin mx-auto ${className}`}
       aria-label="Loading"
     />
   );

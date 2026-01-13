@@ -5,6 +5,7 @@ const cartItemSchema = new Schema(
   {
     productId: { type: String, required: true },
     variantId: { type: String, required: true },
+    slug: { type: String },
     title: { type: String, required: true },
     imageSrc: { type: String },
     price: { type: Number, required: true },
@@ -27,14 +28,19 @@ const cartSchema = new Schema(
     promoCode: { type: String },
     promoDiscount: { type: Number, default: 0 },
     total: { type: Number, default: 0 },
+    expiresAt: { type: Date, required: true },
   },
   {
     timestamps: true,
   },
 );
 
-// Index for efficient cart lookup
+// Indexes for efficient cart lookup
 cartSchema.index({ userId: 1 });
 cartSchema.index({ sessionId: 1 });
+
+// TTL Index for automatic cleanup
+// MongoDB will automatically delete documents when expiresAt is reached
+cartSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export default mongoose.models.Cart || model('Cart', cartSchema);

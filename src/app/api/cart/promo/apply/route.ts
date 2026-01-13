@@ -8,6 +8,7 @@ import User from '@/lib/db/models/User';
 import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { ApplyPromoCodeRequest, CartItemDB } from '@/types/cart';
+import { extendCartExpiration } from '@/lib/constants/cart';
 import { z } from 'zod';
 
 const applyPromoSchema = z.object({
@@ -164,7 +165,11 @@ export const POST = handleApi(async (req: NextRequest) => {
     // Silently fail - marketing email is not critical
   }
 
-  // 9. Save cart and promo
+  // 9. Extend expiration on cart activity
+  const isAuthenticated = !!cart.userId;
+  cart.expiresAt = extendCartExpiration(isAuthenticated);
+
+  // 10. Save cart and promo
   try {
     await Promise.all([cart.save(), promo.save()]);
   } catch {
@@ -174,7 +179,7 @@ export const POST = handleApi(async (req: NextRequest) => {
     );
   }
 
-  // 10. Return updated cart
+  // 11. Return updated cart
   return NextResponse.json({
     success: true,
     message: 'Codice promozionale applicato con successo!',

@@ -10,7 +10,7 @@ async function testRegistration() {
     nome: 'Test',
     cognome: 'User',
     email: `test${Date.now()}@example.com`,
-    password: 'TestPass123',
+    password: 'TestPass12345',
   };
 
   console.log('Registering user:', testUser.email);

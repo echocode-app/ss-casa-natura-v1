@@ -121,7 +121,6 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const data = await res.json();
 
         if (!res.ok) {
-          console.error('[AuthModal] Registration failed:', res.status, data);
           if (data.details) {
             // API validation errors - just show first error without field mapping
             const firstFieldErrors = Object.values(data.details)[0];
@@ -160,7 +159,6 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const data = await res.json();
 
         if (!res.ok) {
-          console.error('[AuthModal] Login failed:', res.status, data);
           if (res.status === 429) {
             notify.error(tErrors('tooManyAttempts'));
           } else if (data.details) {
@@ -192,8 +190,7 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
           handleSwitch('login');
         }, 2000);
       }
-    } catch (error) {
-      console.error('[AuthModal] Unexpected error:', error);
+    } catch {
       notify.error(tErrors('genericError'));
     } finally {
       setLoading(false);
