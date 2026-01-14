@@ -1,5 +1,9 @@
 {
   "notFound": "Product not found",
+  "notFoundTitle": "Product unavailable",
+  "notFoundDescription": "The product you are looking for is no longer available or does not exist.",
+  "notFoundSuggestion": "Discover other products in our catalog",
+  "backToCatalog": "Back to catalog",
 
   "categories": {
     "title": "Welcome to the world of Casa Natura",

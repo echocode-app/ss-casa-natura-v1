@@ -54,7 +54,8 @@
       "viewDetails": "Visualizza",
       "hideDetails": "Nascondi",
       "loading": "Caricamento dettagli...",
-      "totalWithVat": "TOTALE IVA incl.",
+      "totalWithVat": "TOTALE",
+      "totalWithVatSpan": "IVA incl.",
       "statuses": {
         "pending": "In attesa",
         "paid": "Pagato",

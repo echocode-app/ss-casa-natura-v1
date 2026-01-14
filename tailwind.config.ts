@@ -35,6 +35,8 @@ const config: Config = {
       boxShadow: {
         header: '0px 5px 5.2px rgba(0,0,0,0.25)', // use shadow-header
         'sidebar-right': '5px 0px 5.2px rgba(0,0,0,0.25)', // use shadow-sidebar-right
+        order: '0px 2px 4.9px -1px #00000040', // use shadow-order
+
       },
 
       borderRadius: {

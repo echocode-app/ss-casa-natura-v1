@@ -17,6 +17,8 @@ export interface OrderProduct {
     slug: string;
     price: number;
     images?: string[];
+    volume?: number;
+    unit?: string;
   } | null;
   quantity: number;
 }
@@ -24,7 +26,11 @@ export interface OrderProduct {
 export interface Order {
   id: string;
   status: string;
+  subtotal?: number;
   totalPrice: number;
+  promoCode?: string;
+  discount?: number;
+  promoDiscount?: number;
   createdAt: string;
   products: OrderProduct[];
 }

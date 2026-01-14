@@ -44,7 +44,7 @@ export default function DropdownCategories({ parentRef, isOpen, onClose }) {
       }}
       onMouseLeave={onClose}
     >
-      <div className="bg-[#FFFEEB] lg:p-4 lg:gap-4 xl:p-6 xl:gap-6 flex flex-wrap justify-center max-w-[max(900px,80vw)] shadow-[inset_0_5px_5.2px_-3px_rgba(0,0,0,0.25)]">
+      <div className="bg-[#FFFEEB] p-4 gap-4 xl:p-6 xl:gap-6 flex flex-wrap justify-center max-w-[max(900px,80vw)] shadow-[inset_0_5px_5.2px_-3px_rgba(0,0,0,0.25)]">
         {PRODUCT_CATEGORIES.map((category) => {
           const label = t.has(category.title) ? t(category.title) : category.title;
 
@@ -53,9 +53,9 @@ export default function DropdownCategories({ parentRef, isOpen, onClose }) {
               key={category.id}
               href={`/prodotti?subcategory=${category.id}`}
               onClick={onClose}
-              className="group flex flex-col items-center gap-2 focus:outline-none lg:max-w-[100px] xl:max-w-[130px]"
+              className="group flex flex-col items-center gap-2 focus:outline-none max-w-[100px] xl:max-w-[130px]"
             >
-              <div className="bg-brand-accent rounded-full flex items-center justify-center lg:w-[80px] lg:h-[80px] xl:w-[100px] xl:h-[100px] transition-all duration-300 md:group-hover:shadow-header">
+              <div className="bg-brand-accent rounded-full flex items-center justify-center w-[80px] h-[80px] xl:w-[100px] xl:h-[100px] transition-all duration-300 md:group-hover:shadow-header">
                 <img
                   src={category.image}
                   alt={label}

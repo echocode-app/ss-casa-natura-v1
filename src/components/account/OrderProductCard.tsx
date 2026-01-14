@@ -13,6 +13,8 @@ interface OrderProductCardProps {
     slug: string;
     price: number;
     images?: string[];
+    volume?: number;
+    unit?: string;
   };
   quantity: number;
 }
@@ -22,7 +24,7 @@ export default function OrderProductCard({ product, quantity }: OrderProductCard
 
   if (!product) {
     return (
-      <div className="flex items-center gap-2 md:gap-3 border border-input rounded-input-sm md:rounded-input-xl px-3 py-2 bg-gray-50 opacity-60">
+      <div className="flex items-center gap-2 md:gap-3 rounded-input-xl px-3 py-2 bg-background-secondary">
         <div className="w-12 h-16 bg-gray-200 flex-shrink-0 rounded" />
         <div className="flex flex-col gap-1">
           <span className="text-sm text-gray-500">{t('productUnavailable')}</span>
@@ -36,19 +38,33 @@ export default function OrderProductCard({ product, quantity }: OrderProductCard
   return (
     <Link
       href={`/prodotti/${product.slug}`}
-      className="flex items-center gap-2 md:gap-3 border border-input rounded-input-sm md:rounded-input-xl px-3 py-2 bg-white hover:bg-brand-light transition-colors duration-300"
+      className="flex items-center gap-3 lg:gap-5 bg-background-secondary rounded-input-xl px-3 lg:px-5 py-2"
     >
-      <div className="relative w-12 h-16 flex-shrink-0">
+      <div className="relative w-12 h-16 md:w-24 md:h-32 flex-shrink-0">
         <Image src={imageSrc} alt={product.name} fill className="object-contain" />
       </div>
-      <div className="flex flex-col gap-1 flex-1">
-        <span className="font-medium text-sm line-clamp-2">{product.name}</span>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+
+      <div className="flex flex-1 justify-between">
+        <div className="flex flex-col gap-2 lg:gap-3 justify-between">
+          <span className="font-semibold text-[clamp(10px,2vw,18px)] text-text-soft">
+            {product.name}
+          </span>
+
+          {product.volume && (
+            <span className="text-[clamp(9px,2vw,15px)] mt-1">
+              {product.unit} {product.volume}
+            </span>
+          )}
+
+          <span className="font-semibold text-[clamp(10px,2vw,18px)] text-text-soft">
+            € {product.price.toFixed(2)}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-[clamp(10px,2vw,15px)] text-text-soft ml-auto">
           <span>
             {t('quantity')}: {quantity}
           </span>
         </div>
-        <span className="text-sm font-semibold">€ {product.price.toFixed(2)}</span>
       </div>
     </Link>
   );

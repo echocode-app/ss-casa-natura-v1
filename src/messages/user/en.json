@@ -54,7 +54,8 @@
       "viewDetails": "View Details",
       "hideDetails": "Hide Details",
       "loading": "Loading details...",
-      "totalWithVat": "TOTAL VAT incl.",
+      "totalWithVat": "TOTAL",
+      "totalWithVatSpan": "VAT incl.",
       "statuses": {
         "pending": "Pending",
         "paid": "Paid",

@@ -3,30 +3,38 @@
 import { useState, useEffect } from 'react';
 import { ProductBreadcrumbs, RelatedProductsSection } from '@/components/sections/Products/Product';
 import ProductMain from '@/components/sections/Products/Product/ProductMain';
+import ProductNotFound from '@/components/sections/Products/ProductNotFound';
 import { fetchProduct, fetchProducts } from '@/lib/utils/fetchProducts';
 import { Product } from '@/config/products/product.types';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
 export default function ProductPageClient() {
   const params = useParams();
   const slug = params.slug as string;
-  const t = useTranslations('prodotti');
 
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const showSpinner = useSmoothLoading(loading, 150, 280);
 
   useEffect(() => {
     const loadProduct = async () => {
-      if (!slug) return;
+      if (!slug) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
 
       try {
         const prod = await fetchProduct(slug, true);
-        if (!prod) return;
+        if (!prod) {
+          setNotFound(true);
+          setLoading(false);
+          return;
+        }
 
         setProduct(prod);
 
@@ -37,7 +45,7 @@ export default function ProductPageClient() {
         );
         setRelatedProducts(related);
       } catch {
-        // Handle error silently or show user message
+        setNotFound(true);
       } finally {
         setLoading(false);
       }
@@ -46,7 +54,7 @@ export default function ProductPageClient() {
   }, [slug]);
 
   if (showSpinner) return <FullscreenSpinner />;
-  if (!slug || !product) return <div>{t('notFound')}</div>;
+  if (notFound || !product) return <ProductNotFound />;
 
   return (
     <>

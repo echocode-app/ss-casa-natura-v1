@@ -13,8 +13,8 @@ export default function AccountSidebar() {
 
   const linkBaseClasses = `
     w-full text-center md:text-left
-    p-4 md:p-20 lg:pl-40
-    lg:pl-40
+    p-4 md:py-10 md:pr-6 md:pl-16
+    lg:p-20 xl:pl-32
     font-semibold text-[clamp(14px,3vw,28px)]
     transition-colors
     focus:outline-none
@@ -31,7 +31,7 @@ export default function AccountSidebar() {
   };
 
   return (
-    <aside className="bg-background-sidebar w-full mx-auto md:mx-0 md:max-w-[300px] lg:max-w-[400px] xl:max-w-[500px]">
+    <aside className="bg-background-sidebar w-full mx-auto md:mx-0 md:max-w-[240px] lg:max-w-[360px] xl:max-w-[460px]">
       <div className="pointer-events-none shadow-sidebar-right" />
       <nav
         className="

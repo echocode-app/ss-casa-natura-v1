@@ -1,5 +1,9 @@
 {
   "notFound": "Prodotto non trovato",
+  "notFoundTitle": "Prodotto non disponibile",
+  "notFoundDescription": "Il prodotto che stai cercando non è più disponibile o non esiste.",
+  "notFoundSuggestion": "Scopri altri prodotti nel nostro catalogo",
+  "backToCatalog": "Torna al catalogo",
 
   "categories": {
     "title": "Benvenuti nel mondo di Casa Natura",

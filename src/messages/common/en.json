@@ -7,6 +7,11 @@
   "updateError": "Update failed. Please try again.",
   "cartMergeSuccess": "Cart merged successfully.",
   "cartMergeError": "Error merging cart.",
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "backHome": "Back to home"
+  },
   "form": {
     "capsLockWarning": "Caps Lock is on",
     "required": "This field is required",

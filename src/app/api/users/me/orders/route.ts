@@ -39,6 +39,8 @@ export const GET = handleApi(async (_req: NextRequest) => {
                   slug: product.slug,
                   price: product.price,
                   images: product.images || [],
+                  volume: p.volume || product.volume,
+                  unit: p.unit || product.properties?.get('unit'),
                 },
                 quantity: p.quantity,
               };
@@ -51,7 +53,11 @@ export const GET = handleApi(async (_req: NextRequest) => {
         return {
           id: order._id.toString(),
           status: order.status,
+          subtotal: order.subtotal,
           totalPrice: order.totalPrice || 0,
+          promoCode: order.promoCode,
+          discount: order.discount,
+          promoDiscount: order.promoDiscount,
           createdAt: order.createdAt,
           products: populatedProducts.filter((p) => p !== null),
         };

@@ -28,6 +28,9 @@ import validationEn from '@/messages/validation/en.json';
 import modalIt from '@/messages/modal/it.json';
 import modalEn from '@/messages/modal/en.json';
 
+import notFoundIt from '@/messages/notFound/it.json';
+import notFoundEn from '@/messages/notFound/en.json';
+
 export default getRequestConfig(async () => {
   const locale = getDevLocale();
 
@@ -43,6 +46,7 @@ export default getRequestConfig(async () => {
           user: userEn,
           validation: validationEn,
           ...modalEn,
+          notFound: notFoundEn,
         }
       : {
           ...commonIt,
@@ -54,6 +58,7 @@ export default getRequestConfig(async () => {
           user: userIt,
           validation: validationIt,
           ...modalIt,
+          notFound: notFoundIt,
         };
 
   return {
