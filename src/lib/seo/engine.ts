@@ -18,7 +18,6 @@ const seoConfig = seoConfigData as SeoConfigData;
 
 const DEFAULT_IMAGE = '/images/home/hero.jpg';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://casanatura.it';
-const SITE_NAME = 'Casa Natura';
 
 /**
  * Truncate text to max length while preserving word boundaries
@@ -79,7 +78,7 @@ function getTemplateContent(type: 'category' | 'subcategory' | 'line', name: str
  * Get fallback content
  */
 function getFallbackContent(options: GetSeoMetaOptions): SeoContent {
-  const { type, slug, title } = options;
+  const { type, title } = options;
 
   // Try template if we have a name
   if (title && (type === 'category' || type === 'subcategory' || type === 'line')) {
@@ -214,7 +213,7 @@ export function buildBreadcrumbs(
 /**
  * Get keywords for meta tag
  */
-export function getKeywords(type?: string): string[] {
+export function getKeywords(_type?: string): string[] {
   return [...seoConfig.keywords.primary, ...seoConfig.keywords.secondary];
 }
 

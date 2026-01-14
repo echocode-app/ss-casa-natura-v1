@@ -30,6 +30,7 @@ function ModalProductCard({ product, onClick }) {
       />
       <div className="flex flex-col gap-1">
         <span className="font-medium text-sm line-clamp-2">{product.title}</span>
+        {product.sku && <span className="text-xs text-text-gray">{product.sku}</span>}
         <span className="text-sm font-semibold">€ {product.price.toFixed(2)}</span>
       </div>
     </Link>

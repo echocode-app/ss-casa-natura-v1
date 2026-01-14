@@ -6,6 +6,10 @@ import Product from '@/lib/db/models/Product';
 import { getUser } from '@/lib/auth/getUser';
 import mongoose from 'mongoose';
 
+function isValidObjectId(value: unknown): value is string {
+  return typeof value === 'string' && mongoose.Types.ObjectId.isValid(value);
+}
+
 export const GET = handleApi(async (_req: NextRequest) => {
   const authUser = await getUser();
   if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -28,19 +32,44 @@ export const GET = handleApi(async (_req: NextRequest) => {
         const populatedProducts = await Promise.all(
           order.products.map(async (p: any) => {
             try {
-              const product = await Product.findById(p.productId).lean();
-              if (!product) {
-                return null;
+              const productIdRaw = p.productId;
+
+              const productIdStr =
+                typeof productIdRaw === 'string'
+                  ? productIdRaw
+                  : productIdRaw?._id?.toString?.() || productIdRaw?.toString?.();
+
+              const canFetchFromDb = isValidObjectId(productIdStr);
+
+              const product = canFetchFromDb ? await Product.findById(productIdStr).lean() : null;
+
+              if (product) {
+                return {
+                  product: {
+                    id: product._id.toString(),
+                    name: product.name,
+                    slug: product.slug,
+                    price: product.price,
+                    images: product.images || [],
+                    volume: p.volume || product.volume,
+                    unit: p.unit || product.properties?.get('unit'),
+                  },
+                  quantity: p.quantity,
+                };
               }
+
+              // Fallback to snapshot stored in order
+              if (!p?.slug && !p?.title) return null;
+
               return {
                 product: {
-                  id: product._id.toString(),
-                  name: product.name,
-                  slug: product.slug,
-                  price: product.price,
-                  images: product.images || [],
-                  volume: p.volume || product.volume,
-                  unit: p.unit || product.properties?.get('unit'),
+                  id: productIdStr || '',
+                  name: p.title || 'Unknown product',
+                  slug: p.slug || '',
+                  price: p.price || 0,
+                  images: p.imageSrc ? [p.imageSrc] : [],
+                  volume: p.volume,
+                  unit: p.unit,
                 },
                 quantity: p.quantity,
               };

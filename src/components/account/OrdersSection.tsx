@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Order } from '@/types/user';
 import CartEmpty from '@/components/ui/Сart/CartEmpty';
@@ -14,7 +14,6 @@ interface OrdersSectionProps {
 
 export default function OrdersSection({ orders }: OrdersSectionProps) {
   const t = useTranslations('user.account.orders');
-  const locale = useLocale();
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
   const [loadingOrders, setLoadingOrders] = useState<Set<string>>(new Set());
 

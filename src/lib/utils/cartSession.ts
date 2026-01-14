@@ -8,7 +8,10 @@ export async function getCartSessionId(): Promise<string> {
   if (existing) return existing;
 
   // Generate new session ID
-  const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+  const uuid = globalThis.crypto?.randomUUID?.();
+  const newId = uuid
+    ? `session_${uuid}`
+    : `session_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
   await setCartSessionId(newId);
   return newId;
 }

@@ -8,6 +8,9 @@ import { AddToCartRequest, CartItemDB } from '@/types/cart';
 import { productService } from '@/lib/services/product';
 import { getCartExpirationDate, extendCartExpiration } from '@/lib/constants/cart';
 import { z } from 'zod';
+import { buildCartQuery } from '@/lib/utils/cartQuery';
+import { computePromoDiscount } from '@/lib/utils/promo';
+import { checkItemsInStock } from '@/lib/utils/inventory';
 
 const addToCartSchema = z.object({
   productId: z.string().min(1, 'Product ID is required'),
@@ -24,7 +27,10 @@ export const POST = handleApi(async (req: NextRequest) => {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, errorCode: 'INVALID_JSON', error: 'Invalid JSON' },
+      { status: 400 },
+    );
   }
 
   const validation = addToCartSchema.safeParse(body);
@@ -32,6 +38,7 @@ export const POST = handleApi(async (req: NextRequest) => {
     return NextResponse.json(
       {
         success: false,
+        errorCode: 'VALIDATION_FAILED',
         error: 'Validation failed',
         details: validation.error.flatten().fieldErrors,
       },
@@ -44,16 +51,32 @@ export const POST = handleApi(async (req: NextRequest) => {
   const sessionId = await getCartSessionId();
   const userId = await getUserIdFromRequest(req);
 
+  const cartQuery = buildCartQuery({ userId, sessionId });
+  if (!cartQuery) {
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'CART_SESSION_UNAVAILABLE',
+        error: 'Cart session not available',
+      },
+      { status: 400 },
+    );
+  }
+
   // Find or create cart only if adding item
   let cart = await Cart.findOne({
-    $or: [{ userId }, { sessionId }],
+    ...cartQuery,
   });
 
   if (!cart) {
     // Only create cart if adding at least 1 item
     if (!productId || !variantId || !quantity || quantity < 1) {
       return NextResponse.json(
-        { success: false, error: 'Cannot create empty cart' },
+        {
+          success: false,
+          errorCode: 'CANNOT_CREATE_EMPTY_CART',
+          error: 'Cannot create empty cart',
+        },
         { status: 409 },
       );
     }
@@ -76,6 +99,31 @@ export const POST = handleApi(async (req: NextRequest) => {
   const existingItemIndex = cart.items.findIndex(
     (item: CartItemDB) => item.productId === productId && item.variantId === variantId,
   );
+
+  const desiredQuantity =
+    existingItemIndex >= 0 ? (cart.items[existingItemIndex].quantity || 0) + quantity : quantity;
+
+  const stockCheck = await checkItemsInStock([{ productId, variantId, quantity: desiredQuantity }]);
+
+  if (!stockCheck.ok) {
+    const issue = stockCheck.issues[0];
+    const outOfStock = issue.reason === 'NOT_AVAILABLE' || (issue.available ?? 0) <= 0;
+
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: outOfStock ? 'OUT_OF_STOCK' : 'INSUFFICIENT_STOCK',
+        error: outOfStock ? 'Product is out of stock' : 'Insufficient stock',
+        details: {
+          productId,
+          variantId,
+          requested: desiredQuantity,
+          available: issue.available,
+        },
+      },
+      { status: 409 },
+    );
+  }
 
   if (existingItemIndex >= 0) {
     // Update quantity of existing item
@@ -102,6 +150,24 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   // Recalculate totals
   cart.subtotal = cart.items.reduce((sum: number, item: CartItemDB) => sum + item.totalPrice, 0);
+
+  if (cart.promoCode) {
+    const promoResult = await computePromoDiscount({
+      promoCode: cart.promoCode,
+      subtotal: cart.subtotal,
+      email: cart.promoEmail,
+    });
+
+    if (promoResult.ok) {
+      cart.promoCode = promoResult.promoCode;
+      cart.promoDiscount = promoResult.promoDiscount;
+    } else {
+      cart.promoCode = undefined;
+      cart.promoEmail = undefined;
+      cart.promoDiscount = 0;
+    }
+  }
+
   cart.total = cart.subtotal - (cart.discount || 0) - (cart.promoDiscount || 0);
 
   await cart.save();

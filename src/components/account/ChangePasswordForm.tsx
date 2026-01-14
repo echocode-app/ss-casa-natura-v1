@@ -6,6 +6,7 @@ import { ChangePasswordData } from '@/types/user';
 import { useCapsLockDetector } from '@/lib/utils/useCapsLock';
 import { authSchemas } from '@/lib/validation/schemas';
 import { validateField as validateSingleField } from '@/lib/validation/helpers';
+import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 import notify from '@/lib/notify';
 import Edit from '../ui/Buttons/Edit';
 import Check from '../ui/Buttons/Check';
@@ -43,7 +44,8 @@ export default function ChangePasswordForm({
   const t = useTranslations('user.account.password');
   const p = useTranslations('user.account.profile');
   const tValidation = useTranslations('validation');
-  const tCommon = useTranslations('common');
+  const tErrors = useTranslations('errors');
+  const tForm = useTranslations('form');
   const { capsLockOn } = useCapsLockDetector();
 
   const hasCurrent = Boolean(data.currentPassword);
@@ -72,7 +74,7 @@ export default function ChangePasswordForm({
 
       const res = await fetch('/api/users/me/password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
         credentials: 'include',
         body: JSON.stringify(data),
       });
@@ -97,13 +99,15 @@ export default function ChangePasswordForm({
         if (onLogout) onLogout();
       }, 2000);
     } catch (err) {
-      if ((err as any).errors) {
+      const issues = (err as any)?.issues || (err as any)?.errors;
+
+      if (issues) {
         const errors: Record<string, string> = {};
-        (err as any).errors.forEach((error: any) => {
+        issues.forEach((error: any) => {
           errors[error.path[0]] = tValidation(error.message);
         });
         setFieldErrors(errors);
-        notify.error(tCommon('errors.validationFailed'));
+        notify.error(tErrors('validationFailed'));
       } else {
         notify.error(t('genericError'));
       }
@@ -190,7 +194,7 @@ export default function ChangePasswordForm({
           </div>
           {capsLockOn && (
             <p id="currentPassword-capslock" className="mt-1 text-sm text-yellow-600">
-              {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
+              {tForm('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
             </p>
           )}
           {fieldErrors.currentPassword && (
@@ -268,7 +272,7 @@ export default function ChangePasswordForm({
 
           {capsLockOn && (
             <p id="newPassword-capslock" className="mt-1 text-sm text-yellow-600">
-              {tCommon('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
+              {tForm('capsLockWarning', { defaultValue: 'Caps Lock is on' })}
             </p>
           )}
           {fieldErrors.newPassword && (

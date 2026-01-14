@@ -5,6 +5,7 @@ import Cart from '@/lib/db/models/Cart';
 import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { CartItemDB } from '@/types/cart';
+import { buildCartQuery } from '@/lib/utils/cartQuery';
 
 // GET /api/cart - Get current cart
 export const GET = handleApi(async (req: NextRequest) => {
@@ -13,10 +14,20 @@ export const GET = handleApi(async (req: NextRequest) => {
   const sessionId = await getCartSessionId();
   const userId = await getUserIdFromRequest(req);
 
+  const cartQuery = buildCartQuery({ userId, sessionId });
+  if (!cartQuery) {
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'CART_SESSION_UNAVAILABLE',
+        error: 'Cart session not available',
+      },
+      { status: 400 },
+    );
+  }
+
   // Try to find existing cart
-  let cart = await Cart.findOne({
-    $or: [{ userId }, { sessionId }],
-  });
+  let cart = await Cart.findOne(cartQuery);
 
   if (!cart) {
     // Return empty cart without creating in DB to prevent empty cart documents

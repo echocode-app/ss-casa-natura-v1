@@ -11,7 +11,7 @@ export interface SearchSources {
 
 export interface SearchResult {
   product: Product;
-  matchedBy: 'title' | 'category' | 'line';
+  matchedBy: 'title' | 'sku' | 'category' | 'line';
 }
 
 const normalize = (value: string) =>
@@ -21,12 +21,18 @@ const normalize = (value: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .trim();
 
+const normalizeSku = (value: string) => normalize(value).replace(/[^a-z0-9]/g, '');
+
 /**
  * Search products by title, category title, or line title.
  */
 export function searchProducts(query: string, sources: SearchSources = {}): SearchResult[] {
   const q = normalize(query);
   if (!q) return [];
+
+  const qSku = normalizeSku(query);
+  const qDigits = q.replace(/\D/g, '');
+  const queryLooksLikeSku = qSku.startsWith('art') || qDigits.length >= 3;
 
   const products = sources.products || PRODUCTS_MOCK;
   const categories = sources.categories || PRODUCT_CATEGORIES;
@@ -39,11 +45,15 @@ export function searchProducts(query: string, sources: SearchSources = {}): Sear
 
   for (const product of products) {
     const titleMatch = normalize(product.title).includes(q);
+    const skuNormalized = normalizeSku(product.sku ?? '');
+    const skuMatch =
+      (!!qSku && skuNormalized.includes(qSku)) ||
+      (qDigits.length >= 3 && skuNormalized.replace(/\D/g, '').includes(qDigits));
     const categoryMatch = product.categoryIds.some((id) => categoryMap.get(id)?.includes(q));
     const lineMatch = product.lineId ? lineMap.get(product.lineId)?.includes(q) : false;
 
-    if (titleMatch) {
-      results.push({ product, matchedBy: 'title' });
+    if (titleMatch || skuMatch) {
+      results.push({ product, matchedBy: queryLooksLikeSku && skuMatch ? 'sku' : 'title' });
       continue;
     }
     if (categoryMatch) {

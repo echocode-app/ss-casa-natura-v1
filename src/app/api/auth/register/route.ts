@@ -14,22 +14,26 @@ export const runtime = 'nodejs';
 
 const passwordSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters')
-  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-  .regex(/[0-9]/, 'Password must contain at least one number');
+  .min(8, 'passwordMinLength')
+  .regex(/[A-Z]/, 'passwordUppercase')
+  .regex(/[a-z]/, 'passwordLowercase')
+  .regex(/[0-9]/, 'passwordNumber');
 
 const registerSchema = z.object({
-  nome: z.string().min(1, 'Nome is required').max(100),
-  cognome: z.string().min(1, 'Cognome is required').max(100),
-  email: z.string().email('Invalid email address'),
+  nome: z.string().min(1, 'nameRequired').max(100, 'nameTooLong'),
+  cognome: z.string().min(1, 'nameRequired').max(100, 'nameTooLong'),
+  email: z.string().email('invalidEmail').max(320, 'fieldTooLong'),
   password: passwordSchema,
 });
 
 export const POST = handleApi(async (req: NextRequest) => {
   if (!checkRateLimit(req, 3)) {
     return NextResponse.json(
-      { error: 'Too many registration attempts. Please try again later.' },
+      {
+        success: false,
+        errorCode: 'RATE_LIMIT',
+        error: 'Too many registration attempts. Please try again later.',
+      },
       { status: 429 },
     );
   }
@@ -38,13 +42,24 @@ export const POST = handleApi(async (req: NextRequest) => {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, errorCode: 'INVALID_JSON', error: 'Invalid JSON' },
+      { status: 400 },
+    );
   }
 
   const validation = registerSchema.safeParse(body);
   if (!validation.success) {
     const errors = validation.error.flatten().fieldErrors;
-    return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'VALIDATION_FAILED',
+        error: 'Validation failed',
+        details: errors,
+      },
+      { status: 400 },
+    );
   }
 
   const { nome, cognome, email, password } = validation.data;
@@ -53,7 +68,10 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   const existing = await User.findOne({ email });
   if (existing) {
-    return NextResponse.json({ error: 'Email already exists' }, { status: 409 });
+    return NextResponse.json(
+      { success: false, errorCode: 'EMAIL_EXISTS', error: 'Email already exists' },
+      { status: 409 },
+    );
   }
 
   const passwordHash = await hashPassword(password);

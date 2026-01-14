@@ -26,7 +26,7 @@ export default function ProdottiPage() {
     if (subcategoryParam) {
       // Check if subcategory exists in any filter
       const isValidSubcategory = PRODUCT_FILTERS.some((filter) =>
-        filter.categoryIds.includes(subcategoryParam),
+        (filter.categoryIds ?? []).includes(subcategoryParam),
       );
 
       if (!isValidSubcategory) {
@@ -73,13 +73,18 @@ export default function ProdottiPage() {
   const seoType = subcategoryParam ? 'subcategory' : categoryParam ? 'category' : 'homepage';
   const seoSlug = subcategoryParam || categoryParam || undefined;
 
+  const qs = new URLSearchParams();
+  if (categoryParam) qs.set('category', categoryParam);
+  if (subcategoryParam) qs.set('subcategory', subcategoryParam);
+  const queryString = qs.toString();
+
   const breadcrumbs = buildBreadcrumbs([{ label: 'Prodotti', href: '/prodotti' }]);
 
   const seo = getSeoMeta({
     type: seoType,
     slug: seoSlug,
     breadcrumbs,
-    path: `/prodotti${categoryParam ? `?category=${categoryParam}` : ''}${subcategoryParam ? `?subcategory=${subcategoryParam}` : ''}`,
+    path: `/prodotti${queryString ? `?${queryString}` : ''}`,
   });
 
   return (

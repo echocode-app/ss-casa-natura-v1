@@ -10,9 +10,16 @@ import Spinner from '@/components/ui/Spinner/Spinner';
 import { useEffect, useState } from 'react';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 import { useAuth } from '@/components/layout/AuthContext';
+import { useRouter } from 'next/navigation';
+import {
+  cartPromoErrorTranslationKey,
+  normalizeCartPromoErrorCode,
+} from '@/lib/utils/cartPromoMessages';
 
 export function CartPageClient() {
   const t = useTranslations('user.cart');
+  const tValidation = useTranslations('validation');
+  const router = useRouter();
   const {
     items,
     isLoading,
@@ -84,7 +91,7 @@ export function CartPageClient() {
     setPromoEmailError('');
 
     if (!isAuthenticated && !isValidEmail(promoEmail.trim())) {
-      setPromoEmailError('Inserisci una email valida per applicare il codice');
+      setPromoEmailError(tValidation('invalidEmail'));
       setIsApplyingPromo(false);
       return;
     }
@@ -107,6 +114,10 @@ export function CartPageClient() {
     } finally {
       setIsApplyingPromo(false);
     }
+  };
+
+  const handleProceedToCheckout = () => {
+    router.push('/checkout');
   };
 
   if (showInitSpinner) {
@@ -201,8 +212,12 @@ export function CartPageClient() {
               {/* 📌 Promo Code Section */}
               {error && error.includes('promo') && (
                 <div className="text-red-500 text-sm" role="alert">
-                  {error.replace(/^promo:\s*/i, '') ||
-                    t('discountError', { defaultValue: 'Invalid code, please try again' })}
+                  {t(
+                    cartPromoErrorTranslationKey(
+                      normalizeCartPromoErrorCode(error.replace(/^promo:\s*/i, '')),
+                    ),
+                    { defaultValue: t('discountError') },
+                  )}
                 </div>
               )}
               {!promoCode ? (
@@ -282,7 +297,11 @@ export function CartPageClient() {
               </div>
             </div>
 
-            <PrimaryButton onClick={() => {}} className="w-full mt-8 py-4">
+            <PrimaryButton
+              onClick={handleProceedToCheckout}
+              disabled={items.length === 0 || showActionSpinner}
+              className="w-full mt-8 py-4"
+            >
               {t('proceed')}
             </PrimaryButton>
           </div>

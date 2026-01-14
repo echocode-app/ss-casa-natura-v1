@@ -13,14 +13,18 @@ import { z } from 'zod';
 export const runtime = 'nodejs';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().email('invalidEmail').max(320, 'fieldTooLong'),
+  password: z.string().min(1, 'passwordRequired'),
 });
 
 export const POST = handleApi(async (req: NextRequest) => {
   if (!checkRateLimit(req, 5)) {
     return NextResponse.json(
-      { error: 'Too many login attempts. Please try again later.' },
+      {
+        success: false,
+        errorCode: 'RATE_LIMIT',
+        error: 'Too many login attempts. Please try again later.',
+      },
       { status: 429 },
     );
   }
@@ -29,13 +33,24 @@ export const POST = handleApi(async (req: NextRequest) => {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, errorCode: 'INVALID_JSON', error: 'Invalid JSON' },
+      { status: 400 },
+    );
   }
 
   const validation = loginSchema.safeParse(body);
   if (!validation.success) {
     const errors = validation.error.flatten().fieldErrors;
-    return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'VALIDATION_FAILED',
+        error: 'Validation failed',
+        details: errors,
+      },
+      { status: 400 },
+    );
   }
 
   const { email, password } = validation.data;
@@ -48,7 +63,10 @@ export const POST = handleApi(async (req: NextRequest) => {
   const isValid = await verifyPassword(password, hashedPassword);
 
   if (!user || !isValid) {
-    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    return NextResponse.json(
+      { success: false, errorCode: 'INVALID_CREDENTIALS', error: 'Invalid credentials' },
+      { status: 401 },
+    );
   }
 
   const token = await signToken({ id: user._id.toString(), email: user.email, role: user.role });

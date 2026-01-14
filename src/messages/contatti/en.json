@@ -6,6 +6,10 @@
   "cognome": "Last Name",
   "email": "E-mail",
   "telefono": "Phone",
+  "telefonoOptional": "Phone (optional)",
+  "emailPlaceholder": "name@example.com",
+  "telefonoPlaceholder": "+39 333 123 4567",
   "messaggio": "Message",
+  "messaggioPlaceholder": "How can we help?",
   "submitButton": "Send"
 }

@@ -221,7 +221,9 @@
   "topProductsSection": {
     "headerTitle": "I nostri prodotti piu",
     "headerAccent": "amati",
-    "button": "Aggiungi"
+    "button": "Aggiungi",
+    "outOfStock": "Non disponibile",
+    "lowStock": "Pochi"
   },
   "greenProductionSection": {
     "headerTitle": "Perche siamo",
@@ -261,34 +263,40 @@
       "placeholder": "Inserisci la tua email",
       "submit": "Iscriviti",
       "loading": "Caricamento...",
-      "success": "Attendi il tuo codice promozionale nella tua email!",
+      "success": "Ecco il tuo codice promozionale!",
+      "alreadySubscribed": "Questa email è già iscritta e non può ricevere un nuovo codice.",
       "errorEmpty": "Per favore inserisci la tua email!",
       "errorInvalid": "Inserisci un indirizzo email valido!",
-      "errorSend": "Errore durante l'invio. Riprova!"
+      "errorSend": "Errore durante l'invio. Riprova!",
+      "errorAlreadySubscribed": "Questa email è già iscritta.",
+      "copy": "Copia",
+      "copied": "Copiato",
+      "copyError": "Impossibile copiare."
     }
   },
   "errors": {
     "registrationFailed": "Registrazione fallita",
     "loginFailed": "Accesso fallito",
     "forgotFailed": "Richiesta non riuscita",
+    "forgotNotAvailable": "Funzionalità non disponibile al momento.",
     "invalidJson": "Dati richiesta non validi",
-    "validationFailed": "Validazione fallita",
-    "emailExists": "Email gia registrata",
+    "validationFailed": "Controlla i campi evidenziati e riprova.",
+    "emailExists": "Email già registrata",
     "invalidCredentials": "Email o password non validi",
     "unauthorized": "Effettua l'accesso per continuare",
     "userNotFound": "Utente non trovato",
     "invalidRequest": "Richiesta non valida",
     "noFieldsProvided": "Inserisci almeno un campo da aggiornare",
-    "currentPasswordIncorrect": "La password attuale non e corretta",
+    "currentPasswordIncorrect": "La password attuale non è corretta",
     "passwordTooShort": "La password deve essere di almeno 8 caratteri",
     "tooManyAttempts": "Troppi tentativi. Riprova più tardi.",
-    "genericError": "Si e verificato un errore. Riprova.",
+    "genericError": "Si è verificato un errore. Riprova.",
     "logoutFailed": "Disconnessione fallita"
   },
   "success": {
     "registrationSuccess": "Registrazione completata! Accesso in corso...",
     "loginSuccess": "Accesso riuscito!",
-    "passwordResetEmailSent": "Se l'esiste, riceverai un link per reimpostare la password.",
+    "passwordResetEmailSent": "Se l'email esiste, riceverai un link per reimpostare la password.",
     "passwordChanged": "Password cambiata con successo",
     "profileUpdated": "Profilo aggiornato con successo",
     "messageSent": "Messaggio inviato con successo",

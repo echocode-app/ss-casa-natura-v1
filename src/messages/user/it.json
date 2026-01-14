@@ -17,6 +17,23 @@
     "discount": "Codice sconto",
     "discountSuccess": "Codice sconto applicato con successo",
     "discountError": "Codice non valido, riprova",
+    "promoErrors": {
+      "emailRequired": "Inserisci un indirizzo email per applicare il codice.",
+      "emailInvalid": "Inserisci un indirizzo email valido.",
+      "notFound": "Codice promozionale non valido.",
+      "emailMismatch": "Questo codice è valido solo per l'email con cui è stato ricevuto.",
+      "alreadyUsed": "Hai già utilizzato questo codice promozionale.",
+      "notActiveYet": "Questo codice non è ancora attivo.",
+      "expired": "Questo codice è scaduto.",
+      "usageLimitReached": "Questo codice ha raggiunto il limite di utilizzi.",
+      "cartEmpty": "Il carrello è vuoto. Aggiungi prodotti prima di applicare il codice."
+    },
+    "toasts": {
+      "added": "Aggiunto al carrello.",
+      "addFailed": "Impossibile aggiungere al carrello. Riprova.",
+      "outOfStock": "Prodotto non disponibile.",
+      "insufficientStock": "Quantità non disponibile."
+    },
     "total": "TOTALE",
     "taxIncluded": "IVA incl.",
     "discountApplied": "Codice sconto applicato",

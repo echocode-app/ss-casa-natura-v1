@@ -17,6 +17,23 @@
     "discount": "Discount code",
     "discountSuccess": "Discount code applied successfully",
     "discountError": "Invalid code, please try again",
+    "promoErrors": {
+      "emailRequired": "Please enter an email to apply the promo code.",
+      "emailInvalid": "Please enter a valid email address.",
+      "notFound": "Invalid promo code.",
+      "emailMismatch": "This code is only valid for the email it was issued to.",
+      "alreadyUsed": "You have already used this promo code.",
+      "notActiveYet": "This promo code is not active yet.",
+      "expired": "This promo code has expired.",
+      "usageLimitReached": "This promo code has reached its usage limit.",
+      "cartEmpty": "Your cart is empty. Add items before applying a promo code."
+    },
+    "toasts": {
+      "added": "Added to cart.",
+      "addFailed": "Could not add to cart. Please try again.",
+      "outOfStock": "Product is not available.",
+      "insufficientStock": "Requested quantity is not available."
+    },
     "total": "TOTAL",
     "taxIncluded": "incl. VAT",
     "discountApplied": "Discount code applied",

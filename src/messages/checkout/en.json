@@ -1,0 +1,53 @@
+{
+  "title": "Checkout",
+  "contact": {
+    "title": "Contact",
+    "email": "Email",
+    "name": "First name",
+    "surname": "Last name",
+    "phone": "Phone"
+  },
+  "shipping": {
+    "title": "Shipping address",
+    "country": "Country",
+    "city": "City",
+    "postalCode": "Postal code",
+    "address1": "Address",
+    "address2": "Apt, suite, etc. (optional)",
+    "province": "State/Province"
+  },
+  "summary": {
+    "title": "Summary",
+    "subtotal": "Subtotal",
+    "promo": "Promo discount",
+    "shipping": "Shipping",
+    "total": "Total"
+  },
+  "actions": {
+    "calculateShipping": "Calculate shipping",
+    "continue": "Continue to payment",
+    "pay": "Pay now"
+  },
+  "marketing": {
+    "label": "I want to receive offers and news via email"
+  },
+  "errors": {
+    "emptyCart": "Your cart is empty.",
+    "shippingRequired": "Fill the address to calculate shipping.",
+    "checkoutFailed": "Could not start payment. Please try again.",
+    "stripeNotConfigured": "Payment is unavailable: Stripe is not configured.",
+    "outOfStock": "Some items are not available. Please update your cart and try again."
+  },
+  "misc": {
+    "backToCart": "← Back to cart",
+    "backToCatalog": "Back to catalog",
+    "securePayment": "Secure payment powered by Stripe."
+  },
+  "success": {
+    "title": "Payment completed",
+    "description": "Thanks! We received your payment and we're processing the order.",
+    "order": "Order: {orderId}",
+    "toAccount": "Go to my account",
+    "toCatalog": "Continue shopping"
+  }
+}

@@ -40,6 +40,7 @@ export function middleware(request: NextRequest) {
       '/api/auth/register',
       '/api/auth/logout',
       '/api/contact',
+      '/api/webhooks/stripe',
     ];
 
     const isPublic = publicEndpoints.some(endpoint => 

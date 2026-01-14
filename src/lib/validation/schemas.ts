@@ -17,9 +17,20 @@ export const nameSchema = z
 
 export const phoneSchema = z
   .string()
-  .regex(/^\+?[0-9\s\-()]{8,20}$/, 'phoneInvalid')
+  .trim()
   .optional()
-  .or(z.literal(''));
+  .or(z.literal(''))
+  .refine((value) => {
+    if (!value) return true;
+
+    const trimmed = value.trim();
+    const plusCount = (trimmed.match(/\+/g) ?? []).length;
+    if (plusCount > 1) return false;
+    if (plusCount === 1 && !trimmed.startsWith('+')) return false;
+
+    const digits = trimmed.replace(/\D/g, '');
+    return digits.length >= 8 && digits.length <= 15;
+  }, 'phoneInvalid');
 
 export const addressSchema = z.string().max(500, 'addressTooLong').optional().or(z.literal(''));
 

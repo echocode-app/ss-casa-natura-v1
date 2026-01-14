@@ -3,13 +3,13 @@ import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import Cart from '@/lib/db/models/Cart';
 import PromoCode from '@/lib/db/models/PromoCode';
-import MarketingEmail from '@/lib/db/models/MarketingEmail';
 import User from '@/lib/db/models/User';
 import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { ApplyPromoCodeRequest, CartItemDB } from '@/types/cart';
 import { extendCartExpiration } from '@/lib/constants/cart';
 import { z } from 'zod';
+import { buildCartQuery } from '@/lib/utils/cartQuery';
 
 const applyPromoSchema = z.object({
   promoCode: z
@@ -23,8 +23,8 @@ const applyPromoSchema = z.object({
  * POST /api/cart/promo/apply
  * Applica un codice promozionale al carrello
  * - Supporta sia utenti autenticati che guest
- * - Blocca riutilizzo per email
- * - Aggiunge email a MarketingEmails
+ * - Blocca riutilizzo per email (consumato dopo pagamento)
+ * - Se il promo e' stato emesso per un email specifico, lo accetta solo per quell'email
  */
 export const POST = handleApi(async (req: NextRequest) => {
   await connectToDB();
@@ -34,14 +34,21 @@ export const POST = handleApi(async (req: NextRequest) => {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ success: false, error: 'Richiesta non valida' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, errorCode: 'INVALID_JSON', error: 'Richiesta non valida' },
+      { status: 400 },
+    );
   }
 
   const validation = applyPromoSchema.safeParse(body);
   if (!validation.success) {
     const firstError = validation.error.issues[0];
     return NextResponse.json(
-      { success: false, error: firstError?.message || 'Dati non validi' },
+      {
+        success: false,
+        errorCode: 'VALIDATION_FAILED',
+        error: firstError?.message || 'Dati non validi',
+      },
       { status: 400 },
     );
   }
@@ -63,6 +70,7 @@ export const POST = handleApi(async (req: NextRequest) => {
     return NextResponse.json(
       {
         success: false,
+        errorCode: 'PROMO_EMAIL_REQUIRED',
         error: 'Inserisci un indirizzo email per applicare il codice promozionale',
       },
       { status: 400 },
@@ -72,10 +80,26 @@ export const POST = handleApi(async (req: NextRequest) => {
   const normalizedEmail = resolvedEmail.trim().toLowerCase();
 
   // 3. Find cart
-  const cart = await Cart.findOne({ $or: [{ userId }, { sessionId }] });
+  const cartQuery = buildCartQuery({ userId, sessionId });
+  if (!cartQuery) {
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'CART_SESSION_UNAVAILABLE',
+        error: 'Cart session not available',
+      },
+      { status: 400 },
+    );
+  }
+
+  const cart = await Cart.findOne(cartQuery);
   if (!cart) {
     return NextResponse.json(
-      { success: false, error: 'Carrello non trovato. Aggiungi almeno un prodotto.' },
+      {
+        success: false,
+        errorCode: 'CART_NOT_FOUND',
+        error: 'Carrello non trovato. Aggiungi almeno un prodotto.',
+      },
       { status: 404 },
     );
   }
@@ -84,6 +108,7 @@ export const POST = handleApi(async (req: NextRequest) => {
     return NextResponse.json(
       {
         success: false,
+        errorCode: 'CART_EMPTY',
         error: 'Il carrello è vuoto. Aggiungi prodotti prima di applicare il codice.',
       },
       { status: 400 },
@@ -99,15 +124,35 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   if (!promo) {
     return NextResponse.json(
-      { success: false, error: 'Codice promozionale non valido' },
+      {
+        success: false,
+        errorCode: 'PROMO_NOT_FOUND',
+        error: 'Codice promozionale non valido',
+      },
       { status: 404 },
+    );
+  }
+
+  // If issued for a specific email, only that email can use it.
+  if (promo.issuedToEmail && promo.issuedToEmail !== normalizedEmail) {
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'PROMO_EMAIL_MISMATCH',
+        error: "Questo codice e' valido solo per questa email",
+      },
+      { status: 400 },
     );
   }
 
   // Check if already used by this email
   if (promo.usedByEmails.includes(normalizedEmail)) {
     return NextResponse.json(
-      { success: false, error: 'Hai già utilizzato questo codice promozionale' },
+      {
+        success: false,
+        errorCode: 'PROMO_ALREADY_USED_BY_EMAIL',
+        error: 'Hai già utilizzato questo codice promozionale',
+      },
       { status: 400 },
     );
   }
@@ -116,19 +161,30 @@ export const POST = handleApi(async (req: NextRequest) => {
   const now = new Date();
   if (promo.activeFrom && promo.activeFrom > now) {
     return NextResponse.json(
-      { success: false, error: 'Questo codice non è ancora attivo' },
+      {
+        success: false,
+        errorCode: 'PROMO_NOT_ACTIVE_YET',
+        error: 'Questo codice non è ancora attivo',
+      },
       { status: 400 },
     );
   }
 
   if (promo.activeUntil && promo.activeUntil < now) {
-    return NextResponse.json({ success: false, error: 'Questo codice è scaduto' }, { status: 400 });
+    return NextResponse.json(
+      { success: false, errorCode: 'PROMO_EXPIRED', error: 'Questo codice è scaduto' },
+      { status: 400 },
+    );
   }
 
   // Check usage limit
   if (promo.usageLimit && promo.usedCount >= promo.usageLimit) {
     return NextResponse.json(
-      { success: false, error: 'Questo codice ha raggiunto il limite di utilizzi' },
+      {
+        success: false,
+        errorCode: 'PROMO_USAGE_LIMIT_REACHED',
+        error: 'Questo codice ha raggiunto il limite di utilizzi',
+      },
       { status: 400 },
     );
   }
@@ -146,35 +202,25 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   // 6. Update cart
   cart.promoCode = promo.code;
+  // Bind promo to the email used for validation (helps keep logic consistent on cart updates/checkout)
+  cart.promoEmail = normalizedEmail;
   cart.promoDiscount = discount;
   cart.total = cart.subtotal - (cart.discount || 0) - discount;
-
-  // 7. Update promo code usage
-  promo.usedCount = (promo.usedCount || 0) + 1;
-  promo.usedByEmails.push(normalizedEmail);
-
-  // 8. Add email to marketing list (upsert)
-  try {
-    await MarketingEmail.findOneAndUpdate(
-      { email: normalizedEmail },
-      { email: normalizedEmail, source: 'promo_code' },
-      { upsert: true, new: true },
-    );
-  } catch {
-    // Log but don't fail the request if marketing email fails
-    // Silently fail - marketing email is not critical
-  }
 
   // 9. Extend expiration on cart activity
   const isAuthenticated = !!cart.userId;
   cart.expiresAt = extendCartExpiration(isAuthenticated);
 
-  // 10. Save cart and promo
+  // 10. Save cart
   try {
-    await Promise.all([cart.save(), promo.save()]);
+    await cart.save();
   } catch {
     return NextResponse.json(
-      { success: false, error: "Errore durante l'applicazione del codice. Riprova." },
+      {
+        success: false,
+        errorCode: 'PROMO_APPLY_FAILED',
+        error: "Errore durante l'applicazione del codice. Riprova.",
+      },
       { status: 500 },
     );
   }

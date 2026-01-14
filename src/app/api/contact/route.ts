@@ -2,19 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
 import { checkRateLimit } from '@/lib/security/rateLimit';
 import { z } from 'zod';
+import { contactSchema } from '@/lib/validation/schemas';
 
-const contactSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
-  email: z.string().email('Invalid email address'),
-  subject: z.string().min(1, 'Subject is required').max(200),
-  message: z.string().min(10, 'Message must be at least 10 characters').max(5000),
+const legacyContactSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  subject: z.string().min(1),
+  message: z.string().min(1),
 });
 
 export const POST = handleApi(async (req: NextRequest) => {
   // Rate limiting: 3 submissions per 15 minutes per IP
   if (!checkRateLimit(req, 3)) {
     return NextResponse.json(
-      { error: 'Too many contact form submissions. Please try again later.' },
+      {
+        success: false,
+        errorCode: 'RATE_LIMIT',
+        error: 'Rate limit exceeded',
+      },
       { status: 429 },
     );
   }
@@ -23,19 +28,58 @@ export const POST = handleApi(async (req: NextRequest) => {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'INVALID_JSON',
+        error: 'Invalid JSON',
+      },
+      { status: 400 },
+    );
   }
 
-  const validation = contactSchema.safeParse(body);
-  if (!validation.success) {
-    const errors = validation.error.flatten().fieldErrors;
-    return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
+  const v2 = contactSchema.safeParse(body);
+  if (v2.success) {
+    const normalized = {
+      name: `${v2.data.nome} ${v2.data.cognome}`.trim(),
+      email: v2.data.email,
+      subject: 'Contatti',
+      message: v2.data.messaggio,
+      phone: v2.data.telefono || undefined,
+    };
+
+    // TODO: Integrate with email service (SendGrid, Mailchimp, etc.)
+    // await sendContactEmail(normalized);
+    void normalized;
+
+    return NextResponse.json({ success: true });
   }
 
-  const { name, email, subject, message } = validation.data;
+  const legacy = legacyContactSchema.safeParse(body);
+  if (!legacy.success) {
+    const errors = v2.error.flatten().fieldErrors;
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'VALIDATION_FAILED',
+        error: 'Validation failed',
+        details: errors,
+      },
+      { status: 400 },
+    );
+  }
+
+  const normalized = {
+    name: legacy.data.name,
+    email: legacy.data.email,
+    subject: legacy.data.subject,
+    message: legacy.data.message,
+    phone: undefined,
+  };
 
   // TODO: Integrate with email service (SendGrid, Mailchimp, etc.)
-  // await sendContactEmail({ name, email, subject, message });
+  // await sendContactEmail(normalized);
+  void normalized;
 
-  return NextResponse.json({ message: 'Message sent successfully' });
+  return NextResponse.json({ success: true });
 });

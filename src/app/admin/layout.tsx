@@ -59,6 +59,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               📊 Dashboard
             </Link>
             <Link
+              href="/admin/products"
+              className="block px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              📦 Prodotti
+            </Link>
+            <Link
               href="/admin/mailchimp"
               className="block px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
             >

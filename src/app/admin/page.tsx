@@ -9,6 +9,13 @@ export default function AdminPage() {
   // 📌 Layout already checked access - render admin content
   const adminMenuItems = [
     {
+      title: 'Prodotti',
+      description: 'Gestisci disponibilità e stock',
+      href: '/admin/products',
+      icon: '📦',
+      roles: ['developer', 'superadmin', 'admin'],
+    },
+    {
       title: 'Esportazione Mailchimp',
       description: 'Esporta email di marketing in Mailchimp',
       href: '/admin/mailchimp',

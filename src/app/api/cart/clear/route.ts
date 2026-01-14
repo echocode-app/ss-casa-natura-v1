@@ -6,6 +6,7 @@ import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { CartItemDB } from '@/types/cart';
 import { getCartExpirationDate } from '@/lib/constants/cart';
+import { buildCartQuery } from '@/lib/utils/cartQuery';
 
 // POST /api/cart/clear - Clear all items from cart
 export const POST = handleApi(async (req: NextRequest) => {
@@ -14,9 +15,21 @@ export const POST = handleApi(async (req: NextRequest) => {
   const sessionId = await getCartSessionId();
   const userId = await getUserIdFromRequest(req);
 
+  const cartQuery = buildCartQuery({ userId, sessionId });
+  if (!cartQuery) {
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'CART_SESSION_UNAVAILABLE',
+        error: 'Cart session not available',
+      },
+      { status: 400 },
+    );
+  }
+
   // Find and update cart
   const cart = await Cart.findOneAndUpdate(
-    { $or: [{ userId }, { sessionId }] },
+    cartQuery,
     {
       $set: {
         items: [],
@@ -24,6 +37,7 @@ export const POST = handleApi(async (req: NextRequest) => {
         total: 0,
         discount: 0,
         promoCode: undefined,
+        promoEmail: undefined,
         promoDiscount: undefined,
       },
     },

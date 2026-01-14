@@ -24,6 +24,22 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
   const tErrors = useTranslations('errors');
   const tSuccess = useTranslations('success');
 
+  const applyServerFieldErrors = (details) => {
+    if (!details || typeof details !== 'object') return false;
+
+    const next = {};
+    Object.entries(details).forEach(([field, messages]) => {
+      const first = Array.isArray(messages) ? messages[0] : messages;
+      if (typeof first === 'string' && first.trim()) {
+        next[field] = tValidation(first, { defaultValue: tErrors('validationFailed') });
+      }
+    });
+
+    if (Object.keys(next).length === 0) return false;
+    setFieldErrors(next);
+    return true;
+  };
+
   const [formData, setFormData] = useState({
     nome: '',
     cognome: '',
@@ -122,19 +138,31 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const data = await res.json();
 
         if (!res.ok) {
-          if (data.details) {
-            // API validation errors - just show first error without field mapping
-            const firstFieldErrors = Object.values(data.details)[0];
-            const firstError = Array.isArray(firstFieldErrors)
-              ? firstFieldErrors[0]
-              : firstFieldErrors;
-            notify.error(firstError || tErrors('registrationFailed'));
-          } else if (data.error === 'Email already exists') {
+          const code = data?.errorCode;
+
+          if (res.status === 429 || code === 'RATE_LIMIT') {
+            notify.error(tErrors('tooManyAttempts'));
+            return;
+          }
+
+          if (code === 'VALIDATION_FAILED' && data?.details) {
+            applyServerFieldErrors(data.details);
+            notify.error(tErrors('validationFailed'));
+            return;
+          }
+
+          if (code === 'EMAIL_EXISTS' || data?.error === 'Email already exists') {
             setFieldErrors({ email: tErrors('emailExists') });
             notify.error(tErrors('emailExists'));
-          } else {
-            notify.error(data.error || tErrors('registrationFailed'));
+            return;
           }
+
+          if (code === 'INVALID_JSON') {
+            notify.error(tErrors('invalidJson'));
+            return;
+          }
+
+          notify.error(tErrors('registrationFailed'));
           return;
         }
 
@@ -160,20 +188,30 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const data = await res.json();
 
         if (!res.ok) {
-          if (res.status === 429) {
+          const code = data?.errorCode;
+
+          if (res.status === 429 || code === 'RATE_LIMIT') {
             notify.error(tErrors('tooManyAttempts'));
-          } else if (data.details) {
-            // API validation errors - just show first error
-            const firstFieldErrors = Object.values(data.details)[0];
-            const firstError = Array.isArray(firstFieldErrors)
-              ? firstFieldErrors[0]
-              : firstFieldErrors;
-            notify.error(firstError || tErrors('invalidCredentials'));
-          } else if (data.error === 'Invalid credentials') {
-            notify.error(tErrors('invalidCredentials'));
-          } else {
-            notify.error(data.error || tErrors('invalidCredentials'));
+            return;
           }
+
+          if (code === 'VALIDATION_FAILED' && data?.details) {
+            applyServerFieldErrors(data.details);
+            notify.error(tErrors('validationFailed'));
+            return;
+          }
+
+          if (code === 'INVALID_CREDENTIALS' || data?.error === 'Invalid credentials') {
+            notify.error(tErrors('invalidCredentials'));
+            return;
+          }
+
+          if (code === 'INVALID_JSON') {
+            notify.error(tErrors('invalidJson'));
+            return;
+          }
+
+          notify.error(tErrors('invalidCredentials'));
           return;
         }
 
@@ -186,7 +224,7 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
           notify.error(tErrors('genericError'));
         }
       } else if (type === 'forgot') {
-        notify.info(tSuccess('passwordResetEmailSent'));
+        notify.info(tErrors('forgotNotAvailable'));
         setTimeout(() => {
           handleSwitch('login');
         }, 2000);

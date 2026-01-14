@@ -89,7 +89,7 @@ export default function ProductCard({
         {isOutOfStock && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm">
             <span className="bg-white/95 px-4 py-2 rounded-full text-sm font-semibold text-gray-800">
-              Немає в наявності
+              {t('outOfStock')}
             </span>
           </div>
         )}
@@ -98,7 +98,7 @@ export default function ProductCard({
         {isLowStock && !isOutOfStock && (
           <div className="absolute top-2 right-2 z-10">
             <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-              Мало
+              {t('lowStock')}
             </span>
           </div>
         )}

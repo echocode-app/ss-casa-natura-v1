@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 type LogType = 'success' | 'error' | 'server' | 'send' | 'info';
 
 const emojiMap: Record<LogType, string> = {
@@ -16,5 +18,13 @@ export const log = (type: LogType, message: string, extra?: any) => {
     console.log(`${emoji} ${message}`, extra);
   } else {
     console.log(`${emoji} ${message}`);
+  }
+};
+
+export const logError = (message: string, error?: unknown) => {
+  if (error !== undefined) {
+    console.error(message, error);
+  } else {
+    console.error(message);
   }
 };

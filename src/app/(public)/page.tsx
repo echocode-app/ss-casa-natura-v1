@@ -5,9 +5,11 @@ import { LeLineSectionon } from '@/components/sections/LeLinee';
 import { MissionSection } from '@/components/sections/Mission';
 import { PromocodeSection } from '@/components/sections/Promocode';
 import { TopProductsSection } from '@/components/sections/TopProducts';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import { fetchProducts } from '@/lib/utils/fetchProducts';
 import { getSeoMeta, generateMetadata as generateSeoMetadata, JsonLd } from '@/lib/seo';
 import type { Metadata } from 'next';
+
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = getSeoMeta({
@@ -18,11 +20,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata(seo);
 }
 
-export default function Page() {
+export default async function Page() {
   const seo = getSeoMeta({
     type: 'homepage',
     path: '/',
   });
+
+  const products = await fetchProducts(false);
 
   return (
     <>
@@ -31,7 +35,7 @@ export default function Page() {
         <HeroSection />
         <CategoriesSection />
         <LeLineSectionon />
-        <TopProductsSection products={PRODUCTS_MOCK} />
+        <TopProductsSection products={products} />
         <GreenProductionSection />
         <MissionSection />
         <PromocodeSection />

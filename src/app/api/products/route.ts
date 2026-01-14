@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import { handleApi } from '@/lib/utils/handleApi';
+import connectToDB from '@/lib/db/mongo';
+import { applyInventoryToMockProducts } from '@/lib/utils/inventory';
 
 export const GET = handleApi(async () => {
-  // For now, return mock data. Later integrate with DB.
-  return NextResponse.json(PRODUCTS_MOCK);
+  await connectToDB();
+  const products = await applyInventoryToMockProducts();
+  return NextResponse.json(products);
 });

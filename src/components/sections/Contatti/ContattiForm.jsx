@@ -9,10 +9,30 @@ import { validateField as validateSingleField } from '@/lib/validation/helpers';
 import FormError from '@/components/ui/Form/FormError';
 import notify from '@/lib/notify';
 
+function sanitizePhoneInput(value) {
+  const raw = String(value ?? '');
+  let sanitized = raw.replace(/[^\d+\s\-()]/g, '');
+
+  // Allow a single leading "+" only
+  if (sanitized.includes('+')) {
+    const trimmed = sanitized.trimStart();
+    if (!trimmed.startsWith('+')) {
+      sanitized = sanitized.replace(/\+/g, '');
+    } else {
+      const leadingWs = sanitized.match(/^\s*/)?.[0] ?? '';
+      const withoutLeadingWs = sanitized.slice(leadingWs.length);
+      sanitized = leadingWs + '+' + withoutLeadingWs.slice(1).replace(/\+/g, '');
+    }
+  }
+
+  return sanitized;
+}
+
 export default function ContattiForm() {
   const t = useTranslations('contatti');
   const tValidation = useTranslations('validation');
-  const tCommon = useTranslations('common');
+  const tErrors = useTranslations('errors');
+  const tSuccess = useTranslations('success');
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -27,7 +47,8 @@ export default function ContattiForm() {
 
   const handleChange = (field) => (e) => {
     const value = e.target.value;
-    const normalizedValue = normalizeInputValue(value, field);
+    const preNormalizedValue = field === 'telefono' ? sanitizePhoneInput(value) : value;
+    const normalizedValue = normalizeInputValue(preNormalizedValue, field);
     setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
   };
 
@@ -46,7 +67,8 @@ export default function ContattiForm() {
 
   const handleBlur = (field) => (e) => {
     const value = e.target.value;
-    const normalizedValue = normalizeInputValue(value, field);
+    const preNormalizedValue = field === 'telefono' ? sanitizePhoneInput(value) : value;
+    const normalizedValue = normalizeInputValue(preNormalizedValue, field);
     if (normalizedValue !== value) {
       setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
     }
@@ -69,7 +91,23 @@ export default function ContattiForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit form');
+        const data = await response.json().catch(() => null);
+        const details = data?.details;
+
+        if (details && typeof details === 'object') {
+          const errors = {};
+          Object.keys(details).forEach((key) => {
+            const value = details[key];
+            const messageKey = Array.isArray(value) ? value[0] : value;
+            if (typeof messageKey === 'string') errors[key] = tValidation(messageKey);
+          });
+          setFieldErrors(errors);
+          notify.error(tErrors('validationFailed'));
+          return;
+        }
+
+        notify.error(tErrors('genericError'));
+        return;
       }
 
       setFormData({
@@ -80,17 +118,19 @@ export default function ContattiForm() {
         messaggio: '',
       });
 
-      notify.success(tCommon('success.messageSent'));
+      notify.success(tSuccess('messageSent'));
     } catch (err) {
-      if (err.errors) {
+      const issues = err?.issues || err?.errors;
+
+      if (issues) {
         const errors = {};
-        err.errors.forEach((error) => {
+        issues.forEach((error) => {
           errors[error.path[0]] = tValidation(error.message);
         });
         setFieldErrors(errors);
-        notify.error(tCommon('errors.validationFailed'));
+        notify.error(tErrors('validationFailed'));
       } else {
-        notify.error(tCommon('errors.genericError'));
+        notify.error(tErrors('genericError'));
       }
     } finally {
       setLoading(false);
@@ -124,6 +164,9 @@ export default function ContattiForm() {
           </label>
           <input
             type="text"
+            id="nome"
+            name="nome"
+            autoComplete="given-name"
             value={formData.nome}
             onChange={handleChange('nome')}
             onBlur={handleBlur('nome')}
@@ -140,6 +183,9 @@ export default function ContattiForm() {
           </label>
           <input
             type="text"
+            id="cognome"
+            name="cognome"
+            autoComplete="family-name"
             value={formData.cognome}
             onChange={handleChange('cognome')}
             onBlur={handleBlur('cognome')}
@@ -156,6 +202,11 @@ export default function ContattiForm() {
           </label>
           <input
             type="email"
+            id="email"
+            name="email"
+            autoComplete="email"
+            inputMode="email"
+            placeholder={t('emailPlaceholder')}
             value={formData.email}
             onChange={handleChange('email')}
             onBlur={handleBlur('email')}
@@ -168,15 +219,19 @@ export default function ContattiForm() {
         {/* 📌 Phone */}
         <div className="flex flex-col">
           <label className="mb-2 lg:mb-4 font-semibold text-[clamp(16px,2vw,22px)]">
-            {t('telefono')}
+            {t('telefonoOptional')}
           </label>
           <input
             type="tel"
+            id="telefono"
+            name="telefono"
+            autoComplete="tel"
+            inputMode="tel"
+            placeholder={t('telefonoPlaceholder')}
             value={formData.telefono}
             onChange={handleChange('telefono')}
             onBlur={handleBlur('telefono')}
             className={inputClass}
-            required
           />
           <FormError message={fieldErrors.telefono} />
         </div>
@@ -187,6 +242,10 @@ export default function ContattiForm() {
             {t('messaggio')}
           </label>
           <textarea
+            id="messaggio"
+            name="messaggio"
+            autoComplete="off"
+            placeholder={t('messaggioPlaceholder')}
             value={formData.messaggio}
             onChange={handleChange('messaggio')}
             onBlur={handleBlur('messaggio')}

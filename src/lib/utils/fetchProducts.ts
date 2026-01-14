@@ -1,5 +1,20 @@
 import { Product } from '@/config/products/product.types';
 
+function getServerBaseUrl(): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (siteUrl) return siteUrl.replace(/\/$/, '');
+
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) return `https://${vercelUrl}`;
+
+  return 'http://localhost:3000';
+}
+
+function buildApiUrl(path: string): string {
+  if (typeof window !== 'undefined') return path;
+  return `${getServerBaseUrl()}${path}`;
+}
+
 interface FetchProductsOptions {
   page?: number;
   limit?: number;
@@ -59,7 +74,7 @@ export async function fetchProductsPaginated(
     ...(sortOrder && { sortOrder }),
   });
 
-  const res = await fetch(`/api/products?${params}`);
+  const res = await fetch(buildApiUrl(`/api/products?${params}`), { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch products');
   return res.json();
 }
@@ -70,7 +85,7 @@ export async function fetchProducts(useMock: boolean = false): Promise<Product[]
     return PRODUCTS_MOCK;
   }
 
-  const res = await fetch('/api/products');
+  const res = await fetch(buildApiUrl('/api/products'), { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch products');
   return res.json();
 }
@@ -84,7 +99,7 @@ export async function fetchProduct(
     return PRODUCTS_MOCK.find((p) => p.slug === slug) || null;
   }
 
-  const res = await fetch(`/api/products/${slug}`);
+  const res = await fetch(buildApiUrl(`/api/products/${slug}`), { cache: 'no-store' });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error('Failed to fetch product');
   return res.json();

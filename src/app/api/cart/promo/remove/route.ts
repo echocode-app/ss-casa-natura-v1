@@ -6,6 +6,7 @@ import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { CartItemDB } from '@/types/cart';
 import { extendCartExpiration } from '@/lib/constants/cart';
+import { buildCartQuery } from '@/lib/utils/cartQuery';
 
 // POST /api/cart/promo/remove - Remove promo code from cart
 export const POST = handleApi(async (req: NextRequest) => {
@@ -14,17 +15,31 @@ export const POST = handleApi(async (req: NextRequest) => {
   const sessionId = await getCartSessionId();
   const userId = await getUserIdFromRequest(req);
 
+  const cartQuery = buildCartQuery({ userId, sessionId });
+  if (!cartQuery) {
+    return NextResponse.json(
+      {
+        success: false,
+        errorCode: 'CART_SESSION_UNAVAILABLE',
+        error: 'Cart session not available',
+      },
+      { status: 400 },
+    );
+  }
+
   // Find cart
-  const cart = await Cart.findOne({
-    $or: [{ userId }, { sessionId }],
-  });
+  const cart = await Cart.findOne(cartQuery);
 
   if (!cart) {
-    return NextResponse.json({ success: false, error: 'Cart not found' }, { status: 404 });
+    return NextResponse.json(
+      { success: false, errorCode: 'CART_NOT_FOUND', error: 'Cart not found' },
+      { status: 404 },
+    );
   }
 
   // Remove promo code
   cart.promoCode = undefined;
+  cart.promoEmail = undefined;
   cart.promoDiscount = undefined;
   cart.total = cart.subtotal - (cart.discount || 0);
 

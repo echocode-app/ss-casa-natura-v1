@@ -9,6 +9,18 @@ import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 
 const API_BASE = '/api/cart';
 
+export class ApiError extends Error {
+  status: number;
+  errorCode?: string;
+
+  constructor(message: string, status: number, errorCode?: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.errorCode = errorCode;
+  }
+}
+
 export interface CartService {
   getCart(): Promise<Cart>;
   addItem(data: AddToCartRequest): Promise<Cart>;
@@ -21,10 +33,13 @@ export interface CartService {
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({
+    const payload = await response.json().catch(() => ({
       error: 'Unknown error',
     }));
-    throw new Error(error.error || 'Request failed');
+
+    const message = (payload as any)?.error || 'Request failed';
+    const errorCode = (payload as any)?.errorCode;
+    throw new ApiError(String(message), response.status, errorCode ? String(errorCode) : undefined);
   }
   return response.json();
 }

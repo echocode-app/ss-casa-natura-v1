@@ -1,10 +1,12 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { ApplyPromoCodeRequest, CartItemUI, cartItemToUI } from '@/types/cart';
-import { cartService } from '@/lib/services/cart';
+import { ApiError, cartService } from '@/lib/services/cart';
 import { useAuth } from '@/components/layout/AuthContext';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import notify from '@/lib/notify';
 
 const GUEST_CART_KEY = 'guest_cart_v1';
 const GUEST_CART_TTL = 1000 * 60 * 60 * 24 * 7;
@@ -66,6 +68,7 @@ const CartContext = createContext<CartContextType>(null as any);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user, isLoading: authLoading } = useAuth();
+  const tCart = useTranslations('user.cart');
 
   const [items, setItems] = useState<CartItemUI[]>([]);
   const [promoCode, setPromoCode] = useState<string | undefined>();
@@ -135,17 +138,43 @@ export function CartProvider({ children }: { children: ReactNode }) {
           setItems(cart.items.map(cartItemToUI));
           setPromoCode(cart.promoCode);
           setPromoDiscount(cart.promoDiscount);
+
+          notify.success(tCart('toasts.added'));
         } else {
           // 📌 Guest cart: read product data from mock
           const product = PRODUCTS_MOCK.find((p) => p.id === productId);
           if (!product) {
-            setError('Product not found');
+            const msg = tCart('toasts.addFailed');
+            setError(msg);
+            notify.error(msg);
             return;
           }
 
           const variant = product.variants?.find((v) => v.id === variantId);
           if (!variant) {
-            setError('Variant not found');
+            const msg = tCart('toasts.addFailed');
+            setError(msg);
+            notify.error(msg);
+            return;
+          }
+
+          const availableFlag = (variant.isAvailable ?? product.isAvailable ?? true) !== false;
+          const stockValue = variant.stock ?? product.stock;
+
+          const existingItemIndex = items.findIndex(
+            (item) => item.id === `${productId}-${variantId}`,
+          );
+          const desiredQuantity =
+            existingItemIndex >= 0 ? (items[existingItemIndex].quantity || 0) + quantity : quantity;
+
+          const hasEnoughStock = stockValue === undefined ? true : stockValue >= desiredQuantity;
+          if (!availableFlag || !hasEnoughStock) {
+            const msg =
+              !availableFlag || (stockValue ?? 0) <= 0
+                ? tCart('toasts.outOfStock')
+                : tCart('toasts.insufficientStock');
+            setError(msg);
+            notify.error(msg);
             return;
           }
 
@@ -153,10 +182,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
             ? product.price + variant.priceModifier
             : product.price;
           const imageSrc = product.images?.[0]?.src || '/images/home/product.png';
-
-          const existingItemIndex = items.findIndex(
-            (item) => item.id === `${productId}-${variantId}`,
-          );
 
           if (existingItemIndex >= 0) {
             setItems((prev) =>
@@ -177,14 +202,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
             };
             setItems((prev) => [...prev, newItem]);
           }
+
+          notify.success(tCart('toasts.added'));
         }
-      } catch {
-        setError('Failed to add item');
+      } catch (e: unknown) {
+        let msg = tCart('toasts.addFailed');
+        if (e instanceof ApiError) {
+          if (e.errorCode === 'OUT_OF_STOCK') msg = tCart('toasts.outOfStock');
+          if (e.errorCode === 'INSUFFICIENT_STOCK') msg = tCart('toasts.insufficientStock');
+        }
+        setError(msg);
+        notify.error(msg);
       } finally {
         setIsLoading(false);
       }
     },
-    [user, items],
+    [user, items, tCart],
   );
 
   const updateItem = useCallback(
@@ -269,8 +302,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         payload.email = resolvedEmail.toLowerCase();
       } else {
         setIsLoading(false);
-        setError('promo: Email is required to apply a promo code');
-        return;
+        setError('promo: PROMO_EMAIL_REQUIRED');
+        throw new Error('PROMO_EMAIL_REQUIRED');
       }
 
       try {
@@ -279,7 +312,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setPromoCode(cart.promoCode);
         setPromoDiscount(cart.promoDiscount);
       } catch (err: any) {
-        setError(`promo: ${err?.message || 'Failed to apply promo code'}`);
+        const codeFromApi = err?.errorCode;
+        const next = codeFromApi ? String(codeFromApi) : err?.message || 'UNKNOWN';
+        setError(`promo: ${next}`);
+        throw err;
       } finally {
         setIsLoading(false);
       }
@@ -297,7 +333,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setPromoCode(cart.promoCode);
       setPromoDiscount(cart.promoDiscount);
     } catch (err: any) {
-      setError(`promo: ${err?.message || 'Failed to remove promo code'}`);
+      const codeFromApi = err?.errorCode;
+      const next = codeFromApi ? String(codeFromApi) : err?.message || 'UNKNOWN';
+      setError(`promo: ${next}`);
+      throw err;
     } finally {
       setIsLoading(false);
     }

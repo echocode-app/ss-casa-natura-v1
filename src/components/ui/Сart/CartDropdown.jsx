@@ -142,7 +142,7 @@ export default function CartDropdown({ parentRef, isOpen, onClose }) {
           )}
         </div>
 
-        {items.length > 0 && <CartFooter items={items} />}
+        {items.length > 0 && <CartFooter items={items} onProceed={onClose} />}
       </div>
     </div>,
     document.body,

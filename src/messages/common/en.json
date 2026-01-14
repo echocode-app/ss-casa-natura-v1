@@ -217,7 +217,9 @@
   "topProductsSection": {
     "headerTitle": "Our best-selling products",
     "headerAccent": "loved",
-    "button": "Add"
+     "button": "Add",
+     "outOfStock": "Out of stock",
+     "lowStock": "Low"
   },
   "greenProductionSection": {
     "headerTitle": "Why we are",
@@ -257,18 +259,24 @@
       "placeholder": "Enter your email",
       "submit": "Subscribe",
       "loading": "Loading...",
-      "success": "Wait for your promo code in your email!",
+      "success": "Here is your promo code!",
+      "alreadySubscribed": "This email is already subscribed and can't receive a new code.",
       "errorEmpty": "Please enter your email!",
       "errorInvalid": "Please enter a valid email address!",
-      "errorSend": "Error sending. Please try again!"
+      "errorSend": "Error sending. Please try again!",
+      "errorAlreadySubscribed": "This email is already subscribed.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyError": "Couldn't copy."
     }
   },
   "errors": {
     "registrationFailed": "Registration failed",
     "loginFailed": "Login failed",
     "forgotFailed": "Failed to process request",
+    "forgotNotAvailable": "This feature is not available yet.",
     "invalidJson": "Invalid request data",
-    "validationFailed": "Validation failed",
+    "validationFailed": "Please check the highlighted fields and try again.",
     "emailExists": "Email already registered",
     "invalidCredentials": "Invalid email or password",
     "unauthorized": "Please log in to continue",

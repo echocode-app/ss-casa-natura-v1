@@ -26,6 +26,7 @@ const cartSchema = new Schema(
     subtotal: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
     promoCode: { type: String },
+    promoEmail: { type: String },
     promoDiscount: { type: Number, default: 0 },
     total: { type: Number, default: 0 },
     expiresAt: { type: Date, required: true },

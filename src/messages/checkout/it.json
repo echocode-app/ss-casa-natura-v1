@@ -1,0 +1,53 @@
+{
+  "title": "Checkout",
+  "contact": {
+    "title": "Contatti",
+    "email": "Email",
+    "name": "Nome",
+    "surname": "Cognome",
+    "phone": "Telefono"
+  },
+  "shipping": {
+    "title": "Indirizzo di spedizione",
+    "country": "Paese",
+    "city": "Città",
+    "postalCode": "CAP",
+    "address1": "Indirizzo",
+    "address2": "Appartamento, scala, interno (opzionale)",
+    "province": "Provincia"
+  },
+  "summary": {
+    "title": "Riepilogo",
+    "subtotal": "Subtotale",
+    "promo": "Sconto promo",
+    "shipping": "Spedizione",
+    "total": "Totale"
+  },
+  "actions": {
+    "calculateShipping": "Calcola spedizione",
+    "continue": "Continua al pagamento",
+    "pay": "Paga ora"
+  },
+  "marketing": {
+    "label": "Voglio ricevere offerte e novità via email"
+  },
+  "errors": {
+    "emptyCart": "Il carrello è vuoto.",
+    "shippingRequired": "Compila l'indirizzo per calcolare la spedizione.",
+    "checkoutFailed": "Impossibile avviare il pagamento. Riprova.",
+    "stripeNotConfigured": "Pagamento non disponibile: Stripe non è configurato.",
+    "outOfStock": "Alcuni prodotti non sono disponibili. Aggiorna il carrello e riprova."
+  },
+  "misc": {
+    "backToCart": "← Torna al carrello",
+    "backToCatalog": "Torna al catalogo",
+    "securePayment": "Pagamento sicuro tramite Stripe."
+  },
+  "success": {
+    "title": "Pagamento completato",
+    "description": "Grazie! Abbiamo ricevuto il tuo pagamento e stiamo preparando l'ordine.",
+    "order": "Ordine: {orderId}",
+    "toAccount": "Vai al mio account",
+    "toCatalog": "Continua lo shopping"
+  }
+}
