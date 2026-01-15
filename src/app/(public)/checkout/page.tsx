@@ -33,6 +33,16 @@ function parseCartItemId(id: string): { productId: string; variantId: string } |
   };
 }
 
+function getCartItemIdentity(item: { id: string; productId?: string; variantId?: string }): {
+  productId: string;
+  variantId: string;
+} | null {
+  if (item.productId && item.variantId) {
+    return { productId: item.productId, variantId: item.variantId };
+  }
+  return parseCartItemId(item.id);
+}
+
 function CheckoutPaymentForm({ orderId }: { orderId: string }) {
   const t = useTranslations('checkout');
   const stripe = useStripe();
@@ -92,6 +102,15 @@ export default function CheckoutPage() {
   const { items, getSubtotal, promoDiscount } = useCart();
   const { user } = useAuth();
 
+  const inputClassName =
+    'w-full px-4 md:px-6 py-3 border rounded-input-xl ' +
+    'h-[50px] md:h-[70px] ' +
+    'text-[clamp(14px,3vw,24px)] font-variant-tabular ' +
+    'text-text-extrablack bg-white border-input ' +
+    'transition-colors duration-300 ' +
+    'focus:outline-none focus:border-gray-600 ' +
+    'hover:border-gray-600';
+
   const [email, setEmail] = useState(user?.email || '');
   const [name, setName] = useState(user?.name || '');
   const [surname, setSurname] = useState(user?.surname || '');
@@ -119,7 +138,7 @@ export default function CheckoutPage() {
   const checkoutItemsInfo = useMemo(() => {
     const parsed = items
       .map((i) => {
-        const res = parseCartItemId(i.id);
+        const res = getCartItemIdentity(i);
         if (!res) return null;
         return { productId: res.productId, variantId: res.variantId, quantity: i.quantity };
       })
@@ -180,15 +199,21 @@ export default function CheckoutPage() {
 
   if (!items.length) {
     return (
-      <div className="max-w-[900px] mx-auto px-6 md:px-8 lg:px-10 py-10">
-        <h1 className="heading-default heading-sm lg:heading-lg mb-6">{t('title')}</h1>
-        <p className="text-text-muted mb-6">{t('errors.emptyCart')}</p>
-        <Link href="/prodotti">
-          <PrimaryButton onClick={() => {}} className="px-8 py-4">
-            {t('misc.backToCatalog')}
-          </PrimaryButton>
-        </Link>
-      </div>
+      <section className="py-6 md:py-16 xl:py-24 overflow-hidden">
+        <div className="mx-auto md:max-w-[1570px] px-6 lg:px-12">
+          <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
+            <h1 className="font-semibold text-[clamp(30px,5vw,47px)] leading-[clamp(30px,5vw,50px)] text-center">
+              {t('title')}
+            </h1>
+            <p className="text-text-muted text-center">{t('errors.emptyCart')}</p>
+            <Link href="/prodotti">
+              <PrimaryButton onClick={() => {}} className="px-8 py-4">
+                {t('misc.backToCatalog')}
+              </PrimaryButton>
+            </Link>
+          </div>
+        </div>
+      </section>
     );
   }
 
@@ -305,241 +330,264 @@ export default function CheckoutPage() {
   const totalForUi = quote?.total ?? Math.round((subtotal - (promoDiscount || 0)) * 100) / 100;
 
   return (
-    <div className="max-w-[1200px] mx-auto px-6 md:px-8 lg:px-10 py-10">
-      <h1 className="heading-default heading-sm lg:heading-lg mb-8">{t('title')}</h1>
+    <section className="py-6 md:py-16 xl:py-24 overflow-hidden">
+      <div className="mx-auto md:max-w-[1570px] px-6 lg:px-12">
+        <h1 className="font-semibold text-[clamp(30px,5vw,47px)] leading-[clamp(30px,5vw,50px)] text-center mb-8 md:mb-12">
+          {t('title')}
+        </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="space-y-8">
-          {checkoutItemsInfo.hasUnparseableItems && (
-            <div className="text-sm text-red-600" role="alert">
-              {t('errors.checkoutFailed')}
-            </div>
-          )}
+        <div className="flex flex-col lg:flex-row gap-3 lg:gap-6 items-start justify-center">
+          <div className="flex-1 md:max-w-[60%] space-y-6">
+            <section className="bg-background-secondary rounded-[20px] p-4 md:p-6">
+              <h2 className="font-semibold text-[clamp(16px,3vw,22px)] mb-4">
+                {t('contact.title')}
+              </h2>
 
-          <section className="bg-background-secondary rounded-[20px] p-6 lg:p-8">
-            <h2 className="font-semibold text-xl mb-4">{t('contact.title')}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="sm:col-span-2">
-                <label htmlFor="checkout-email" className="text-sm font-medium">
-                  {t('contact.email')}
-                </label>
-                <input
-                  id="checkout-email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div>
-                <label htmlFor="checkout-name" className="text-sm font-medium">
-                  {t('contact.name')}
-                </label>
-                <input
-                  id="checkout-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div>
-                <label htmlFor="checkout-surname" className="text-sm font-medium">
-                  {t('contact.surname')}
-                </label>
-                <input
-                  id="checkout-surname"
-                  value={surname}
-                  onChange={(e) => setSurname(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label htmlFor="checkout-phone" className="text-sm font-medium">
-                  {t('contact.phone')}
-                </label>
-                <input
-                  id="checkout-phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-            </div>
-
-            <label className="mt-4 flex items-center gap-3 text-sm">
-              <input
-                type="checkbox"
-                checked={marketingOptIn}
-                onChange={(e) => setMarketingOptIn(e.target.checked)}
-              />
-              <span>{t('marketing.label')}</span>
-            </label>
-          </section>
-
-          <section className="bg-background-secondary rounded-[20px] p-6 lg:p-8">
-            <h2 className="font-semibold text-xl mb-4">{t('shipping.title')}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="checkout-country" className="text-sm font-medium">
-                  {t('shipping.country')}
-                </label>
-                <input
-                  id="checkout-country"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div>
-                <label htmlFor="checkout-postalCode" className="text-sm font-medium">
-                  {t('shipping.postalCode')}
-                </label>
-                <input
-                  id="checkout-postalCode"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div>
-                <label htmlFor="checkout-city" className="text-sm font-medium">
-                  {t('shipping.city')}
-                </label>
-                <input
-                  id="checkout-city"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div>
-                <label htmlFor="checkout-province" className="text-sm font-medium">
-                  {t('shipping.province')}
-                </label>
-                <input
-                  id="checkout-province"
-                  value={province}
-                  onChange={(e) => setProvince(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label htmlFor="checkout-address1" className="text-sm font-medium">
-                  {t('shipping.address1')}
-                </label>
-                <input
-                  id="checkout-address1"
-                  value={address1}
-                  onChange={(e) => setAddress1(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label htmlFor="checkout-address2" className="text-sm font-medium">
-                  {t('shipping.address2')}
-                </label>
-                <input
-                  id="checkout-address2"
-                  value={address2}
-                  onChange={(e) => setAddress2(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="mt-5 flex gap-3">
-              <PrimaryButton
-                onClick={handleQuote}
-                disabled={!canQuote || isQuoting}
-                className="px-5 py-3"
-              >
-                {isQuoting ? (
-                  <Spinner size="sm" colorScheme="light" />
-                ) : (
-                  t('actions.calculateShipping')
-                )}
-              </PrimaryButton>
-              {quote && (
-                <div className="text-sm text-text-muted flex items-center">
-                  {t('summary.shipping')}: € {quote.shippingPrice.toFixed(2)}
+              {checkoutItemsInfo.hasUnparseableItems && (
+                <div className="text-sm text-red-600 mb-4" role="alert">
+                  {t('errors.checkoutFailed')}
                 </div>
               )}
-            </div>
-          </section>
 
-          {error && (
-            <div className="text-sm text-red-600" role="alert">
-              {error}
-            </div>
-          )}
-        </div>
+              {error && (
+                <div className="text-sm text-red-600 mb-4" role="alert">
+                  {error}
+                </div>
+              )}
 
-        <div className="space-y-6">
-          <div className="bg-background-secondary rounded-[20px] p-6 lg:p-8">
-            <h2 className="font-semibold text-xl mb-6">{t('summary.title')}</h2>
-
-            {!isStripeConfigured && (
-              <div className="text-sm text-red-600 mb-4" role="alert">
-                {t('errors.stripeNotConfigured')}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label htmlFor="checkout-email" className="text-sm font-medium text-text-muted">
+                    {t('contact.email')}
+                  </label>
+                  <input
+                    id="checkout-email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    className={inputClassName}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="checkout-name" className="text-sm font-medium text-text-muted">
+                    {t('contact.name')}
+                  </label>
+                  <input
+                    id="checkout-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className={inputClassName}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="checkout-surname" className="text-sm font-medium text-text-muted">
+                    {t('contact.surname')}
+                  </label>
+                  <input
+                    id="checkout-surname"
+                    value={surname}
+                    onChange={(e) => setSurname(e.target.value)}
+                    className={inputClassName}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label htmlFor="checkout-phone" className="text-sm font-medium text-text-muted">
+                    {t('contact.phone')}
+                  </label>
+                  <input
+                    id="checkout-phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className={inputClassName}
+                  />
+                </div>
               </div>
-            )}
 
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span>{t('summary.subtotal')}</span>
-                <span className="font-semibold">€ {subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-text-muted">
-                <span>{t('summary.promo')}</span>
-                <span>- € {(promoDiscount || 0).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-text-muted">
-                <span>{t('summary.shipping')}</span>
-                <span>€ {(quote?.shippingPrice ?? 0).toFixed(2)}</span>
-              </div>
+              <label className="mt-5 flex items-center gap-3 text-sm text-text-muted">
+                <input
+                  type="checkbox"
+                  checked={marketingOptIn}
+                  onChange={(e) => setMarketingOptIn(e.target.checked)}
+                />
+                <span>{t('marketing.label')}</span>
+              </label>
+            </section>
 
-              <div className="border-t border-gray-200 pt-4 flex justify-between text-lg font-semibold">
-                <span>{t('summary.total')}</span>
-                <span>€ {totalForUi.toFixed(2)}</span>
-              </div>
-            </div>
-
-            {!clientSecret || !orderId ? (
-              <PrimaryButton
-                onClick={handleCreateIntent}
-                disabled={!canProceed || isCreating}
-                className="w-full mt-8 py-4"
-              >
-                {isCreating ? <Spinner size="sm" colorScheme="light" /> : t('actions.continue')}
-              </PrimaryButton>
-            ) : (
-              <div className="mt-8">
-                {!stripePromise ? (
-                  <div className="text-sm text-red-600" role="alert">
-                    {t('errors.stripeNotConfigured')}
-                  </div>
-                ) : (
-                  <Elements
-                    stripe={stripePromise}
-                    options={{
-                      clientSecret,
-                      appearance: { theme: 'stripe' },
-                    }}
+            <section className="bg-background-secondary rounded-[20px] p-4 md:p-6">
+              <h2 className="font-semibold text-[clamp(16px,3vw,22px)] mb-4">
+                {t('shipping.title')}
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="checkout-country" className="text-sm font-medium text-text-muted">
+                    {t('shipping.country')}
+                  </label>
+                  <input
+                    id="checkout-country"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value.toUpperCase())}
+                    className={inputClassName}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="checkout-postalCode"
+                    className="text-sm font-medium text-text-muted"
                   >
-                    <CheckoutPaymentForm orderId={orderId} />
-                  </Elements>
+                    {t('shipping.postalCode')}
+                  </label>
+                  <input
+                    id="checkout-postalCode"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    className={inputClassName}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="checkout-city" className="text-sm font-medium text-text-muted">
+                    {t('shipping.city')}
+                  </label>
+                  <input
+                    id="checkout-city"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className={inputClassName}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="checkout-province"
+                    className="text-sm font-medium text-text-muted"
+                  >
+                    {t('shipping.province')}
+                  </label>
+                  <input
+                    id="checkout-province"
+                    value={province}
+                    onChange={(e) => setProvince(e.target.value)}
+                    className={inputClassName}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="checkout-address1"
+                    className="text-sm font-medium text-text-muted"
+                  >
+                    {t('shipping.address1')}
+                  </label>
+                  <input
+                    id="checkout-address1"
+                    value={address1}
+                    onChange={(e) => setAddress1(e.target.value)}
+                    className={inputClassName}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="checkout-address2"
+                    className="text-sm font-medium text-text-muted"
+                  >
+                    {t('shipping.address2')}
+                  </label>
+                  <input
+                    id="checkout-address2"
+                    value={address2}
+                    onChange={(e) => setAddress2(e.target.value)}
+                    className={inputClassName}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-5 flex gap-3">
+                <PrimaryButton
+                  onClick={handleQuote}
+                  disabled={!canQuote || isQuoting}
+                  className="w-full px-6 py-5"
+                >
+                  {isQuoting ? (
+                    <Spinner size="sm" colorScheme="light" />
+                  ) : (
+                    t('actions.calculateShipping')
+                  )}
+                </PrimaryButton>
+                {quote && (
+                  <div className="text-sm text-text-muted flex items-center">
+                    {t('summary.shipping')}: € {quote.shippingPrice.toFixed(2)}
+                  </div>
                 )}
               </div>
-            )}
-
-            <div className="mt-6 text-xs text-text-muted">{t('misc.securePayment')}</div>
+            </section>
           </div>
 
-          <Link href="/cart" className="text-brand-dark hover:underline text-sm">
-            {t('misc.backToCart')}
-          </Link>
+          <div className="md:max-w-[40%] space-y-6">
+            <div className="bg-background-secondary rounded-[20px] p-4 md:p-6">
+              <h2 className="font-semibold text-[clamp(16px,3vw,22px)] mb-4 md:mb-6">
+                {t('summary.title')}
+              </h2>
+
+              {!isStripeConfigured && (
+                <div className="text-sm text-red-600 mb-4" role="alert">
+                  {t('errors.stripeNotConfigured')}
+                </div>
+              )}
+
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span>{t('summary.subtotal')}</span>
+                  <span className="font-semibold">€ {subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-text-muted">
+                  <span>{t('summary.promo')}</span>
+                  <span>- € {(promoDiscount || 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-text-muted">
+                  <span>{t('summary.shipping')}</span>
+                  <span>€ {(quote?.shippingPrice ?? 0).toFixed(2)}</span>
+                </div>
+
+                <div className="border-t border-gray-200 pt-4 flex justify-between text-lg font-semibold">
+                  <span>{t('summary.total')}</span>
+                  <span>€ {totalForUi.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {!clientSecret || !orderId ? (
+                <PrimaryButton
+                  onClick={handleCreateIntent}
+                  disabled={!canProceed || isCreating}
+                  className="w-full mt-8 py-4"
+                >
+                  {isCreating ? <Spinner size="sm" colorScheme="light" /> : t('actions.continue')}
+                </PrimaryButton>
+              ) : (
+                <div className="mt-8">
+                  {!stripePromise ? (
+                    <div className="text-sm text-red-600" role="alert">
+                      {t('errors.stripeNotConfigured')}
+                    </div>
+                  ) : (
+                    <Elements
+                      stripe={stripePromise}
+                      options={{
+                        clientSecret,
+                        appearance: { theme: 'stripe' },
+                      }}
+                    >
+                      <CheckoutPaymentForm orderId={orderId} />
+                    </Elements>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-6 text-xs text-text-muted">{t('misc.securePayment')}</div>
+            </div>
+
+            <Link href="/cart" className="text-brand-dark hover:underline text-sm">
+              {t('misc.backToCart')}
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

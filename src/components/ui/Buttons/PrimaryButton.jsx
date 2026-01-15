@@ -44,6 +44,7 @@ export default function PrimaryButton({
         text-black
         font-semibold
         text-[clamp(14px,2vw,22px)]
+        text-center
         rounded-[25px]
         transition-all duration-300
         hover:shadow-header

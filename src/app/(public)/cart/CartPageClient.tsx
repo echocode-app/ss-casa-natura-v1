@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/contexts/CartContext';
-import CartItem from '@/components/ui/Сart/CartItem';
 import CartEmpty from '@/components/ui/Сart/CartEmpty';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import Link from 'next/link';
@@ -11,10 +10,8 @@ import { useEffect, useState } from 'react';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 import { useAuth } from '@/components/layout/AuthContext';
 import { useRouter } from 'next/navigation';
-import {
-  cartPromoErrorTranslationKey,
-  normalizeCartPromoErrorCode,
-} from '@/lib/utils/cartPromoMessages';
+import { CartItemsPanel } from './components/CartItemsPanel';
+import { CartSummaryPanel } from './components/CartSummaryPanel';
 
 export function CartPageClient() {
   const t = useTranslations('user.cart');
@@ -48,6 +45,8 @@ export function CartPageClient() {
   const showActionSpinner = useSmoothLoading(isLoading && !isInitializing, 120, 220);
   const showPromoSpinner = useSmoothLoading(isApplyingPromo, 120, 220);
 
+  const isDisabled = items.length === 0 || isLoading;
+
   useEffect(() => {
     setPromoEmail(user?.email || '');
   }, [user]);
@@ -58,10 +57,10 @@ export function CartPageClient() {
   const subtotal = getSubtotal();
   const total = getTotal();
 
-  const withItemPending = async (itemId: string, action: () => Promise<void>) => {
+  const withItemPending = async <T,>(itemId: string, action: () => Promise<T>) => {
     setActiveItemId(itemId);
     try {
-      await action();
+      return await action();
     } finally {
       setActiveItemId(null);
     }
@@ -75,6 +74,10 @@ export function CartPageClient() {
     if (currentQuantity > 1) {
       await withItemPending(itemId, () => updateItem(itemId, currentQuantity - 1));
     }
+  };
+
+  const handleSetQuantity = async (itemId: string, quantity: number) => {
+    return await withItemPending(itemId, () => updateItem(itemId, quantity));
   };
 
   const handleRemove = async (itemId: string) => {
@@ -157,156 +160,60 @@ export function CartPageClient() {
   }
 
   return (
-    <div className="relative max-w-[1570px] mx-auto px-6 md:px-8 lg:px-10 xl:px-12 py-8 lg:py-12">
-      {showActionSpinner && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/50 backdrop-blur-[2px]">
-          <Spinner size="lg" />
-        </div>
-      )}
-
-      <h1 className="heading-default heading-sm lg:heading-lg mb-8 lg:mb-12">{t('title')}</h1>
-
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-        {/* 📌 Cart Items */}
-        <div className="flex-1">
-          <div className="space-y-4">
-            {items.map((item) => (
-              <CartItem
-                key={item.id}
-                item={item}
-                isUpdating={activeItemId === item.id}
-                onIncrease={() => handleIncrease(item.id, item.quantity)}
-                onDecrease={() => handleDecrease(item.id, item.quantity)}
-                onRemove={() => handleRemove(item.id)}
-              />
-            ))}
+    <section className="py-6 xl:py-10 overflow-hidden">
+      <div className="mx-auto md:max-w-[1570px] px-4 md:px-6 lg:px-12">
+        {showActionSpinner && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/50 backdrop-blur-[2px]">
+            <Spinner size="lg" />
           </div>
+        )}
 
-          <div className="mt-8 flex justify-between items-center">
-            <Link href="/prodotti" className="text-brand-dark hover:underline">
-              {t('continueShopping')}
-            </Link>
-            <button
-              onClick={handleClearCart}
-              className="text-red-500 hover:underline text-sm"
-              disabled={items.length === 0 || showActionSpinner}
-            >
-              {t('clearCart')}
-            </button>
-          </div>
-        </div>
+        <h1 className="font-semibold text-[clamp(30px,5vw,47px)] leading-[clamp(30px,5vw,50px)] text-center mb-8 md:mb-16">
+          {t('title')}
+        </h1>
 
-        {/* 📌 Cart Summary */}
-        <div className="lg:w-[400px]">
-          <div className="bg-background-secondary rounded-[20px] p-6 lg:p-8">
-            <h2 className="font-semibold text-xl mb-6">{t('summary')}</h2>
+        <div
+          className="mx-auto md:mx-0 items-center
+        flex flex-col md:flex-row gap-3 lg:gap-6 md:items-start justify-center"
+        >
+          {/* 📌 Cart Items */}
+          <CartItemsPanel
+            items={items}
+            activeItemId={activeItemId}
+            showActionSpinner={showActionSpinner}
+            onIncrease={handleIncrease}
+            onDecrease={handleDecrease}
+            onSetQuantity={handleSetQuantity}
+            onRemove={handleRemove}
+            onClearCart={handleClearCart}
+          />
 
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span>
-                  {totalQuantity} {t('items')}
-                </span>
-                <span className="font-semibold">€ {subtotal.toFixed(2)}</span>
-              </div>
-
-              {/* 📌 Promo Code Section */}
-              {error && error.includes('promo') && (
-                <div className="text-red-500 text-sm" role="alert">
-                  {t(
-                    cartPromoErrorTranslationKey(
-                      normalizeCartPromoErrorCode(error.replace(/^promo:\s*/i, '')),
-                    ),
-                    { defaultValue: t('discountError') },
-                  )}
-                </div>
-              )}
-              {!promoCode ? (
-                <div className="space-y-3">
-                  {!isAuthenticated && (
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium">Email</label>
-                      <input
-                        type="email"
-                        value={promoEmail}
-                        onChange={(e) => setPromoEmail(e.target.value)}
-                        placeholder="nome@email.com"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                      />
-                      {promoEmailError && <p className="text-xs text-red-500">{promoEmailError}</p>}
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">{t('promoCode')}</label>
-                    <div className="flex gap-2 flex-col sm:flex-row">
-                      <input
-                        type="text"
-                        value={promoInput}
-                        onChange={(e) => setPromoInput(e.target.value)}
-                        placeholder={t('enterPromoCode')}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        onKeyDown={(e) => e.key === 'Enter' && handleApplyPromo()}
-                      />
-                      <PrimaryButton
-                        onClick={handleApplyPromo}
-                        disabled={
-                          isApplyingPromo ||
-                          !promoInput.trim() ||
-                          (!isAuthenticated && !isValidEmail(promoEmail.trim()))
-                        }
-                        className="px-4 py-2 text-sm"
-                      >
-                        {showPromoSpinner ? <Spinner size="sm" colorScheme="light" /> : t('apply')}
-                      </PrimaryButton>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex justify-between items-center bg-green-50 p-3 rounded-md">
-                  <div>
-                    <span className="text-sm font-medium text-green-800">
-                      {t('promoApplied')}: {promoCode}
-                    </span>
-                    {promoDiscount && promoDiscount > 0 && (
-                      <span className="text-sm text-green-600 ml-2">
-                        -€{promoDiscount.toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    onClick={handleRemovePromo}
-                    disabled={isApplyingPromo}
-                    className="text-red-500 hover:text-red-700 text-sm underline"
-                  >
-                    {showPromoSpinner ? <Spinner size="sm" colorScheme="muted" /> : t('remove')}
-                  </button>
-                </div>
-              )}
-
-              <div className="flex justify-between text-text-muted">
-                <span>{t('shipping')}</span>
-                <span>{t('calculated')}</span>
-              </div>
-
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex justify-between text-lg font-semibold">
-                  <span>{t('total')}</span>
-                  <span>€ {total.toFixed(2)}</span>
-                </div>
-                <p className="text-sm text-text-muted mt-1">{t('taxIncluded')}</p>
-              </div>
-            </div>
-
-            <PrimaryButton
-              onClick={handleProceedToCheckout}
-              disabled={items.length === 0 || showActionSpinner}
-              className="w-full mt-8 py-4"
-            >
-              {t('proceed')}
-            </PrimaryButton>
-          </div>
+          {/* 📌 Cart Summary */}
+          <CartSummaryPanel
+            totalQuantity={totalQuantity}
+            subtotal={subtotal}
+            total={total}
+            isAuthenticated={isAuthenticated}
+            isDisabled={isDisabled}
+            promoCode={promoCode}
+            promoDiscount={promoDiscount}
+            error={error}
+            promoEmail={promoEmail}
+            setPromoEmail={setPromoEmail}
+            promoEmailError={promoEmailError}
+            setPromoEmailError={setPromoEmailError}
+            promoInput={promoInput}
+            setPromoInput={setPromoInput}
+            isApplyingPromo={isApplyingPromo}
+            showPromoSpinner={showPromoSpinner}
+            isValidEmail={isValidEmail}
+            onApplyPromo={handleApplyPromo}
+            onRemovePromo={handleRemovePromo}
+            onProceedToCheckout={handleProceedToCheckout}
+            isProceedDisabled={items.length === 0 || showActionSpinner}
+          />
         </div>
       </div>
-    </div>
+    </section>
   );
 }

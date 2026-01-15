@@ -68,7 +68,10 @@ export const contactSchema = z.object({
   cognome: nameSchema,
   email: emailSchema,
   telefono: phoneSchema,
-  messaggio: z.string().min(10, 'messageMinLength').max(1000, 'messageTooLong'),
+  messaggio: z.preprocess(
+    (v) => (typeof v === 'string' ? v.trim() : v),
+    z.string().min(10, 'messageMinLength').max(1000, 'messageTooLong'),
+  ),
 });
 
 export const profileSchema = z.object({

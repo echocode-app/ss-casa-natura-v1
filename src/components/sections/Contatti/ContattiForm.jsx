@@ -47,6 +47,11 @@ export default function ContattiForm() {
 
   const handleChange = (field) => (e) => {
     const value = e.target.value;
+    if (field === 'messaggio') {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      return;
+    }
+
     const preNormalizedValue = field === 'telefono' ? sanitizePhoneInput(value) : value;
     const normalizedValue = normalizeInputValue(preNormalizedValue, field);
     setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
@@ -67,6 +72,12 @@ export default function ContattiForm() {
 
   const handleBlur = (field) => (e) => {
     const value = e.target.value;
+    if (field === 'messaggio') {
+      // Don't trim while typing; validation schema handles trimming.
+      validateField(field, value);
+      return;
+    }
+
     const preNormalizedValue = field === 'telefono' ? sanitizePhoneInput(value) : value;
     const normalizedValue = normalizeInputValue(preNormalizedValue, field);
     if (normalizedValue !== value) {
@@ -82,12 +93,12 @@ export default function ContattiForm() {
     setFieldErrors({});
 
     try {
-      contactSchema.parse(formData);
+      const parsed = contactSchema.parse(formData);
 
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(parsed),
       });
 
       if (!response.ok) {
@@ -206,7 +217,6 @@ export default function ContattiForm() {
             name="email"
             autoComplete="email"
             inputMode="email"
-            placeholder={t('emailPlaceholder')}
             value={formData.email}
             onChange={handleChange('email')}
             onBlur={handleBlur('email')}
@@ -227,7 +237,6 @@ export default function ContattiForm() {
             name="telefono"
             autoComplete="tel"
             inputMode="tel"
-            placeholder={t('telefonoPlaceholder')}
             value={formData.telefono}
             onChange={handleChange('telefono')}
             onBlur={handleBlur('telefono')}
@@ -245,7 +254,6 @@ export default function ContattiForm() {
             id="messaggio"
             name="messaggio"
             autoComplete="off"
-            placeholder={t('messaggioPlaceholder')}
             value={formData.messaggio}
             onChange={handleChange('messaggio')}
             onBlur={handleBlur('messaggio')}

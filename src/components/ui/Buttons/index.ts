@@ -12,3 +12,5 @@ export { default as Chevron } from './Chevron';
 export { default as Edit } from './Chevron';
 export { default as Logout } from './Logout';
 export { default as Check } from './Check';
+export { default as AddCart } from './AddCart';
+export { default as RemoveCart } from './RemoveCart';

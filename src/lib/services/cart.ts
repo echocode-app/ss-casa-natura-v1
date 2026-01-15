@@ -12,12 +12,14 @@ const API_BASE = '/api/cart';
 export class ApiError extends Error {
   status: number;
   errorCode?: string;
+  details?: unknown;
 
-  constructor(message: string, status: number, errorCode?: string) {
+  constructor(message: string, status: number, errorCode?: string, details?: unknown) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.errorCode = errorCode;
+    this.details = details;
   }
 }
 
@@ -39,7 +41,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
     const message = (payload as any)?.error || 'Request failed';
     const errorCode = (payload as any)?.errorCode;
-    throw new ApiError(String(message), response.status, errorCode ? String(errorCode) : undefined);
+    const details = (payload as any)?.details;
+    throw new ApiError(
+      String(message),
+      response.status,
+      errorCode ? String(errorCode) : undefined,
+      details,
+    );
   }
   return response.json();
 }

@@ -24,9 +24,9 @@
     "total": "Totale"
   },
   "actions": {
-    "calculateShipping": "Calcola spedizione",
-    "continue": "Continua al pagamento",
-    "pay": "Paga ora"
+    "calculateShipping": "Calcola",
+    "continue": "Avanti",
+    "pay": "Paga"
   },
   "marketing": {
     "label": "Voglio ricevere offerte e novità via email"
@@ -39,15 +39,15 @@
     "outOfStock": "Alcuni prodotti non sono disponibili. Aggiorna il carrello e riprova."
   },
   "misc": {
-    "backToCart": "← Torna al carrello",
-    "backToCatalog": "Torna al catalogo",
+    "backToCart": "Carrello",
+    "backToCatalog": "Catalogo",
     "securePayment": "Pagamento sicuro tramite Stripe."
   },
   "success": {
     "title": "Pagamento completato",
     "description": "Grazie! Abbiamo ricevuto il tuo pagamento e stiamo preparando l'ordine.",
     "order": "Ordine: {orderId}",
-    "toAccount": "Vai al mio account",
-    "toCatalog": "Continua lo shopping"
+    "toAccount": "Account",
+    "toCatalog": "Catalogo"
   }
 }

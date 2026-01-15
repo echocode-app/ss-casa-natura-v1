@@ -164,9 +164,9 @@ export default function ProductCard({
             <PrimaryButton
               onClick={handleAddClick}
               disabled={adding || isOutOfStock}
-              className="w-10 h-10 rounded-full p-0 flex items-center justify-center"
+              className="w-10 h-10 rounded-full p-0 flex items-center justify-center max-[500px]:[&>span]:flex max-[500px]:[&>span]:w-full max-[500px]:[&>span]:h-full max-[500px]:[&>span]:items-center max-[500px]:[&>span]:justify-center"
             >
-              {adding ? <Spinner size="sm" colorScheme="muted" /> : <CartIcon className="p-1" />}
+              {adding ? <Spinner size="sm" colorScheme="muted" /> : <CartIcon />}
             </PrimaryButton>
           </div>
 

@@ -8,8 +8,8 @@
     "proceed": "Procedi",
     "items": "articoli",
     "shipping": "Spedizione",
-    "calculated": "Calcolato al passaggio successivo",
-    "promoCode": "Codice Promozionale",
+    "calculated": "calcolato al passaggio successivo",
+    "promoCode": "Codice sconto",
     "enterPromoCode": "Inserisci codice promozionale",
     "apply": "Applica",
     "promoApplied": "Promo applicata",
@@ -33,6 +33,15 @@
       "addFailed": "Impossibile aggiungere al carrello. Riprova.",
       "outOfStock": "Prodotto non disponibile.",
       "insufficientStock": "Quantità non disponibile."
+    },
+    "quantity": {
+      "label": "Quantità",
+      "errors": {
+        "invalid": "Inserisci un numero intero.",
+        "min": "La quantità deve essere almeno 1.",
+        "onlyAvailable": "Disponibili solo {available}.",
+        "updateFailed": "Impossibile aggiornare la quantità. Riprova."
+      }
     },
     "total": "TOTALE",
     "taxIncluded": "IVA incl.",

@@ -8,7 +8,7 @@
     "proceed": "Proceed",
     "items": "items",
     "shipping": "Shipping",
-    "calculated": "Calculated at next step",
+    "calculated": "calculated at next step",
     "promoCode": "Promo Code",
     "enterPromoCode": "Enter promo code",
     "apply": "Apply",
@@ -33,6 +33,15 @@
       "addFailed": "Could not add to cart. Please try again.",
       "outOfStock": "Product is not available.",
       "insufficientStock": "Requested quantity is not available."
+    },
+    "quantity": {
+      "label": "Quantity",
+      "errors": {
+        "invalid": "Enter a whole number.",
+        "min": "Quantity must be at least 1.",
+        "onlyAvailable": "Only {available} available.",
+        "updateFailed": "Could not update quantity. Please try again."
+      }
     },
     "total": "TOTAL",
     "taxIncluded": "incl. VAT",

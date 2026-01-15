@@ -11,6 +11,12 @@ import notify from '@/lib/notify';
 const GUEST_CART_KEY = 'guest_cart_v1';
 const GUEST_CART_TTL = 1000 * 60 * 60 * 24 * 7;
 
+function parseCompositeCartItemId(id: string): { productId: string; variantId: string } | null {
+  const idx = id.lastIndexOf('-');
+  if (idx <= 0 || idx === id.length - 1) return null;
+  return { productId: id.slice(0, idx), variantId: id.slice(idx + 1) };
+}
+
 type GuestCart = {
   items: CartItemUI[];
   promoCode?: string;
@@ -52,7 +58,10 @@ interface CartContextType {
   isInitializing: boolean;
   error: string | null;
   addItem: (productId: string, variantId: string, quantity?: number) => Promise<void>;
-  updateItem: (itemId: string, quantity: number) => Promise<void>;
+  updateItem: (
+    itemId: string,
+    quantity: number,
+  ) => Promise<{ ok: true } | { ok: false; errorCode: string; details?: unknown }>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
   applyPromoCode: (code: string, email?: string) => Promise<void>;
@@ -100,7 +109,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         } else {
           const guest = loadGuestCart();
           if (guest) {
-            setItems(guest.items || []);
+            setItems(
+              (guest.items || []).map((it) => {
+                if (it.productId && it.variantId) return it;
+                const parsed = parseCompositeCartItemId(it.id);
+                return parsed ? { ...it, ...parsed } : it;
+              }),
+            );
             setPromoCode(guest.promoCode);
             setPromoDiscount(guest.promoDiscount);
           } else {
@@ -192,6 +207,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           } else {
             const newItem: CartItemUI = {
               id: `${productId}-${variantId}`,
+              productId,
+              variantId,
               slug: product.slug,
               title: product.title,
               imageSrc,
@@ -231,20 +248,71 @@ export function CartProvider({ children }: { children: ReactNode }) {
           setItems(cart.items.map(cartItemToUI));
           setPromoCode(cart.promoCode);
           setPromoDiscount(cart.promoDiscount);
+          return { ok: true } as const;
         } else {
           if (quantity <= 0) {
             setItems((prev) => prev.filter((i) => i.id !== itemId));
-          } else {
-            setItems((prev) => prev.map((i) => (i.id === itemId ? { ...i, quantity } : i)));
+            return { ok: true } as const;
           }
+
+          // Guest cart stock check (based on PRODUCTS_MOCK)
+          const sep = itemId.lastIndexOf('-');
+          const productId = sep > 0 ? itemId.slice(0, sep) : '';
+          const variantId = sep > 0 ? itemId.slice(sep + 1) : '';
+
+          const product = PRODUCTS_MOCK.find((p) => p.id === productId);
+          const variant = product?.variants?.find((v) => v.id === variantId);
+          if (!product || !variant) {
+            const msg = tCart('toasts.addFailed');
+            notify.error(msg);
+            return { ok: false, errorCode: 'UPDATE_FAILED' } as const;
+          }
+
+          const availableFlag = (variant.isAvailable ?? product.isAvailable ?? true) !== false;
+          const stockValue = variant.stock ?? product.stock;
+          const hasEnoughStock = stockValue === undefined ? true : stockValue >= quantity;
+
+          if (!availableFlag || !hasEnoughStock) {
+            const outOfStock = !availableFlag || (stockValue ?? 0) <= 0;
+            const msg = outOfStock ? tCart('toasts.outOfStock') : tCart('toasts.insufficientStock');
+            notify.error(msg);
+            return {
+              ok: false,
+              errorCode: outOfStock ? 'OUT_OF_STOCK' : 'INSUFFICIENT_STOCK',
+              details: { available: stockValue },
+            } as const;
+          }
+
+          setItems((prev) => prev.map((i) => (i.id === itemId ? { ...i, quantity } : i)));
+          return { ok: true } as const;
         }
-      } catch {
+      } catch (e: unknown) {
+        if (e instanceof ApiError) {
+          if (e.errorCode === 'OUT_OF_STOCK') {
+            notify.error(tCart('toasts.outOfStock'));
+            return { ok: false, errorCode: 'OUT_OF_STOCK', details: e.details } as const;
+          }
+          if (e.errorCode === 'INSUFFICIENT_STOCK') {
+            notify.error(tCart('toasts.insufficientStock'));
+            return { ok: false, errorCode: 'INSUFFICIENT_STOCK', details: e.details } as const;
+          }
+
+          // Other API error: treat as non-fatal (toast), but keep a generic code for UI.
+          notify.error(tCart('toasts.addFailed'));
+          return {
+            ok: false,
+            errorCode: e.errorCode || 'UPDATE_FAILED',
+            details: e.details,
+          } as const;
+        }
+
         setError('Failed to update item');
+        return { ok: false, errorCode: 'UPDATE_FAILED' } as const;
       } finally {
         setIsLoading(false);
       }
     },
-    [user],
+    [user, tCart],
   );
 
   const removeItem = useCallback(

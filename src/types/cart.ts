@@ -99,6 +99,8 @@ export interface ApiCartItemResponse {
 
 export interface CartItemUI {
   id: string;
+  productId?: string;
+  variantId?: string;
   slug: string;
   title: string;
   imageSrc?: string;
@@ -112,6 +114,8 @@ export interface CartItemUI {
 export function cartItemToUI(item: CartItem): CartItemUI {
   return {
     id: item.id,
+    productId: item.productId,
+    variantId: item.variantId,
     slug: item.slug || '',
     title: item.title,
     imageSrc: item.imageSrc,

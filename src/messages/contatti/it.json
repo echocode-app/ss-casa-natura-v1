@@ -11,5 +11,6 @@
   "telefonoPlaceholder": "+39 333 123 4567",
   "messaggio": "Messaggio",
   "messaggioPlaceholder": "Come possiamo aiutarti?",
-  "submitButton": "Invia"
+  "submitButton": "Invia",
+  "loading": "Invio in corso..."
 }
