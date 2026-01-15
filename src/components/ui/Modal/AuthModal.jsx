@@ -13,7 +13,12 @@ import ModalHeader from './ModalHeader';
 import ModalBody from './ModalBody';
 import ModalFooter from './ModalFooter';
 
-export default function AuthModal({ isOpen, onClose, initialType = 'register' }) {
+export default function AuthModal({
+  isOpen,
+  onClose,
+  initialType = 'register',
+  redirectTo = '/account',
+}) {
   const { login } = useAuth();
   const router = useRouter();
   const [type, setType] = useState(initialType);
@@ -170,7 +175,9 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const isLoggedIn = await login();
         if (isLoggedIn) {
           onClose?.();
-          router.replace('/account');
+          if (redirectTo) {
+            router.replace(redirectTo);
+          }
         } else {
           notify.error(tErrors('loginFailed'));
         }
@@ -219,7 +226,9 @@ export default function AuthModal({ isOpen, onClose, initialType = 'register' })
         const isLoggedIn = await login();
         if (isLoggedIn) {
           onClose?.();
-          router.replace('/account');
+          if (redirectTo) {
+            router.replace(redirectTo);
+          }
         } else {
           notify.error(tErrors('genericError'));
         }

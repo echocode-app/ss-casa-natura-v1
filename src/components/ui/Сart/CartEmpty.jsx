@@ -13,7 +13,7 @@ export default function CartEmpty({ onClose }) {
       text-[clamp(16px,2vw,22px)]
       leading-relaxed
       text-center justify-center
-      p-6 py-8 md:p-16 lg:py-20
+      p-6 py-10 md:p-16 lg:py-16
     "
     >
       {t('empty.text')}{' '}

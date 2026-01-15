@@ -18,6 +18,7 @@ export interface IOrderAddress {
   city: string;
   postalCode: string;
   addressLine1: string;
+  company?: string;
   addressLine2?: string;
   province?: string;
 }
@@ -41,6 +42,7 @@ export interface IOrder extends Document {
   customerSurname?: string;
   customerPhone?: string;
   shippingAddress?: IOrderAddress;
+  shippingMethod?: 'one_time' | 'recurring_4w';
   marketingOptIn?: boolean;
 
   stripePaymentIntentId?: string;
@@ -70,6 +72,7 @@ const orderAddressSchema = new Schema<IOrderAddress>(
     city: { type: String, required: true },
     postalCode: { type: String, required: true },
     addressLine1: { type: String, required: true },
+    company: { type: String },
     addressLine2: { type: String },
     province: { type: String },
   },
@@ -96,6 +99,7 @@ const orderSchema = new Schema<IOrder>(
     customerSurname: String,
     customerPhone: String,
     shippingAddress: orderAddressSchema,
+    shippingMethod: { type: String, enum: ['one_time', 'recurring_4w'] },
     marketingOptIn: Boolean,
 
     stripePaymentIntentId: { type: String, index: true },

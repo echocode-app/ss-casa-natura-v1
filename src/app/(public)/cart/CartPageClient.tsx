@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/contexts/CartContext';
 import CartEmpty from '@/components/ui/Сart/CartEmpty';
+import SimpleBreadcrumbs from '@/components/ui/Breadcrumbs/SimpleBreadcrumbs';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import Link from 'next/link';
 import Spinner from '@/components/ui/Spinner/Spinner';
@@ -16,6 +17,7 @@ import { CartSummaryPanel } from './components/CartSummaryPanel';
 export function CartPageClient() {
   const t = useTranslations('user.cart');
   const tValidation = useTranslations('validation');
+  const tHeaderActions = useTranslations('header.actions');
   const router = useRouter();
   const {
     items,
@@ -150,17 +152,16 @@ export function CartPageClient() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
         <CartEmpty onClose={() => {}} />
-        <Link href="/prodotti" passHref>
-          <PrimaryButton onClick={() => {}} className="px-8 py-4">
-            {t('continueShopping', { defaultValue: 'Continue Shopping' })}
-          </PrimaryButton>
-        </Link>
       </div>
     );
   }
 
   return (
     <section className="py-6 xl:py-10 overflow-hidden">
+      <SimpleBreadcrumbs
+        className="py-0"
+        items={[{ label: tHeaderActions('home'), href: '/' }, { label: t('title') }]}
+      />
       <div className="mx-auto md:max-w-[1570px] px-4 md:px-6 lg:px-12">
         {showActionSpinner && (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/50 backdrop-blur-[2px]">

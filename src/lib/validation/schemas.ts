@@ -34,6 +34,61 @@ export const phoneSchema = z
 
 export const addressSchema = z.string().max(500, 'addressTooLong').optional().or(z.literal(''));
 
+export const postalCodeITSchema = z
+  .string()
+  .trim()
+  .min(1, 'postalCodeRequired')
+  .regex(/^\d{5}$/, 'postalCodeInvalid');
+
+export const citySchema = z.string().trim().min(1, 'cityRequired').max(120, 'fieldTooLong');
+
+export const provinceSchema = z.string().trim().min(1, 'provinceRequired').max(120, 'fieldTooLong');
+
+export const addressLine1Schema = z
+  .string()
+  .trim()
+  .min(1, 'addressRequired')
+  .max(200, 'fieldTooLong');
+
+export const companySchema = z
+  .string()
+  .trim()
+  .max(120, 'fieldTooLong')
+  .optional()
+  .or(z.literal(''));
+
+export const requiredPhoneSchema = z
+  .string()
+  .trim()
+  .min(1, 'phoneRequired')
+  .refine((value) => {
+    const trimmed = value.trim();
+    const plusCount = (trimmed.match(/\+/g) ?? []).length;
+    if (plusCount > 1) return false;
+    if (plusCount === 1 && !trimmed.startsWith('+')) return false;
+
+    const digits = trimmed.replace(/\D/g, '');
+    return digits.length >= 8 && digits.length <= 15;
+  }, 'phoneInvalid');
+
+export const checkoutFormSchema = z.object({
+  email: emailSchema,
+  name: nameSchema,
+  surname: nameSchema,
+  phone: requiredPhoneSchema,
+
+  country: z.literal('IT', { message: 'countryInvalid' }),
+  company: companySchema,
+  addressLine1: addressLine1Schema,
+  addressLine2: z.string().trim().max(200, 'fieldTooLong').optional().or(z.literal('')),
+  postalCode: postalCodeITSchema,
+  city: citySchema,
+  province: provinceSchema,
+
+  marketingOptIn: z.boolean().optional(),
+  shippingMethod: z.enum(['one_time', 'recurring_4w']).optional(),
+});
+
 export const authSchemas = {
   login: z.object({
     email: emailSchema,

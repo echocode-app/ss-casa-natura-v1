@@ -32,10 +32,12 @@ const schema = z.object({
     city: z.string().min(1).max(120),
     postalCode: z.string().min(2).max(20),
     addressLine1: z.string().min(1).max(200),
+    company: z.string().max(120).optional(),
     addressLine2: z.string().max(200).optional(),
     province: z.string().max(120).optional(),
   }),
   marketingOptIn: z.boolean().optional(),
+  shippingMethod: z.enum(['one_time', 'recurring_4w']).optional(),
   items: z.array(itemSchema).max(50).optional(),
 });
 
@@ -206,6 +208,7 @@ export const POST = handleApi(async (req: NextRequest) => {
       customerSurname: parsed.data.customer.surname,
       customerPhone: parsed.data.customer.phone,
       shippingAddress: parsed.data.address,
+      shippingMethod: parsed.data.shippingMethod,
       marketingOptIn: parsed.data.marketingOptIn || false,
 
       products: pricedItems.map((p) => ({

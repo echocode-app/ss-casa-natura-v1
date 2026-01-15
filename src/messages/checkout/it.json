@@ -1,20 +1,43 @@
 {
   "title": "Checkout",
+  "express": {
+    "title": "Metodi di pagamento rapidi",
+    "disclaimer": "Procedendo con il pagamento, accetti gli addebiti futuri indicati in questa pagina e accetti la normativa sull'annullamento."
+  },
   "contact": {
     "title": "Contatti",
     "email": "Email",
+    "loginLink": "Accedi"
+  },
+  "delivery": {
+    "title": "Consegna",
+    "country": "Paese / Regione",
     "name": "Nome",
     "surname": "Cognome",
+    "company": "Azienda (opzionale)",
+    "address1": "Indirizzo",
+    "address2": "Appartamento, scala, interno (opzionale)",
+    "addressAutocompletePlaceholder": "Inizia a digitare per cercare l'indirizzo",
+    "postalCode": "CAP",
+    "city": "Città",
+    "province": "Provincia",
     "phone": "Telefono"
   },
   "shipping": {
-    "title": "Indirizzo di spedizione",
-    "country": "Paese",
-    "city": "Città",
-    "postalCode": "CAP",
-    "address1": "Indirizzo",
-    "address2": "Appartamento, scala, interno (opzionale)",
-    "province": "Provincia"
+    "title": "Metodo di spedizione",
+    "firstShipment": "Prima spedizione",
+    "choose": "Scegli una modalità di spedizione",
+    "disabledUntilAddress": "Compila l'indirizzo per visualizzare i metodi di spedizione.",
+    "optionOneTime": "Spedizione",
+    "optionRecurring": "Spedizioni ricorrenti",
+    "optionRecurringDesc": "Spedizione · 5,90 € ogni 4 settimane"
+  },
+  "payment": {
+    "title": "Pagamento",
+    "secure": "Tutte le transazioni sono sicure e crittografate.",
+    "methodsPreview": "Carta di credito (VISA, MAESTRO, MASTERCARD, +2) · Metodi di pagamento aggiuntivi · PayPal",
+    "shopPhoneDisclaimer": "+39 Fornendo il tuo numero di telefono, accetti di creare un account Shop soggetto ai Termini e all'Informativa sulla privacy di Shop.",
+    "recurringDisclaimer": "Uno o più articoli nel tuo carrello sono un acquisto ricorrente o dilazionato. Procedendo con il pagamento, accetti che il tuo metodo di pagamento venga automaticamente addebitato al prezzo e alla frequenza qui indicati fino al termine o all'annullamento. Tutti gli annullamenti sono soggetti alla <privacy>Privacy Policy</privacy> e ai <terms>Termini</terms>."
   },
   "summary": {
     "title": "Riepilogo",
@@ -26,10 +49,12 @@
   "actions": {
     "calculateShipping": "Calcola",
     "continue": "Avanti",
-    "pay": "Paga"
+    "pay": "Paga",
+    "continueToPayment": "Vai al pagamento",
+    "placeOrder": "Completa l'ordine"
   },
   "marketing": {
-    "label": "Voglio ricevere offerte e novità via email"
+    "label": "Inviami email con notizie e offerte"
   },
   "errors": {
     "emptyCart": "Il carrello è vuoto.",
@@ -41,7 +66,7 @@
   "misc": {
     "backToCart": "Carrello",
     "backToCatalog": "Catalogo",
-    "securePayment": "Pagamento sicuro tramite Stripe."
+    "securePayment": "Pagamento sicuro."
   },
   "success": {
     "title": "Pagamento completato",

@@ -10,6 +10,7 @@ export type ShippingAddress = {
   city: string;
   postalCode: string;
   addressLine1: string;
+  company?: string;
   addressLine2?: string;
   province?: string;
 };
@@ -42,6 +43,7 @@ export type CheckoutCreateRequest = {
   customer: CheckoutCustomer;
   address: ShippingAddress;
   marketingOptIn?: boolean;
+  shippingMethod?: 'one_time' | 'recurring_4w';
   items?: CheckoutItemInput[];
 };
 

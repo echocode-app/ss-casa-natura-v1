@@ -1,20 +1,43 @@
 {
   "title": "Checkout",
+  "express": {
+    "title": "Express checkout",
+    "disclaimer": "By proceeding with payment, you accept the future charges indicated on this page and you accept the cancellation policy."
+  },
   "contact": {
     "title": "Contact",
     "email": "Email",
+    "loginLink": "Sign in"
+  },
+  "delivery": {
+    "title": "Delivery",
+    "country": "Country",
     "name": "First name",
     "surname": "Last name",
+    "company": "Company (optional)",
+    "address1": "Address",
+    "address2": "Apt, suite, etc. (optional)",
+    "addressAutocompletePlaceholder": "Start typing to search address",
+    "postalCode": "Postal code",
+    "city": "City",
+    "province": "State/Province",
     "phone": "Phone"
   },
   "shipping": {
-    "title": "Shipping address",
-    "country": "Country",
-    "city": "City",
-    "postalCode": "Postal code",
-    "address1": "Address",
-    "address2": "Apt, suite, etc. (optional)",
-    "province": "State/Province"
+    "title": "Shipping method",
+    "firstShipment": "First shipment",
+    "choose": "Choose a shipping method",
+    "disabledUntilAddress": "Fill in the address to see shipping methods.",
+    "optionOneTime": "Shipping",
+    "optionRecurring": "Recurring shipments",
+    "optionRecurringDesc": "Shipping · €5.90 every 4 weeks"
+  },
+  "payment": {
+    "title": "Payment",
+    "secure": "All transactions are secure and encrypted.",
+    "methodsPreview": "Credit card (VISA, MAESTRO, MASTERCARD, +2) · Additional payment methods · PayPal",
+    "shopPhoneDisclaimer": "+39 By providing your phone number, you agree to create a Shop account subject to Shop's Terms and Privacy Policy.",
+    "recurringDisclaimer": "One or more items in your cart are a recurring or deferred purchase. By proceeding with payment, you agree that your payment method will be automatically charged at the price and frequency shown here until the end or cancellation. All cancellations are subject to the <privacy>Privacy Policy</privacy> and <terms>Terms</terms>."
   },
   "summary": {
     "title": "Summary",
@@ -26,7 +49,9 @@
   "actions": {
     "calculateShipping": "Calculate shipping",
     "continue": "Continue to payment",
-    "pay": "Pay now"
+    "pay": "Pay now",
+    "continueToPayment": "Continue to payment",
+    "placeOrder": "Place order"
   },
   "marketing": {
     "label": "I want to receive offers and news via email"
@@ -41,7 +66,7 @@
   "misc": {
     "backToCart": "← Back to cart",
     "backToCatalog": "Back to catalog",
-    "securePayment": "Secure payment powered by Stripe."
+    "securePayment": "Secure payment."
   },
   "success": {
     "title": "Payment completed",

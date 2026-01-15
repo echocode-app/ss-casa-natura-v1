@@ -13,27 +13,13 @@ export type ShippingQuote = {
   method: 'standard';
 };
 
-const FREE_SHIPPING_THRESHOLD_EUR = 49;
-const BASE_SHIPPING_EUR = 5.99;
-const PER_KG_EUR = 1.2;
+const FIXED_SHIPPING_EUR = 5.9;
 
-function roundMoney(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
-export function calculateShippingQuote({
-  subtotal,
-  totalWeightKg,
-}: ShippingQuoteInput): ShippingQuote {
-  const isFree = subtotal >= FREE_SHIPPING_THRESHOLD_EUR;
-  const shippingPrice = isFree
-    ? 0
-    : roundMoney(BASE_SHIPPING_EUR + PER_KG_EUR * Math.max(0, totalWeightKg));
-
+export function calculateShippingQuote({}: ShippingQuoteInput): ShippingQuote {
   return {
     currency: 'EUR',
-    shippingPrice,
-    isFree,
+    shippingPrice: FIXED_SHIPPING_EUR,
+    isFree: false,
     method: 'standard',
   };
 }

@@ -13,7 +13,7 @@ export default function ModalHeader({ type = 'register', onClose }) {
         id="close"
         onClick={onClose}
         aria-label={t('label.close')}
-        className="absolute top-0 right-0 md:-top-2 md:-right-2 p-2"
+        className="absolute right-0 -top-2 md:-right-2 p-2"
       >
         <Icon
           id="close"
