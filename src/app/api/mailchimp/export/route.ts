@@ -3,6 +3,7 @@ import mailchimp from '@mailchimp/mailchimp_marketing';
 import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import MarketingEmail from '@/lib/db/models/MarketingEmail';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 // Email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,34 +44,16 @@ interface ExportResult {
  * - 500: Server error
  */
 export const POST = handleApi(async (req: NextRequest): Promise<NextResponse<ExportResult>> => {
-  // 1. Check authorization
+  // 1. Authorization options:
+  // - Admin session cookie (browser/admin panel)
+  // - Bearer API_SECRET_KEY (server-to-server)
   const authHeader = req.headers.get('authorization');
   const apiSecret = process.env.API_SECRET_KEY;
+  const hasValidSecret = !!apiSecret && authHeader === `Bearer ${apiSecret}`;
 
-  if (!apiSecret) {
-    return NextResponse.json(
-      {
-        success: false,
-        totalEmails: 0,
-        successCount: 0,
-        errorCount: 0,
-        message: 'Server configuration error',
-      },
-      { status: 500 },
-    );
-  }
-
-  if (!authHeader || authHeader !== `Bearer ${apiSecret}`) {
-    return NextResponse.json(
-      {
-        success: false,
-        totalEmails: 0,
-        successCount: 0,
-        errorCount: 0,
-        message: 'Unauthorized',
-      },
-      { status: 401 },
-    );
+  if (!hasValidSecret) {
+    const authError = await requireAdmin();
+    if (authError) return authError as any;
   }
 
   try {

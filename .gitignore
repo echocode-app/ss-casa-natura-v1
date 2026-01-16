@@ -45,3 +45,6 @@ coverage/
 
 # misc
 *.tsbuildinfo
+
+# docs (local instructions)
+docs/ADMIN-PANEL-INSTRUCTIONS.*.md

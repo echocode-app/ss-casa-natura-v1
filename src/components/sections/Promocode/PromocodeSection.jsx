@@ -1,12 +1,33 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import PromocodeForm from './PromocodeForm';
 import Image from 'next/image';
 
 export default function PromocodeSection() {
   const t = useTranslations('promocodeSection');
+  const [enabled, setEnabled] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    fetch('/api/site-settings')
+      .then((r) => r.json())
+      .then((data) => {
+        if (!mounted) return;
+        const isEnabled = data?.settings?.promoSubscription?.enabled;
+        if (typeof isEnabled === 'boolean') setEnabled(isEnabled);
+      })
+      .catch(() => {
+        // keep default enabled
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (!enabled) return null;
 
   return (
     <section className="relative overflow-x-hidden py-40 xl:pt-48">

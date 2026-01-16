@@ -18,7 +18,8 @@
     "products:seed": "node scripts/seedProducts.mjs",
     "orders:create": "node scripts/createTestOrders.mjs",
     "orders:check": "node scripts/checkUserOrders.mjs",
-    "cart:migrate-ttl": "node scripts/migrateCartTTL.mjs"
+    "cart:migrate-ttl": "node scripts/migrateCartTTL.mjs",
+    "catalog-products:migrate-is-new": "node scripts/migrateCatalogProductIsNew.mjs"
   },
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.80",

@@ -69,7 +69,21 @@ export const POST = handleApi(async (req: NextRequest) => {
     );
   }
 
-  const token = await signToken({ id: user._id.toString(), email: user.email, role: user.role });
+  // Backward-compatibility: some DB entries may have legacy role value `develop`.
+  // Normalize it to `developer` (the canonical role) and persist.
+  let normalizedRole = user.role;
+  if (normalizedRole === 'develop') {
+    normalizedRole = 'developer';
+    user.role = 'developer';
+    (user as any).updatedAt = new Date();
+    await user.save();
+  }
+
+  const token = await signToken({
+    id: user._id.toString(),
+    email: user.email,
+    role: normalizedRole,
+  });
   await setAuthCookie(token);
 
   // Merge guest cart into user cart

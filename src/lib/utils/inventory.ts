@@ -1,5 +1,6 @@
 import Inventory from '@/lib/db/models/Inventory';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import CatalogProduct from '@/lib/db/models/CatalogProduct';
 
 export type InventoryCheckItem = {
   productId: string;
@@ -68,7 +69,67 @@ export async function checkItemsInStock(items: InventoryCheckItem[]): Promise<{
 }
 
 export async function applyInventoryToMockProducts() {
-  const inventory = await Inventory.find({}).lean();
+  return applyInventoryToCatalogProducts();
+}
+
+export async function applyInventoryToCatalogProducts(params?: { includeArchived?: boolean }) {
+  const includeArchived = params?.includeArchived ?? false;
+
+  const [inventory, catalogDocs] = await Promise.all([
+    Inventory.find({}).lean(),
+    CatalogProduct.find(includeArchived ? {} : { archived: { $ne: true } }).lean(),
+  ]);
+
+  const dbById = new Map<string, any>();
+  for (const doc of catalogDocs) {
+    dbById.set(String(doc.id), doc);
+  }
+
+  // Start with mock products and allow DB docs with the same id to override them.
+  const base = PRODUCTS_MOCK.map((p) => {
+    const override = dbById.get(String(p.id));
+    if (!override) return p;
+    // Remove mongoose internals.
+    const { createdAt, updatedAt, ...rest } = override;
+    delete (rest as any)._id;
+    delete (rest as any).__v;
+    delete (rest as any).archived;
+
+    const newBadge = (rest as any).isNewProduct ?? (rest as any).isNew;
+    delete (rest as any).isNewProduct;
+    delete (rest as any).isNew;
+
+    return {
+      ...p,
+      ...rest,
+      id: p.id,
+      ...(newBadge !== undefined ? { isNew: newBadge } : {}),
+      createdAt: createdAt ? new Date(createdAt).toISOString() : p.createdAt,
+      updatedAt: updatedAt ? new Date(updatedAt).toISOString() : p.updatedAt,
+    };
+  });
+
+  // Add DB-only products (not present in mock).
+  const mockIds = new Set(PRODUCTS_MOCK.map((p) => String(p.id)));
+  for (const doc of catalogDocs) {
+    if (mockIds.has(String(doc.id))) continue;
+    const { createdAt, updatedAt, ...rest } = doc as any;
+    delete (rest as any)._id;
+    delete (rest as any).__v;
+    delete (rest as any).archived;
+
+    const newBadge = (rest as any).isNewProduct ?? (rest as any).isNew;
+    delete (rest as any).isNewProduct;
+    delete (rest as any).isNew;
+
+    base.push({
+      ...rest,
+      id: String(doc.id),
+      ...(newBadge !== undefined ? { isNew: newBadge } : {}),
+      createdAt: createdAt ? new Date(createdAt).toISOString() : undefined,
+      updatedAt: updatedAt ? new Date(updatedAt).toISOString() : undefined,
+    });
+  }
 
   const byKey = new Map<string, { stock: number; isAvailable: boolean }>();
   for (const row of inventory) {
@@ -76,15 +137,15 @@ export async function applyInventoryToMockProducts() {
     byKey.set(key, { stock: row.stock, isAvailable: row.isAvailable });
   }
 
-  return PRODUCTS_MOCK.map((p) => {
+  return base.map((p: any) => {
     const productKey = `${p.id}::`;
     const productInv = byKey.get(productKey);
 
-    const mergedProduct = {
+    return {
       ...p,
       stock: productInv?.stock ?? p.stock,
       isAvailable: productInv?.isAvailable ?? p.isAvailable,
-      variants: (p.variants || []).map((v) => {
+      variants: (p.variants || []).map((v: any) => {
         const variantKey = `${p.id}::${v.id}`;
         const variantInv = byKey.get(variantKey);
         return {
@@ -94,8 +155,6 @@ export async function applyInventoryToMockProducts() {
         };
       }),
     };
-
-    return mergedProduct;
   });
 }
 

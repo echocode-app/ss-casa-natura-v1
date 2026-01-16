@@ -9,6 +9,7 @@ import { extendCartExpiration } from '@/lib/constants/cart';
 import { z } from 'zod';
 import { buildCartQuery } from '@/lib/utils/cartQuery';
 import { computePromoDiscount } from '@/lib/utils/promo';
+import { computeGlobalPromotionDiscount } from '@/lib/utils/globalPromotion';
 
 const removeFromCartSchema = z.object({
   itemId: z.string().min(1, 'Item ID is required'),
@@ -83,6 +84,14 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   // Recalculate totals
   cart.subtotal = cart.items.reduce((sum: number, item: CartItemDB) => sum + item.totalPrice, 0);
+
+  cart.discount = await computeGlobalPromotionDiscount({
+    items: cart.items.map((i: any) => ({
+      productId: String(i.productId),
+      totalPrice: i.totalPrice,
+    })),
+    subtotal: cart.subtotal,
+  });
 
   if (cart.promoCode) {
     const promoResult = await computePromoDiscount({

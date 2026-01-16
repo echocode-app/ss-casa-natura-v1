@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -9,7 +9,7 @@ import HeroSlide from './HeroSlide';
 import HeroNavigation from './HeroNavigation';
 import HeroProgress from './HeroProgress';
 
-const slides = [
+const defaultSlides = [
   { id: 1, image: '/images/pages/lavanda-baner.jpg', lineKey: 'lavanda' },
   { id: 2, image: '/images/home/banner.jpg', lineKey: 'brezza-marina' },
   { id: 3, image: '/images/pages/agrumi-di-sicilia-baner.jpg', lineKey: 'agrumi-di-sicilia' },
@@ -22,6 +22,36 @@ export default function HeroSection() {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const [swiper, setSwiper] = useState(null);
+  const [slides, setSlides] = useState(defaultSlides);
+
+  useEffect(() => {
+    let mounted = true;
+    fetch('/api/hero-banners')
+      .then((r) => r.json())
+      .then((data) => {
+        if (!mounted) return;
+        const banners = Array.isArray(data?.banners) ? data.banners : [];
+        if (!banners.length) return;
+
+        setSlides(
+          banners.map((b) => ({
+            id: b._id,
+            image: b.image,
+            title: b.title,
+            subtitle: b.text,
+            href: b.href,
+            cta: 'Scopri di più',
+          })),
+        );
+      })
+      .catch(() => {
+        // keep fallback
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <section className="relative w-full bg-brand-light overflow-x-hidden">

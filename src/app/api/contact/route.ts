@@ -3,6 +3,8 @@ import { handleApi } from '@/lib/utils/handleApi';
 import { checkRateLimit } from '@/lib/security/rateLimit';
 import { z } from 'zod';
 import { contactSchema } from '@/lib/validation/schemas';
+import connectToDB from '@/lib/db/mongo';
+import ContactSubmission from '@/lib/db/models/ContactSubmission';
 
 const legacyContactSchema = z.object({
   name: z.string().min(1),
@@ -48,6 +50,9 @@ export const POST = handleApi(async (req: NextRequest) => {
       phone: v2.data.telefono || undefined,
     };
 
+    await connectToDB();
+    await ContactSubmission.create(normalized);
+
     // TODO: Integrate with email service (SendGrid, Mailchimp, etc.)
     // await sendContactEmail(normalized);
     void normalized;
@@ -76,6 +81,9 @@ export const POST = handleApi(async (req: NextRequest) => {
     message: legacy.data.message,
     phone: undefined,
   };
+
+  await connectToDB();
+  await ContactSubmission.create(normalized);
 
   // TODO: Integrate with email service (SendGrid, Mailchimp, etc.)
   // await sendContactEmail(normalized);

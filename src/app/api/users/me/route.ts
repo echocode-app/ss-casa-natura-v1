@@ -15,8 +15,16 @@ interface UserResponse {
   email: string;
   phone?: string;
   deliveryAddress?: string;
-  role?: 'user' | 'admin';
+  role?: 'user' | 'admin' | 'superadmin' | 'developer';
   createdAt?: Date | string;
+}
+
+function normalizeRole(role: any): UserResponse['role'] {
+  if (role === 'develop') return 'developer';
+  if (role === 'developer' || role === 'superadmin' || role === 'admin' || role === 'user') {
+    return role;
+  }
+  return undefined;
 }
 
 export const GET = handleApi(async (_req: NextRequest) => {
@@ -44,7 +52,7 @@ export const GET = handleApi(async (_req: NextRequest) => {
     email: dbUser.email,
     phone: dbUser.phone,
     deliveryAddress: dbUser.deliveryAddress || (dbUser as any).address?.street || undefined,
-    role: dbUser.role,
+    role: normalizeRole(dbUser.role),
     createdAt: dbUser.createdAt,
   };
 

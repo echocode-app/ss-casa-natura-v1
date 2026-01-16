@@ -5,17 +5,19 @@ import Link from 'next/link';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import { lineeConfig } from '@/lib/lineeConfig';
 
-export default function HeroSlide({ id, image, title, subtitle, lineKey, cta }) {
+export default function HeroSlide({ id, image, title, subtitle, lineKey, cta, href }) {
   const t = useTranslations('hero');
 
+  const canUseTranslations = typeof id === 'number' || typeof id === 'bigint';
+
   // text translations with fallback
-  const slideTitle = t?.(`slides.${id}.title`) || title;
-  const slideSubtitle = t?.(`slides.${id}.subtitle`) || subtitle;
-  const slideCta = t?.(`slides.${id}.cta`) || cta || t('cta');
+  const slideTitle = (canUseTranslations ? t?.(`slides.${id}.title`) : null) || title;
+  const slideSubtitle = (canUseTranslations ? t?.(`slides.${id}.subtitle`) : null) || subtitle;
+  const slideCta = (canUseTranslations ? t?.(`slides.${id}.cta`) : null) || cta || t('cta');
 
   // link to product line page
   const line = lineKey ? lineeConfig[lineKey] : null;
-  const linkHref = line ? `/linee/${line.slug}` : '#';
+  const linkHref = href || (line ? `/linee/${line.slug}` : '#');
 
   return (
     <div className="relative w-full min-h-[78svh] flex items-center overflow-x-hidden">

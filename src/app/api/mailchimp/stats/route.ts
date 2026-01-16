@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import MarketingEmail from '@/lib/db/models/MarketingEmail';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 /**
  * GET /api/mailchimp/stats
@@ -9,12 +10,16 @@ import MarketingEmail from '@/lib/db/models/MarketingEmail';
  * Used for admin dashboard before export
  */
 export const GET = handleApi(async (req: NextRequest) => {
-  // Check authorization
+  // Authorization options:
+  // - Admin session cookie (browser/admin panel)
+  // - Bearer API_SECRET_KEY (server-to-server)
   const authHeader = req.headers.get('authorization');
   const apiSecret = process.env.API_SECRET_KEY;
+  const hasValidSecret = !!apiSecret && authHeader === `Bearer ${apiSecret}`;
 
-  if (!apiSecret || !authHeader || authHeader !== `Bearer ${apiSecret}`) {
-    return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+  if (!hasValidSecret) {
+    const authError = await requireAdmin();
+    if (authError) return authError;
   }
 
   try {

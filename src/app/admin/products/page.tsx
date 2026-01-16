@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 import notify from '@/lib/notify';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import AdminCard from '@/components/admin/AdminCard';
+import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 
 type AdminVariant = {
   variantId: string;
@@ -22,6 +26,7 @@ type AdminProduct = {
 };
 
 export default function AdminProductsPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -78,65 +83,92 @@ export default function AdminProductsPage() {
 
   if (isLoading) {
     return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Prodotti</h1>
-        <div className="text-gray-600">Caricamento…</div>
+      <div>
+        <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Prodotti</h1>
+        <div className="mt-4 text-gray-600">Caricamento…</div>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between gap-4 mb-6">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Prodotti</h1>
-          <p className="text-gray-600 mt-1">
-            Gestisci disponibilità e stock (catalogo mock + inventory DB)
-          </p>
+          <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Prodotti</h1>
+          <p className="text-gray-600 mt-1">Catalogo + inventario (stock e disponibilità)</p>
         </div>
-        <button
-          onClick={load}
-          className="px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800"
-        >
-          Aggiorna
-        </button>
+
+        <div className="flex gap-2">
+          <PrimaryButton
+            className="px-6 py-3 text-base"
+            onClick={() => router.push('/admin/products/new')}
+          >
+            Nuovo prodotto
+          </PrimaryButton>
+          <PrimaryButton className="px-6 py-3 text-base" onClick={load}>
+            Aggiorna
+          </PrimaryButton>
+        </div>
       </div>
 
-      <div className="mb-6">
+      <AdminCard className="p-5">
+        <label htmlFor="products_search" className="block text-sm font-medium text-gray-700 mb-2">
+          Cerca
+        </label>
         <input
+          id="products_search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Cerca per titolo, SKU o slug…"
           className="w-full max-w-xl px-3 py-2 border border-gray-300 rounded-md"
         />
-      </div>
+      </AdminCard>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {filtered.map((p) => (
-          <div key={p.productId} className="bg-white border border-gray-200 rounded-xl p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="text-lg font-semibold text-gray-900">{p.title}</div>
-                <div className="text-sm text-gray-600 mt-1">
+          <AdminCard key={p.productId} className="p-5">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <div className="min-w-0">
+                <div className="text-lg font-semibold text-gray-900 truncate">{p.title}</div>
+                <div className="text-sm text-gray-600 mt-1 break-words">
                   SKU: {p.sku} · Slug: {p.slug} · ID: {p.productId}
+                </div>
+                <div className="mt-3">
+                  <Link
+                    href={`/admin/products/${p.productId}`}
+                    className="text-blue-700 hover:underline"
+                  >
+                    Modifica dettagli →
+                  </Link>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <label className="text-sm text-gray-700">Disponibile</label>
-                <input
-                  type="checkbox"
-                  defaultChecked={p.isAvailable ?? true}
-                  onChange={(e) => saveRow(p.productId, null, { isAvailable: e.target.checked })}
-                />
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    defaultChecked={p.isAvailable ?? true}
+                    onChange={(e) => saveRow(p.productId, null, { isAvailable: e.target.checked })}
+                    aria-label="Disponibile (prodotto)"
+                    title="Disponibile (prodotto)"
+                  />
+                  Disponibile
+                </label>
 
-                <label className="text-sm text-gray-700 ml-3">Stock</label>
+                <label htmlFor={`stock_${p.productId}`} className="text-sm text-gray-700 ml-3">
+                  Stock
+                </label>
                 <input
+                  id={`stock_${p.productId}`}
                   type="number"
                   min={0}
                   defaultValue={p.stock ?? 0}
                   className="w-24 px-2 py-1 border border-gray-300 rounded"
-                  onBlur={(e) => saveRow(p.productId, null, { stock: Number(e.target.value || 0) })}
+                  onBlur={(e) =>
+                    saveRow(p.productId, null, {
+                      stock: Number((e.target as HTMLInputElement).value || 0),
+                    })
+                  }
                 />
               </div>
             </div>
@@ -152,18 +184,23 @@ export default function AdminProductsPage() {
                 </thead>
                 <tbody>
                   {p.variants.map((v) => (
-                    <tr key={v.variantId} className="border-t border-gray-100">
+                    <tr key={v.variantId} className="border-t border-black/5">
                       <td className="py-2">
                         {v.label} <span className="text-gray-500">({v.variantId})</span>
                       </td>
                       <td className="py-2">
-                        <input
-                          type="checkbox"
-                          defaultChecked={v.isAvailable ?? true}
-                          onChange={(e) =>
-                            saveRow(p.productId, v.variantId, { isAvailable: e.target.checked })
-                          }
-                        />
+                        <label className="inline-flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            defaultChecked={v.isAvailable ?? true}
+                            onChange={(e) =>
+                              saveRow(p.productId, v.variantId, { isAvailable: e.target.checked })
+                            }
+                            aria-label={`Disponibile variante ${v.variantId}`}
+                            title={`Disponibile variante ${v.variantId}`}
+                          />
+                          <span className="sr-only">Disponibile</span>
+                        </label>
                       </td>
                       <td className="py-2">
                         <input
@@ -173,9 +210,11 @@ export default function AdminProductsPage() {
                           className="w-24 px-2 py-1 border border-gray-300 rounded"
                           onBlur={(e) =>
                             saveRow(p.productId, v.variantId, {
-                              stock: Number(e.target.value || 0),
+                              stock: Number((e.target as HTMLInputElement).value || 0),
                             })
                           }
+                          aria-label={`Stock variante ${v.variantId}`}
+                          title={`Stock variante ${v.variantId}`}
                         />
                       </td>
                     </tr>
@@ -183,7 +222,7 @@ export default function AdminProductsPage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </AdminCard>
         ))}
 
         {filtered.length === 0 && <div className="text-gray-600">Nessun prodotto trovato.</div>}

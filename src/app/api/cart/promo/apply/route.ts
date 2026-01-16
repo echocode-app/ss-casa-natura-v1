@@ -10,6 +10,7 @@ import { ApplyPromoCodeRequest, CartItemDB } from '@/types/cart';
 import { extendCartExpiration } from '@/lib/constants/cart';
 import { z } from 'zod';
 import { buildCartQuery } from '@/lib/utils/cartQuery';
+import { computeGlobalPromotionDiscount } from '@/lib/utils/globalPromotion';
 
 const applyPromoSchema = z.object({
   promoCode: z
@@ -205,6 +206,14 @@ export const POST = handleApi(async (req: NextRequest) => {
   // Bind promo to the email used for validation (helps keep logic consistent on cart updates/checkout)
   cart.promoEmail = normalizedEmail;
   cart.promoDiscount = discount;
+
+  cart.discount = await computeGlobalPromotionDiscount({
+    items: cart.items.map((i: any) => ({
+      productId: String(i.productId),
+      totalPrice: i.totalPrice,
+    })),
+    subtotal: cart.subtotal,
+  });
   cart.total = cart.subtotal - (cart.discount || 0) - discount;
 
   // 9. Extend expiration on cart activity

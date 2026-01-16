@@ -7,6 +7,7 @@ import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { CartItemDB } from '@/types/cart';
 import { extendCartExpiration } from '@/lib/constants/cart';
 import { buildCartQuery } from '@/lib/utils/cartQuery';
+import { computeGlobalPromotionDiscount } from '@/lib/utils/globalPromotion';
 
 // POST /api/cart/promo/remove - Remove promo code from cart
 export const POST = handleApi(async (req: NextRequest) => {
@@ -41,6 +42,14 @@ export const POST = handleApi(async (req: NextRequest) => {
   cart.promoCode = undefined;
   cart.promoEmail = undefined;
   cart.promoDiscount = undefined;
+
+  cart.discount = await computeGlobalPromotionDiscount({
+    items: cart.items.map((i: any) => ({
+      productId: String(i.productId),
+      totalPrice: i.totalPrice,
+    })),
+    subtotal: cart.subtotal,
+  });
   cart.total = cart.subtotal - (cart.discount || 0);
 
   // Extend expiration on cart activity
