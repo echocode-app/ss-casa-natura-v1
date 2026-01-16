@@ -20,9 +20,13 @@ export default function Client() {
 
   const clientLinks = [
     { label: t('links.mission'), href: '/mission' },
-    { label: t('links.support'), href: '/supporto' },
+    { label: t('links.support'), href: '/contatti' },
     { label: t('links.account'), href: '/account', isAccount: true },
-    { label: t('links.legal'), href: '/legal' },
+    {
+      label: t('links.legal'),
+      href: 'https://www.iubenda.com/privacy-policy/21492154',
+      isExternal: true,
+    },
   ];
 
   const handleAccountClick = (e: any) => {
@@ -43,15 +47,24 @@ export default function Client() {
       </h4>
 
       <ul className="flex flex-col">
-        {clientLinks.map(({ label, href, isAccount }) => (
+        {clientLinks.map(({ label, href, isAccount, isExternal }) => (
           <li key={label} className="mb-2">
-            <Link
-              href={href}
-              onClick={isAccount ? handleAccountClick : undefined}
-              className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline"
-            >
-              {label}
-            </Link>
+            {isExternal ? (
+              <a
+                href={href}
+                className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline"
+              >
+                {label}
+              </a>
+            ) : (
+              <Link
+                href={href}
+                onClick={isAccount ? handleAccountClick : undefined}
+                className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline"
+              >
+                {label}
+              </Link>
+            )}
           </li>
         ))}
       </ul>

@@ -10,7 +10,16 @@ const patchSchema = z
     image: z.string().min(1).optional(),
     title: z.string().max(120).optional().nullable(),
     text: z.string().max(300).optional().nullable(),
+    cta: z.string().max(80).optional().nullable(),
     href: z.string().max(300).optional().nullable(),
+
+    titleIt: z.string().max(120).optional().nullable(),
+    subtitleIt: z.string().max(300).optional().nullable(),
+    ctaIt: z.string().max(80).optional().nullable(),
+    titleEn: z.string().max(120).optional().nullable(),
+    subtitleEn: z.string().max(300).optional().nullable(),
+    ctaEn: z.string().max(80).optional().nullable(),
+
     isActive: z.boolean().optional(),
     sortOrder: z.number().int().min(0).optional(),
   })
@@ -32,7 +41,7 @@ export const PUT = handleApi(
         {
           success: false,
           errorCode: 'VALIDATION_FAILED',
-          error: 'Validation failed',
+          error: 'Validazione fallita',
           details: parsed.error.flatten().fieldErrors,
         },
         { status: 400 },
@@ -40,7 +49,18 @@ export const PUT = handleApi(
     }
 
     const update: any = { ...parsed.data };
-    for (const key of ['title', 'text', 'href'] as const) {
+    for (const key of [
+      'title',
+      'text',
+      'cta',
+      'href',
+      'titleIt',
+      'subtitleIt',
+      'ctaIt',
+      'titleEn',
+      'subtitleEn',
+      'ctaEn',
+    ] as const) {
       if (Object.prototype.hasOwnProperty.call(update, key) && update[key] === null) {
         update[key] = undefined;
       }
@@ -48,7 +68,7 @@ export const PUT = handleApi(
 
     const updated = await HeroBanner.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!updated) {
-      return NextResponse.json({ success: false, error: 'Banner not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Banner non trovato' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, banner: updated });
@@ -66,7 +86,7 @@ export const DELETE = handleApi(
 
     const deleted = await HeroBanner.findByIdAndDelete(id).lean();
     if (!deleted) {
-      return NextResponse.json({ success: false, error: 'Banner not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Banner non trovato' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true });

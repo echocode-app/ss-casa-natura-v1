@@ -9,7 +9,16 @@ const bannerSchema = z.object({
   image: z.string().min(1),
   title: z.string().max(120).optional(),
   text: z.string().max(300).optional(),
+  cta: z.string().max(80).optional(),
   href: z.string().max(300).optional(),
+
+  titleIt: z.string().max(120).optional().nullable(),
+  subtitleIt: z.string().max(300).optional().nullable(),
+  ctaIt: z.string().max(80).optional().nullable(),
+  titleEn: z.string().max(120).optional().nullable(),
+  subtitleEn: z.string().max(300).optional().nullable(),
+  ctaEn: z.string().max(80).optional().nullable(),
+
   isActive: z.boolean().default(true),
   sortOrder: z.number().int().min(0).default(0),
 });
@@ -37,13 +46,20 @@ export const POST = handleApi(async (req: Request) => {
       {
         success: false,
         errorCode: 'VALIDATION_FAILED',
-        error: 'Validation failed',
+        error: 'Validazione fallita',
         details: parsed.error.flatten().fieldErrors,
       },
       { status: 400 },
     );
   }
 
-  const created = await HeroBanner.create(parsed.data);
+  const payload: any = { ...parsed.data };
+  for (const key of ['titleIt', 'subtitleIt', 'ctaIt', 'titleEn', 'subtitleEn', 'ctaEn'] as const) {
+    if (Object.prototype.hasOwnProperty.call(payload, key) && payload[key] === null) {
+      payload[key] = undefined;
+    }
+  }
+
+  const created = await HeroBanner.create(payload);
   return NextResponse.json({ success: true, banner: created });
 });

@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { loadStripe } from '@stripe/stripe-js';
 
 import SimpleBreadcrumbs from '@/components/ui/Breadcrumbs/SimpleBreadcrumbs';
-import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/components/layout/AuthContext';
 import AuthModal from '@/components/ui/Modal/AuthModal';
@@ -58,6 +57,8 @@ export default function CheckoutPage() {
   const tCart = useTranslations('user.cart');
   const { items, getSubtotal, promoDiscount } = useCart();
   const { user, isAuthenticated } = useAuth();
+
+  const isCartEmpty = items.length === 0;
 
   const inputClassName =
     'w-full px-4 md:px-6 py-3 border rounded-input-xl ' +
@@ -207,34 +208,6 @@ export default function CheckoutPage() {
       // ignore
     }
   }, [checkoutFingerprint]);
-
-  if (!items.length) {
-    return (
-      <section className="py-6 md:py-9 overflow-hidden">
-        <SimpleBreadcrumbs
-          className="py-0"
-          items={[
-            { label: tHeaderActions('home'), href: '/' },
-            { label: tCart('title'), href: '/cart' },
-            { label: t('title') },
-          ]}
-        />
-        <div className="mx-auto md:max-w-[1570px] px-6 lg:px-12">
-          <div className="flex flex-col items-center justify-center min-h-[50vh] gap-6">
-            <h1 className="font-semibold text-[clamp(30px,5vw,47px)] leading-[clamp(30px,5vw,50px)] text-center">
-              {t('title')}
-            </h1>
-            <p className="text-text-muted text-center">{t('errors.emptyCart')}</p>
-            <Link href="/prodotti">
-              <PrimaryButton onClick={() => {}} className="px-8 py-4">
-                {t('misc.backToCatalog')}
-              </PrimaryButton>
-            </Link>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   const currentFormData = useMemo(
     () => ({
@@ -411,6 +384,12 @@ export default function CheckoutPage() {
   }, 450);
 
   useEffect(() => {
+    if (isCartEmpty) {
+      setQuote(null);
+      setShippingMethod('');
+      return;
+    }
+
     // Reset dependent states when address becomes invalid
     if (!isAddressValid) {
       setQuote(null);
@@ -420,7 +399,17 @@ export default function CheckoutPage() {
 
     // Auto-requote when a valid address changes
     debouncedQuote();
-  }, [isAddressValid, country, postalCode, city, address1, address2, province, subtotal]);
+  }, [
+    isAddressValid,
+    isCartEmpty,
+    country,
+    postalCode,
+    city,
+    address1,
+    address2,
+    province,
+    subtotal,
+  ]);
 
   const handleCreateIntent = async () => {
     if (!validateAll()) return;

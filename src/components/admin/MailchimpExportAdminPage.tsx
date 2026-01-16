@@ -67,12 +67,10 @@ export default function MailchimpExportAdminPage() {
     setStatsError(null);
 
     try {
-      // 📌 Replace with real Bearer token if needed
       const response = await fetch('/api/mailchimp/stats', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          // Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_SECRET_KEY}`,
         },
         credentials: 'include',
       });
@@ -159,9 +157,7 @@ export default function MailchimpExportAdminPage() {
         </div>
       </div>
 
-      {/* Основний контент */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Блок статистики */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Statistiche Database</h2>
@@ -191,17 +187,15 @@ export default function MailchimpExportAdminPage() {
             </button>
           </div>
 
-          {/* Errore nel caricamento delle statistiche */}
           {statsError && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
               <p className="text-sm text-yellow-700">
-                <span className="font-semibold">⚠️ Errore nel caricamento delle statistiche:</span>{' '}
+                <span className="font-semibold">Errore nel caricamento delle statistiche:</span>{' '}
                 {statsError}
               </p>
             </div>
           )}
 
-          {/* Placeholders для статистики */}
           {statsLoading && !stats ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[...Array(3)].map((_, i) => (
@@ -216,7 +210,6 @@ export default function MailchimpExportAdminPage() {
             </div>
           ) : stats ? (
             <>
-              {/* Карточки статистики */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 {/* Total Emails */}
                 <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
@@ -244,7 +237,6 @@ export default function MailchimpExportAdminPage() {
                 </div>
               </div>
 
-              {/* Розподіл за джерелами */}
               {stats.bySource.length > 0 && (
                 <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8 shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Email per Fonte</h3>
@@ -261,7 +253,6 @@ export default function MailchimpExportAdminPage() {
                 </div>
               )}
 
-              {/* Email Recenti */}
               {stats.recentEmails.length > 0 && (
                 <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Email Recenti</h3>
@@ -292,15 +283,10 @@ export default function MailchimpExportAdminPage() {
         )}
       </div>
 
-      {/* Footer з інформацією */}
       <div className="bg-gray-100 border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <p className="text-sm text-gray-600">
-            📧 <span className="font-semibold">Sistema di Esportazione Mailchimp</span> – Gestione e
-            automazione email pronta per la produzione. Per la documentazione, vedi{' '}
-            <code className="bg-gray-200 px-2 py-1 rounded text-gray-800">
-              docs/MAILCHIMP_EXPORT_GUIDE.md
-            </code>
+            Documentazione: <span className="font-semibold">docs/MAILCHIMP_EXPORT_GUIDE.md</span>
           </p>
         </div>
       </div>

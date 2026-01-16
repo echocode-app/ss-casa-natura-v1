@@ -2,7 +2,7 @@
 
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import IubendaPolicyEmbed from '@/components/legal/IubendaPolicyEmbed';
 
 export default function ModalFooter({ type = 'register', onSwitch, onForgot, loading = false }) {
   const t = useTranslations('modal.auth');
@@ -29,9 +29,9 @@ export default function ModalFooter({ type = 'register', onSwitch, onForgot, loa
       {type === 'register' && (
         <p className="text-center text-[clamp(12px,3vw,17px)] font-light leading-[100%]">
           {t('footer.register.text1')}{' '}
-          <Link href="/privacy-policy" className="font-semibold underline" target="_blank">
+          <IubendaPolicyEmbed kind="privacy" className="font-semibold underline">
             {t('footer.register.privacy')}
-          </Link>
+          </IubendaPolicyEmbed>
         </p>
       )}
 

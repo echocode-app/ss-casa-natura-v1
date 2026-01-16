@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useLocale } from 'next-intl';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -19,6 +20,7 @@ const defaultSlides = [
 ];
 
 export default function HeroSection() {
+  const locale = useLocale();
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const [swiper, setSwiper] = useState(null);
@@ -37,10 +39,19 @@ export default function HeroSection() {
           banners.map((b) => ({
             id: b._id,
             image: b.image,
-            title: b.title,
-            subtitle: b.text,
+            title:
+              locale === 'en'
+                ? b.titleEn || b.title || b.titleIt
+                : b.titleIt || b.title || b.titleEn,
+            subtitle:
+              locale === 'en'
+                ? b.subtitleEn || b.text || b.subtitleIt
+                : b.subtitleIt || b.text || b.subtitleEn,
             href: b.href,
-            cta: 'Scopri di più',
+            cta:
+              locale === 'en'
+                ? b.ctaEn || b.cta || 'Learn more'
+                : b.ctaIt || b.cta || 'Scopri di più',
           })),
         );
       })

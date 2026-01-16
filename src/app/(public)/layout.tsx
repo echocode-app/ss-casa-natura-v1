@@ -6,11 +6,14 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ScrollToTop } from '@/components/ui/Scroll';
 import { useEffect, useState } from 'react';
+import { useLocale } from 'next-intl';
 
 type SiteSettingsPublic = {
   promoBar?: {
     enabled?: boolean;
     text?: string;
+    textIt?: string;
+    textEn?: string;
     href?: string;
     bgColor?: string;
     textColor?: string;
@@ -24,6 +27,7 @@ type SiteSettingsPublic = {
 };
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  const locale = useLocale();
   const [settings, setSettings] = useState<SiteSettingsPublic | null>(null);
 
   useEffect(() => {
@@ -57,7 +61,10 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   const promoFromPromoBar = settings?.promoBar?.enabled
     ? {
         isVisible: true,
-        text: settings?.promoBar?.text,
+        text:
+          locale === 'en'
+            ? settings?.promoBar?.textEn || settings?.promoBar?.text
+            : settings?.promoBar?.textIt || settings?.promoBar?.text,
         href: settings?.promoBar?.href || '/prodotti',
         bgColor: settings?.promoBar?.bgColor,
         textColor: settings?.promoBar?.textColor,

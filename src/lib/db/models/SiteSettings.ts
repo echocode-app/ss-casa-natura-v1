@@ -5,6 +5,8 @@ export interface ISiteSettings {
   promoBar: {
     enabled: boolean;
     text?: string;
+    textIt?: string;
+    textEn?: string;
     href?: string;
     bgColor?: string;
     textColor?: string;
@@ -32,6 +34,8 @@ const siteSettingsSchema = new Schema<ISiteSettings>(
     promoBar: {
       enabled: { type: Boolean, default: false },
       text: { type: String },
+      textIt: { type: String },
+      textEn: { type: String },
       href: { type: String },
       bgColor: { type: String },
       textColor: { type: String },

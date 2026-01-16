@@ -14,8 +14,12 @@ export const GET = handleApi(async (req: Request) => {
   const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') || 50)));
   const skip = Math.max(0, Number(url.searchParams.get('skip') || 0));
   const q = (url.searchParams.get('q') || '').trim();
+  const status = (url.searchParams.get('status') || '').trim();
 
   const query: any = {};
+  if (status && ['new', 'resolved', 'rejected'].includes(status)) {
+    query.status = status;
+  }
   if (q) {
     query.$or = [
       { email: { $regex: q, $options: 'i' } },
@@ -29,5 +33,10 @@ export const GET = handleApi(async (req: Request) => {
     ContactSubmission.countDocuments(query),
   ]);
 
-  return NextResponse.json({ success: true, items, total, limit, skip });
+  const normalizedItems = items.map((it: any) => ({
+    ...it,
+    status: it.status || 'new',
+  }));
+
+  return NextResponse.json({ success: true, items: normalizedItems, total, limit, skip });
 });

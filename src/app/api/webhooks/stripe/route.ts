@@ -4,14 +4,9 @@ import connectToDB from '@/lib/db/mongo';
 import { env } from '@/lib/env';
 import { stripe } from '@/lib/stripe/server';
 import Order from '@/lib/db/models/Order';
-import Cart from '@/lib/db/models/Cart';
-import MarketingEmail from '@/lib/db/models/MarketingEmail';
-import { subscribeToMailchimp } from '@/lib/mailchimp/subscribe';
-import { sendEmail } from '@/lib/utils/sendEmail';
-import { orderConfirmationTemplate } from '@/lib/emailTemplates/orderConfirmation';
-import PromoCode from '@/lib/db/models/PromoCode';
-import { logError } from '@/lib/utils/logger';
-import { decrementInventoryForOrderProducts } from '@/lib/utils/inventory';
+import CheckoutDraft from '@/lib/db/models/CheckoutDraft';
+import mongoose from 'mongoose';
+import { finalizePaidOrderOnce } from '@/lib/checkout/finalizePaidOrder';
 
 export const POST = handleApi(async (req: NextRequest) => {
   const signature = req.headers.get('stripe-signature');
@@ -34,128 +29,81 @@ export const POST = handleApi(async (req: NextRequest) => {
     const paymentIntent = event.data.object as any;
     const orderId = paymentIntent?.metadata?.orderId;
 
-    // Idempotent update: only one webhook delivery wins.
-    const order = orderId
-      ? await Order.findOneAndUpdate(
-          { _id: orderId, status: { $ne: 'paid' } },
-          {
-            $set: {
-              status: 'paid',
-              paidAt: new Date(),
-              stripePaymentIntentId: paymentIntent.id,
-            },
-          },
-          { new: true },
-        )
-      : await Order.findOneAndUpdate(
-          { stripePaymentIntentId: paymentIntent.id, status: { $ne: 'paid' } },
-          {
-            $set: {
-              status: 'paid',
-              paidAt: new Date(),
-            },
-          },
-          { new: true },
-        );
+    let order: any = null;
+
+    if (orderId && mongoose.Types.ObjectId.isValid(orderId)) {
+      order = await Order.findById(orderId).lean();
+    }
+
+    if (!order) {
+      order = await Order.findOne({ stripePaymentIntentId: paymentIntent.id }).lean();
+    }
+
+    if (!order) {
+      const draft =
+        orderId && typeof orderId === 'string'
+          ? await CheckoutDraft.findOne({ orderId }).lean()
+          : await CheckoutDraft.findOne({ stripePaymentIntentId: paymentIntent.id }).lean();
+
+      if (draft && draft.orderId && mongoose.Types.ObjectId.isValid(String(draft.orderId))) {
+        try {
+          await Order.create({
+            _id: new mongoose.Types.ObjectId(String(draft.orderId)),
+            userId: draft.userId,
+            status: 'pending',
+            currency: draft.currency || 'EUR',
+            subtotal: draft.subtotal,
+            shippingPrice: draft.shippingPrice,
+            totalPrice: draft.totalPrice,
+            promoCode: draft.promoCode,
+            promoDiscount: draft.promoDiscount,
+            checkoutId: draft.checkoutId,
+            customerEmail: draft.customerEmail,
+            customerName: draft.customerName,
+            customerSurname: draft.customerSurname,
+            customerPhone: draft.customerPhone,
+            shippingAddress: draft.shippingAddress,
+            shippingMethod: draft.shippingMethod,
+            marketingOptIn: draft.marketingOptIn,
+            stripePaymentIntentId: paymentIntent.id,
+            products: (draft.products || []).map((p: any) => ({
+              productId: p.productId,
+              variantId: p.variantId,
+              slug: p.slug,
+              title: p.title,
+              price: p.price,
+              quantity: p.quantity,
+              volume: p.volume,
+              unit: p.unit,
+            })),
+          });
+        } catch {
+          // ignore duplicate create (race)
+        }
+
+        order = await Order.findById(String(draft.orderId)).lean();
+      }
+    }
 
     if (!order) return NextResponse.json({ received: true });
 
-    // Decrement inventory only once (this handler runs only for the webhook winner)
-    try {
-      const orderProducts = (order.products || []).map((p: any) => ({
-        productId: String(p.productId),
-        variantId: String(p.variantId),
-        quantity: Number(p.quantity) || 1,
-      }));
-
-      await decrementInventoryForOrderProducts(orderProducts);
-    } catch (e) {
-      logError('[stripe webhook] inventory decrement failed', e);
-    }
-
-    // Consume promo code only after successful payment (single-use per email)
-    if (order.promoCode && order.customerEmail) {
-      const code = String(order.promoCode).trim().toUpperCase();
-      const email = order.customerEmail.trim().toLowerCase();
-      if (code && email) {
-        try {
-          await PromoCode.updateOne(
-            { code, usedByEmails: { $ne: email } },
-            { $inc: { usedCount: 1 }, $push: { usedByEmails: email } },
-          );
-        } catch {
-          // ignore promo update failures in webhook
-        }
-      }
-    }
-
-    const sessionId = paymentIntent?.metadata?.sessionId;
-    const userId = paymentIntent?.metadata?.userId;
-
-    const cartReset = {
-      $set: {
-        items: [],
-        subtotal: 0,
-        discount: 0,
-        promoCode: undefined,
-        promoEmail: undefined,
-        promoDiscount: 0,
-        total: 0,
+    await Order.updateOne(
+      { _id: order._id, status: { $ne: 'paid' } },
+      {
+        $set: {
+          status: 'paid',
+          paidAt: new Date(),
+          stripePaymentIntentId: paymentIntent.id,
+        },
       },
-    };
+    );
 
-    try {
-      if (sessionId) await Cart.findOneAndUpdate({ sessionId }, cartReset);
-      if (userId) await Cart.findOneAndUpdate({ userId }, cartReset);
-    } catch (e) {
-      logError('[stripe webhook] cart reset failed', e);
-    }
+    await finalizePaidOrderOnce({ orderId: order._id.toString(), paymentIntent });
 
-    const to = order.customerEmail;
-    if (to) {
-      const products = (order.products || []).map((p: any) => ({
-        name: p.title || String(p.productId),
-        quantity: p.quantity,
-        price: p.price || 0,
-      }));
-
-      const text = orderConfirmationTemplate({
-        userName: order.customerName || 'Cliente',
-        orderId: order._id.toString(),
-        totalAmount: order.totalPrice || 0,
-        deliveryPrice: order.shippingPrice || 0,
-        status: order.status,
-        products,
-      });
-
-      try {
-        await sendEmail({
-          to,
-          subject: `Conferma ordine ${order._id.toString()}`,
-          text,
-        });
-      } catch {
-        // ignore email failures in webhook
-      }
-    }
-
-    if (order.marketingOptIn && order.customerEmail) {
-      const email = order.customerEmail.trim().toLowerCase();
-      try {
-        await MarketingEmail.findOneAndUpdate(
-          { email },
-          { email, source: 'checkout' },
-          { upsert: true, new: true },
-        );
-      } catch {
-        // ignore
-      }
-
-      try {
-        await subscribeToMailchimp(email, 'checkout');
-      } catch {
-        // ignore
-      }
+    if (orderId) {
+      await CheckoutDraft.deleteOne({ orderId: String(orderId) });
+    } else {
+      await CheckoutDraft.deleteOne({ stripePaymentIntentId: paymentIntent.id });
     }
   }
 
@@ -169,10 +117,20 @@ export const POST = handleApi(async (req: NextRequest) => {
         { _id: orderId, status: 'pending' },
         { $set: { status: 'canceled' } },
       );
+
+      await CheckoutDraft.findOneAndUpdate(
+        { orderId: String(orderId), status: { $ne: 'paid' } },
+        { $set: { status: 'failed' } },
+      );
     } else {
       await Order.findOneAndUpdate(
         { stripePaymentIntentId: paymentIntent.id, status: 'pending' },
         { $set: { status: 'canceled' } },
+      );
+
+      await CheckoutDraft.findOneAndUpdate(
+        { stripePaymentIntentId: paymentIntent.id, status: { $ne: 'paid' } },
+        { $set: { status: 'failed' } },
       );
     }
   }

@@ -1,19 +1,17 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
-import { IProduct } from './Product';
 
-export interface IOrderProduct {
-  productId: Types.ObjectId | string | IProduct;
-  variantId?: string;
+export interface ICheckoutDraftProduct {
+  productId: string;
+  variantId: string;
   slug?: string;
   title?: string;
   price?: number;
-  imageSrc?: string;
   quantity: number;
   volume?: number;
   unit?: string;
 }
 
-export interface IOrderAddress {
+export interface ICheckoutDraftAddress {
   country: string;
   city: string;
   postalCode: string;
@@ -23,43 +21,44 @@ export interface IOrderAddress {
   province?: string;
 }
 
-export interface IOrder extends Document {
+export interface ICheckoutDraft extends Document {
+  orderId: string;
+  checkoutId?: string;
+
   userId?: Types.ObjectId;
-  products: IOrderProduct[];
-  status: 'pending' | 'paid' | 'shipped' | 'canceled';
+  sessionId?: string;
+
+  products: ICheckoutDraftProduct[];
   currency?: 'EUR';
   subtotal?: number;
   shippingPrice?: number;
   totalPrice?: number;
   promoCode?: string;
-  discount?: number;
   promoDiscount?: number;
-
-  checkoutId?: string;
 
   customerEmail?: string;
   customerName?: string;
   customerSurname?: string;
   customerPhone?: string;
-  shippingAddress?: IOrderAddress;
+  shippingAddress?: ICheckoutDraftAddress;
   shippingMethod?: 'one_time' | 'recurring_4w';
   marketingOptIn?: boolean;
 
   stripePaymentIntentId?: string;
-  paidAt?: Date;
-  finalizedAt?: Date;
+  status: 'open' | 'failed' | 'paid';
+
+  expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const orderProductSchema = new Schema<IOrderProduct>(
+const productSchema = new Schema<ICheckoutDraftProduct>(
   {
-    productId: { type: Schema.Types.Mixed, required: true },
-    variantId: { type: String },
+    productId: { type: String, required: true },
+    variantId: { type: String, required: true },
     slug: { type: String },
     title: { type: String },
     price: { type: Number },
-    imageSrc: { type: String },
     quantity: { type: Number, required: true },
     volume: { type: Number },
     unit: { type: String },
@@ -67,7 +66,7 @@ const orderProductSchema = new Schema<IOrderProduct>(
   { _id: false },
 );
 
-const orderAddressSchema = new Schema<IOrderAddress>(
+const addressSchema = new Schema<ICheckoutDraftAddress>(
   {
     country: { type: String, required: true },
     city: { type: String, required: true },
@@ -80,34 +79,41 @@ const orderAddressSchema = new Schema<IOrderAddress>(
   { _id: false },
 );
 
-const orderSchema = new Schema<IOrder>(
+const checkoutDraftSchema = new Schema<ICheckoutDraft>(
   {
+    orderId: { type: String, required: true, index: true },
+    checkoutId: { type: String, index: true, unique: true, sparse: true },
+
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
-    products: [orderProductSchema],
-    status: { type: String, enum: ['pending', 'paid', 'shipped', 'canceled'], default: 'pending' },
+    sessionId: { type: String, index: true },
+
+    products: { type: [productSchema], default: [] },
     currency: { type: String, enum: ['EUR'], default: 'EUR' },
     subtotal: Number,
     shippingPrice: Number,
     totalPrice: Number,
     promoCode: String,
-    discount: Number,
     promoDiscount: Number,
-
-    checkoutId: { type: String, index: true, unique: true, sparse: true },
 
     customerEmail: String,
     customerName: String,
     customerSurname: String,
     customerPhone: String,
-    shippingAddress: orderAddressSchema,
+    shippingAddress: addressSchema,
     shippingMethod: { type: String, enum: ['one_time', 'recurring_4w'] },
     marketingOptIn: Boolean,
 
     stripePaymentIntentId: { type: String, index: true },
-    paidAt: Date,
-    finalizedAt: Date,
+    status: { type: String, enum: ['open', 'failed', 'paid'], default: 'open', index: true },
+
+    expiresAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      index: { expires: 0 },
+    },
   },
   { timestamps: true },
 );
 
-export default mongoose.models.Order || mongoose.model<IOrder>('Order', orderSchema);
+export default mongoose.models.CheckoutDraft ||
+  mongoose.model<ICheckoutDraft>('CheckoutDraft', checkoutDraftSchema);

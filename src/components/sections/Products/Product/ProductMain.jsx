@@ -7,10 +7,12 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/contexts/CartContext';
 import Spinner from '@/components/ui/Spinner/Spinner';
-import { isProductAvailable } from '@/lib/utils/sortProducts';
+import { getFirstPurchasableVariant, isProductAvailable } from '@/lib/utils/sortProducts';
 
 export default function ProductMain({ product }) {
-  const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0] ?? null);
+  const [selectedVariant, setSelectedVariant] = useState(
+    () => getFirstPurchasableVariant(product) ?? product.variants?.[0] ?? null,
+  );
   const [isAdding, setIsAdding] = useState(false);
   const { addItem } = useCart();
   const t = useTranslations('prodotti.related');
@@ -59,7 +61,11 @@ export default function ProductMain({ product }) {
 
           {/* Volume selector */}
           {product.variants?.length > 0 && (
-            <ProductVolumeSelector variants={product.variants} onChange={setSelectedVariant} />
+            <ProductVolumeSelector
+              product={product}
+              variants={product.variants}
+              onChange={setSelectedVariant}
+            />
           )}
 
           {/* Price */}

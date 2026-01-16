@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/contexts/CartContext';
-import { sortProducts } from '@/lib/utils/sortProducts';
+import { getFirstPurchasableVariant, sortProducts } from '@/lib/utils/sortProducts';
 
 export default function TopProductsSection({ products }) {
   const [loading, setLoading] = useState(true);
@@ -15,7 +15,7 @@ export default function TopProductsSection({ products }) {
   const { addItem } = useCart();
 
   const handleAddToCart = async (product) => {
-    const variant = product.variants?.[0];
+    const variant = getFirstPurchasableVariant(product) ?? product.variants?.[0];
     if (!variant) return;
     await addItem(product.id, variant.id);
   };
@@ -51,21 +51,26 @@ export default function TopProductsSection({ products }) {
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[clamp(10px,2vw,30px)]">
-          {displayProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              title={product.title}
-              volume={product.variants?.[0]?.volume}
-              price={product.variants?.[0]?.priceModifier || product.price}
-              discountPrice={product.discountPrice}
-              imageSrc={product.images?.[0]?.src}
-              slug={product.slug}
-              isBestSeller={product.isBestSeller}
-              isAvailable={product.isAvailable}
-              stock={product.stock}
-              onAddClick={() => handleAddToCart(product)}
-            />
-          ))}
+          {displayProducts.map((product) => {
+            const variant = getFirstPurchasableVariant(product) ?? product.variants?.[0] ?? null;
+
+            return (
+              <ProductCard
+                key={product.id}
+                title={product.title}
+                volume={variant?.volume}
+                unit={variant?.unit}
+                price={product.price + (variant?.priceModifier ?? 0)}
+                discountPrice={product.discountPrice}
+                imageSrc={product.images?.[0]?.src}
+                slug={product.slug}
+                isBestSeller={product.isBestSeller}
+                isAvailable={variant?.isAvailable ?? product.isAvailable}
+                stock={variant?.stock ?? product.stock}
+                onAddClick={() => handleAddToCart(product)}
+              />
+            );
+          })}
         </div>
       </div>
     </section>

@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import IubendaPolicyEmbed from '@/components/legal/IubendaPolicyEmbed';
 
 export default function Privacy() {
   const t = useTranslations('footer');
@@ -7,9 +7,9 @@ export default function Privacy() {
   return (
     <p className="text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] text-white break-words tabular">
       {t('copyright')} /{' '}
-      <Link href="/privacy-policy" className="hover:underline">
+      <IubendaPolicyEmbed kind="privacy" className="text-white hover:underline">
         {t('privacyLink')}
-      </Link>
+      </IubendaPolicyEmbed>
     </p>
   );
 }

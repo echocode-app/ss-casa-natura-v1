@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
   Elements,
@@ -16,6 +15,7 @@ import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import FormError from '@/components/ui/Form/FormError';
 import { normalizeInputValue } from '@/lib/utils/inputHelpers';
+import IubendaPolicyEmbed from '@/components/legal/IubendaPolicyEmbed';
 
 export type ShippingQuote = {
   shippingPrice: number;
@@ -131,14 +131,14 @@ function CheckoutPaymentForm({ orderId }: { orderId: string }) {
       <div className="text-xs text-text-muted">
         {t.rich('payment.recurringDisclaimer', {
           privacy: (chunks) => (
-            <Link href="/privacy-policy" className="underline hover:no-underline">
+            <IubendaPolicyEmbed kind="privacy" className="underline hover:no-underline">
               {chunks}
-            </Link>
+            </IubendaPolicyEmbed>
           ),
           terms: (chunks) => (
-            <Link href="/cookie-policy" className="underline hover:no-underline">
+            <IubendaPolicyEmbed kind="cookie" className="underline hover:no-underline">
               {chunks}
-            </Link>
+            </IubendaPolicyEmbed>
           ),
         })}
       </div>

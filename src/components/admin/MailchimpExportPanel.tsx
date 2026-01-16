@@ -59,18 +59,12 @@ export default function MailchimpExportPanel() {
     setError(null);
 
     try {
-      const apiSecret = process.env.NEXT_PUBLIC_API_SECRET_KEY;
-
-      if (!apiSecret) {
-        throw new Error('API_SECRET_KEY non configurata');
-      }
-
       const response = await fetch('/api/mailchimp/stats', {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${apiSecret}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -109,20 +103,13 @@ export default function MailchimpExportPanel() {
     setExportResult(null);
 
     try {
-      // Get API secret from environment
-      const apiSecret = process.env.NEXT_PUBLIC_API_SECRET_KEY;
-
-      if (!apiSecret) {
-        throw new Error("API_SECRET_KEY non configurata. Controlla le tue variabili d'ambiente.");
-      }
-
       // Call export API endpoint
       const response = await fetch('/api/mailchimp/export', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${apiSecret}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -200,11 +187,12 @@ export default function MailchimpExportPanel() {
           <h2 className="text-lg font-semibold mb-4">Esporta su Mailchimp</h2>
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-            <h3 className="font-semibold text-yellow-800 mb-2">⚠️ Prima dell'esportazione:</h3>
+            <h3 className="font-semibold text-yellow-800 mb-2">Prima dell'esportazione</h3>
             <ul className="text-sm text-yellow-700 space-y-1 list-disc list-inside">
-              <li>Assicurati che MAILCHIMP_API_KEY sia configurata</li>
-              <li>Verifica che MAILCHIMP_LIST_ID sia corretto</li>
-              <li>Controlla API_SECRET_KEY nell'ambiente</li>
+              <li>
+                Assicurati che MAILCHIMP_API_KEY, MAILCHIMP_SERVER_PREFIX e MAILCHIMP_LIST_ID siano
+                configurati sul server
+              </li>
               <li>L'esportazione elabora tutte le email nel database</li>
               <li>I duplicati vengono gestiti tramite upsert (sicuro da rieseguire)</li>
               <li>Dimensione batch: 500 email per richiesta</li>

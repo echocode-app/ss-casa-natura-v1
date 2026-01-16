@@ -5,8 +5,10 @@ import { getTranslations } from 'next-intl/server';
 import SimpleBreadcrumbs from '@/components/ui/Breadcrumbs/SimpleBreadcrumbs';
 import connectToDB from '@/lib/db/mongo';
 import Order from '@/lib/db/models/Order';
+import CheckoutDraft from '@/lib/db/models/CheckoutDraft';
 import mongoose from 'mongoose';
 import { getStripe } from '@/lib/stripe/server';
+import { finalizePaidOrderOnce } from '@/lib/checkout/finalizePaidOrder';
 import Check from '@/components/ui/Buttons/Check';
 import User from '@/components/ui/Buttons/User';
 
@@ -18,10 +20,12 @@ type PageProps = {
     | {
         orderId?: string | string[];
         preview?: string | string[];
+        payment_intent?: string | string[];
       }
     | Promise<{
         orderId?: string | string[];
         preview?: string | string[];
+        payment_intent?: string | string[];
       }>;
 };
 
@@ -31,18 +35,15 @@ function asSingleString(value: string | string[] | undefined): string | null {
   return value;
 }
 
-async function assertPaidOrderOrNotFound(orderId: string): Promise<void> {
+async function assertPaidOrderOrNotFound(
+  orderId: string,
+  paymentIntentFromQuery: string | null,
+): Promise<void> {
   if (!mongoose.Types.ObjectId.isValid(orderId)) notFound();
 
   await connectToDB();
 
   const order: any = await Order.findById(orderId).lean();
-  if (!order) notFound();
-
-  if (order.status === 'paid') return;
-
-  const stripePaymentIntentId = order.stripePaymentIntentId;
-  if (!stripePaymentIntentId) notFound();
 
   let stripe;
   try {
@@ -51,12 +52,56 @@ async function assertPaidOrderOrNotFound(orderId: string): Promise<void> {
     notFound();
   }
 
-  const pi = await stripe.paymentIntents.retrieve(String(stripePaymentIntentId));
+  const paymentIntentId = paymentIntentFromQuery || order?.stripePaymentIntentId;
+  if (!paymentIntentId) notFound();
+
+  const pi = await stripe.paymentIntents.retrieve(String(paymentIntentId));
 
   const metaOrderId = (pi as any)?.metadata?.orderId;
   if (metaOrderId && metaOrderId !== orderId) notFound();
 
   if (pi.status !== 'succeeded') notFound();
+
+  if (!order) {
+    const draft: any = await CheckoutDraft.findOne({ orderId }).lean();
+    if (!draft) notFound();
+
+    await Order.create({
+      _id: new mongoose.Types.ObjectId(orderId),
+      userId: draft.userId,
+      status: 'paid',
+      currency: draft.currency || 'EUR',
+      subtotal: draft.subtotal,
+      shippingPrice: draft.shippingPrice,
+      totalPrice: draft.totalPrice,
+      promoCode: draft.promoCode,
+      promoDiscount: draft.promoDiscount,
+      checkoutId: draft.checkoutId,
+      customerEmail: draft.customerEmail,
+      customerName: draft.customerName,
+      customerSurname: draft.customerSurname,
+      customerPhone: draft.customerPhone,
+      shippingAddress: draft.shippingAddress,
+      shippingMethod: draft.shippingMethod,
+      marketingOptIn: draft.marketingOptIn,
+      stripePaymentIntentId: pi.id,
+      paidAt: new Date(),
+      products: (draft.products || []).map((p: any) => ({
+        productId: p.productId,
+        variantId: p.variantId,
+        slug: p.slug,
+        title: p.title,
+        price: p.price,
+        quantity: p.quantity,
+        volume: p.volume,
+        unit: p.unit,
+      })),
+    });
+
+    await finalizePaidOrderOnce({ orderId, paymentIntent: pi });
+    await CheckoutDraft.deleteOne({ orderId });
+    return;
+  }
 
   await Order.updateOne(
     { _id: order._id },
@@ -68,6 +113,9 @@ async function assertPaidOrderOrNotFound(orderId: string): Promise<void> {
       },
     },
   );
+
+  await finalizePaidOrderOnce({ orderId, paymentIntent: pi });
+  await CheckoutDraft.deleteOne({ orderId });
 }
 
 export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
@@ -79,6 +127,8 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
   const preview = asSingleString(resolvedSearchParams?.preview);
   const previewEnabled = preview === '1' || preview === 'true';
 
+  const paymentIntentFromQuery = asSingleString(resolvedSearchParams?.payment_intent);
+
   const host = (await headers()).get('host') || '';
   const isLocalHost =
     host.startsWith('localhost') || host.startsWith('127.0.0.1') || host.startsWith('[::1]');
@@ -89,7 +139,7 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
   if (!orderId) notFound();
 
   if (!isPreview) {
-    await assertPaidOrderOrNotFound(orderId);
+    await assertPaidOrderOrNotFound(orderId, paymentIntentFromQuery);
   }
 
   const t = await getTranslations('checkout');

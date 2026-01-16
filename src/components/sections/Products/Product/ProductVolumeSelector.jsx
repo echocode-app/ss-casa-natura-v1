@@ -1,9 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getFirstPurchasableVariant, isProductAvailable } from '@/lib/utils/sortProducts';
 
-export default function ProductVolumeSelector({ variants, onChange }) {
-  const [selectedVariant, setSelectedVariant] = useState(variants[0]);
+export default function ProductVolumeSelector({ product, variants, onChange }) {
+  const [selectedVariant, setSelectedVariant] = useState(
+    () => getFirstPurchasableVariant(product) ?? variants[0],
+  );
+
+  useEffect(() => {
+    const next = getFirstPurchasableVariant(product) ?? variants[0];
+    setSelectedVariant(next);
+  }, [product, variants]);
 
   useEffect(() => {
     onChange?.(selectedVariant);
@@ -12,8 +20,7 @@ export default function ProductVolumeSelector({ variants, onChange }) {
   return (
     <div className="tabular flex gap-6 mt-5">
       {variants.map((v) => {
-        const isAvailable = v.isAvailable ?? (v.stock === undefined || v.stock > 0);
-        const isOutOfStock = !isAvailable;
+        const isOutOfStock = !isProductAvailable(product, v.id);
 
         return (
           <button

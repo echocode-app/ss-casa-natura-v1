@@ -31,6 +31,22 @@ export default function ProductCard({
   const isLowStock = stock !== undefined && stock > 0 && stock <= 5;
   const isOutOfStock = !productAvailable;
 
+  const DisabledBuy = ({ children, className = '' }) => (
+    <div
+      role="button"
+      aria-disabled="true"
+      tabIndex={-1}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      className={`relative bg-brand-accent text-black font-semibold text-[clamp(14px,2vw,22px)] text-center rounded-[25px] transition-all duration-300 opacity-50 cursor-not-allowed select-none ${className}`}
+      title={t('outOfStock')}
+    >
+      <span className="inline-flex w-full h-full items-center justify-center">{children}</span>
+    </div>
+  );
+
   const handleAddClick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -161,36 +177,54 @@ export default function ProductCard({
 
           {/* Mobile button (icon only, <500px) */}
           <div className="hidden max-[500px]:flex items-center">
-            <PrimaryButton
-              onClick={handleAddClick}
-              disabled={adding || isOutOfStock}
-              className="w-10 h-10 rounded-full p-0 flex items-center justify-center max-[500px]:[&>span]:flex max-[500px]:[&>span]:w-full max-[500px]:[&>span]:h-full max-[500px]:[&>span]:items-center max-[500px]:[&>span]:justify-center"
-            >
-              {adding ? <Spinner size="sm" colorScheme="muted" /> : <CartIcon />}
-            </PrimaryButton>
+            {isOutOfStock ? (
+              <DisabledBuy className="w-10 h-10 rounded-full p-0 flex items-center justify-center">
+                <CartIcon />
+              </DisabledBuy>
+            ) : (
+              <PrimaryButton
+                onClick={handleAddClick}
+                disabled={adding}
+                className="w-10 h-10 rounded-full p-0 flex items-center justify-center max-[500px]:[&>span]:flex max-[500px]:[&>span]:w-full max-[500px]:[&>span]:h-full max-[500px]:[&>span]:items-center max-[500px]:[&>span]:justify-center"
+              >
+                {adding ? <Spinner size="sm" colorScheme="muted" /> : <CartIcon />}
+              </PrimaryButton>
+            )}
           </div>
 
           {/* Tablet button (text only, >=500px and <1024px) */}
           <div className="hidden min-[501px]:flex lg:hidden items-center">
-            <PrimaryButton
-              onClick={handleAddClick}
-              disabled={adding || isOutOfStock}
-              className="px-6 py-3 rounded-full text-sm"
-            >
-              {adding ? <Spinner size="sm" colorScheme="muted" /> : t('button')}
-            </PrimaryButton>
+            {isOutOfStock ? (
+              <DisabledBuy className="px-6 py-3 rounded-full text-sm">
+                {t('outOfStock')}
+              </DisabledBuy>
+            ) : (
+              <PrimaryButton
+                onClick={handleAddClick}
+                disabled={adding}
+                className="px-6 py-3 rounded-full text-sm"
+              >
+                {adding ? <Spinner size="sm" colorScheme="muted" /> : t('button')}
+              </PrimaryButton>
+            )}
           </div>
         </div>
 
         {/* Desktop button */}
         <div className="mt-auto pt-4 hidden lg:block">
-          <PrimaryButton
-            onClick={handleAddClick}
-            disabled={adding || isOutOfStock}
-            className="w-full p-4 xl:px-8 xl:py-5 flex justify-center"
-          >
-            {adding ? <Spinner size="sm" colorScheme="muted" /> : t('button')}
-          </PrimaryButton>
+          {isOutOfStock ? (
+            <DisabledBuy className="w-full p-4 xl:px-8 xl:py-5 flex justify-center">
+              {t('outOfStock')}
+            </DisabledBuy>
+          ) : (
+            <PrimaryButton
+              onClick={handleAddClick}
+              disabled={adding}
+              className="w-full p-4 xl:px-8 xl:py-5 flex justify-center"
+            >
+              {adding ? <Spinner size="sm" colorScheme="muted" /> : t('button')}
+            </PrimaryButton>
+          )}
         </div>
       </div>
     </Link>

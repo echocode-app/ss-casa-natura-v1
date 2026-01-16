@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import Cart from '@/lib/db/models/Cart';
-import Order from '@/lib/db/models/Order';
+import CheckoutDraft from '@/lib/db/models/CheckoutDraft';
 import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { calculateShippingQuote } from '@/lib/checkout/shipping';
@@ -176,62 +176,77 @@ export const POST = handleApi(async (req: NextRequest) => {
       : undefined;
 
   if (idempotencyKey) {
-    const existing = await Order.findOne({ checkoutId: idempotencyKey }).lean();
-    if (existing?.stripePaymentIntentId && existing.status !== 'canceled') {
+    const existing = await CheckoutDraft.findOne({ checkoutId: idempotencyKey }).lean();
+    if (existing?.stripePaymentIntentId && existing.status !== 'paid') {
       const pi = await stripe.paymentIntents.retrieve(existing.stripePaymentIntentId);
-      return NextResponse.json({
-        success: true,
-        clientSecret: (pi as any).client_secret,
-        orderId: existing._id.toString(),
-        amount: existing.totalPrice || total,
-        currency: 'EUR',
-      });
+      const clientSecret = (pi as any).client_secret;
+      if (clientSecret) {
+        return NextResponse.json({
+          success: true,
+          clientSecret,
+          orderId: String(existing.orderId),
+          amount: existing.totalPrice || total,
+          currency: 'EUR',
+        });
+      }
     }
   }
 
-  let orderDoc;
+  const orderId = new mongoose.Types.ObjectId().toString();
+
+  let draft: any;
   try {
-    orderDoc = await Order.create({
-      userId: userObjectId,
-      status: 'pending',
-      currency: 'EUR',
-      subtotal,
-      shippingPrice: shipping.shippingPrice,
-      totalPrice: total,
-      promoCode,
-      promoDiscount,
+    draft = await CheckoutDraft.findOneAndUpdate(
+      idempotencyKey ? { checkoutId: idempotencyKey } : { orderId },
+      {
+        $setOnInsert: {
+          orderId,
+          checkoutId: idempotencyKey,
+        },
+        $set: {
+          userId: userObjectId,
+          sessionId: sessionId || undefined,
+          status: 'open',
+          currency: 'EUR',
+          subtotal,
+          shippingPrice: shipping.shippingPrice,
+          totalPrice: total,
+          promoCode,
+          promoDiscount,
 
-      checkoutId: idempotencyKey,
+          customerEmail: normalizedEmail,
+          customerName: parsed.data.customer.name,
+          customerSurname: parsed.data.customer.surname,
+          customerPhone: parsed.data.customer.phone,
+          shippingAddress: parsed.data.address,
+          shippingMethod: parsed.data.shippingMethod,
+          marketingOptIn: parsed.data.marketingOptIn || false,
 
-      customerEmail: normalizedEmail,
-      customerName: parsed.data.customer.name,
-      customerSurname: parsed.data.customer.surname,
-      customerPhone: parsed.data.customer.phone,
-      shippingAddress: parsed.data.address,
-      shippingMethod: parsed.data.shippingMethod,
-      marketingOptIn: parsed.data.marketingOptIn || false,
-
-      products: pricedItems.map((p) => ({
-        productId: p.productId,
-        variantId: p.variantId,
-        slug: p.slug,
-        title: p.title,
-        price: p.price,
-        quantity: p.quantity,
-        volume: p.volume,
-        unit: p.unit,
-      })),
-    });
+          products: pricedItems.map((p) => ({
+            productId: String(p.productId),
+            variantId: String(p.variantId),
+            slug: p.slug,
+            title: p.title,
+            price: p.price,
+            quantity: p.quantity,
+            volume: p.volume,
+            unit: p.unit,
+          })),
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      },
+      { new: true, upsert: true },
+    ).lean();
   } catch (e: any) {
-    // Unique checkoutId collision: fetch existing order
+    // Unique checkoutId collision: fetch existing draft
     if (idempotencyKey && e?.code === 11000) {
-      const existing = await Order.findOne({ checkoutId: idempotencyKey }).lean();
+      const existing = await CheckoutDraft.findOne({ checkoutId: idempotencyKey }).lean();
       if (existing?.stripePaymentIntentId) {
         const pi = await stripe.paymentIntents.retrieve(existing.stripePaymentIntentId);
         return NextResponse.json({
           success: true,
           clientSecret: (pi as any).client_secret,
-          orderId: existing._id.toString(),
+          orderId: String(existing.orderId),
           amount: existing.totalPrice || total,
           currency: 'EUR',
         });
@@ -247,7 +262,7 @@ export const POST = handleApi(async (req: NextRequest) => {
       receipt_email: normalizedEmail,
       automatic_payment_methods: { enabled: true },
       metadata: {
-        orderId: orderDoc._id.toString(),
+        orderId: String(draft.orderId),
         sessionId: sessionId || '',
         userId: userId || '',
         checkoutId: idempotencyKey || '',
@@ -256,14 +271,15 @@ export const POST = handleApi(async (req: NextRequest) => {
     idempotencyKey ? { idempotencyKey } : undefined,
   );
 
-  await Order.findByIdAndUpdate(orderDoc._id, {
-    stripePaymentIntentId: paymentIntent.id,
-  });
+  await CheckoutDraft.findOneAndUpdate(
+    { _id: draft._id },
+    { $set: { stripePaymentIntentId: paymentIntent.id } },
+  );
 
   return NextResponse.json({
     success: true,
     clientSecret: paymentIntent.client_secret,
-    orderId: orderDoc._id.toString(),
+    orderId: String(draft.orderId),
     amount: total,
     currency: 'EUR',
   });

@@ -6,6 +6,7 @@ export interface IContactSubmission {
   phone?: string;
   subject: string;
   message: string;
+  status?: 'new' | 'resolved' | 'rejected';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +18,12 @@ const contactSubmissionSchema = new Schema<IContactSubmission>(
     phone: { type: String },
     subject: { type: String, required: true },
     message: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ['new', 'resolved', 'rejected'],
+      default: 'new',
+      index: true,
+    },
   },
   { timestamps: true },
 );

@@ -1,8 +1,13 @@
+import IubendaPolicyEmbed from '@/components/legal/IubendaPolicyEmbed';
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="container py-20">
-      <h1>Privacy Policy</h1>
-      <p>Privacy Policy will be published soon.</p>
+      <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Privacy Policy</h1>
+
+      <div className="mt-4 text-[clamp(14px,2vw,18px)] text-text-muted">
+        <IubendaPolicyEmbed kind="privacy" />
+      </div>
     </div>
   );
 }

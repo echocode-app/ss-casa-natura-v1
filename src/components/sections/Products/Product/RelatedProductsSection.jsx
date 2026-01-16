@@ -11,7 +11,7 @@ import { ProductCard } from '@/components/ui/Products';
 import { WaveBackground } from '@/components/ui/Parts';
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/contexts/CartContext';
-import { sortProducts } from '@/lib/utils/sortProducts';
+import { getFirstPurchasableVariant, sortProducts } from '@/lib/utils/sortProducts';
 
 export default function RelatedProductsSection({ products }) {
   const swiperRef = useRef(null);
@@ -25,7 +25,7 @@ export default function RelatedProductsSection({ products }) {
   const { addItem } = useCart();
 
   const handleAddToCart = async (product) => {
-    const variant = product.variants?.[0];
+    const variant = getFirstPurchasableVariant(product) ?? product.variants?.[0];
     if (!variant) return;
     await addItem(product.id, variant.id);
   };
@@ -133,27 +133,32 @@ export default function RelatedProductsSection({ products }) {
             speed={400}
             className="py-4"
           >
-            {sortedProducts.map((p) => (
-              <SwiperSlide
-                key={p.id}
-                className="flex justify-center items-stretch"
-                style={{
-                  width: 'clamp(260px, 23%, 363px)',
-                  height: maxCardHeight ? `${maxCardHeight}px` : 'auto',
-                }}
-              >
-                <ProductCard
-                  title={p.title}
-                  volume={p.variants?.[0]?.volume ?? null}
-                  price={p.price}
-                  imageSrc={p.images?.[0]?.src}
-                  slug={p.slug}
-                  isAvailable={p.isAvailable}
-                  stock={p.stock}
-                  onAddClick={() => handleAddToCart(p)}
-                />
-              </SwiperSlide>
-            ))}
+            {sortedProducts.map((p) => {
+              const variant = getFirstPurchasableVariant(p) ?? p.variants?.[0] ?? null;
+
+              return (
+                <SwiperSlide
+                  key={p.id}
+                  className="flex justify-center items-stretch"
+                  style={{
+                    width: 'clamp(260px, 23%, 363px)',
+                    height: maxCardHeight ? `${maxCardHeight}px` : 'auto',
+                  }}
+                >
+                  <ProductCard
+                    title={p.title}
+                    volume={variant?.volume ?? null}
+                    unit={variant?.unit}
+                    price={p.price + (variant?.priceModifier ?? 0)}
+                    imageSrc={p.images?.[0]?.src}
+                    slug={p.slug}
+                    isAvailable={variant?.isAvailable ?? p.isAvailable}
+                    stock={variant?.stock ?? p.stock}
+                    onAddClick={() => handleAddToCart(p)}
+                  />
+                </SwiperSlide>
+              );
+            })}
           </Swiper>
         </div>
       </div>

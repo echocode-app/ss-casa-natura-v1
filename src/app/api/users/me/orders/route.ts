@@ -20,7 +20,13 @@ export const GET = handleApi(async (_req: NextRequest) => {
     // Convert string ID to ObjectId for querying
     const userObjectId = new mongoose.Types.ObjectId(authUser.id);
 
-    const orders = await Order.find({ userId: userObjectId }).sort({ createdAt: -1 }).lean().exec();
+    const orders = await Order.find({
+      userId: userObjectId,
+      status: { $in: ['paid', 'shipped'] },
+    })
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
 
     if (orders.length === 0) {
       return NextResponse.json([]);
