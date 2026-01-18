@@ -1,8 +1,12 @@
-import { NextRequest } from 'next/server';
-
 const CSRF_TOKEN_LENGTH = 32;
 const CSRF_COOKIE_NAME = 'csrf-token';
 const CSRF_HEADER_NAME = 'x-csrf-token';
+
+function getCookieValue(cookieHeader: string | null, name: string): string | null {
+  if (!cookieHeader) return null;
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`));
+  return match ? match[1] : null;
+}
 
 /**
  * Generate a cryptographically secure CSRF token
@@ -18,11 +22,8 @@ export function generateCsrfToken(): string {
  * Validate CSRF token from request
  * Compares token from cookie with token from header/body
  */
-export function validateCsrfToken(request: NextRequest): boolean {
-  // Get token from cookie
-  const cookieToken = request.cookies.get(CSRF_COOKIE_NAME)?.value;
-
-  // Get token from header or body
+export function validateCsrfToken(request: Request): boolean {
+  const cookieToken = getCookieValue(request.headers.get('cookie'), CSRF_COOKIE_NAME);
   const headerToken = request.headers.get(CSRF_HEADER_NAME);
 
   if (!cookieToken || !headerToken) {

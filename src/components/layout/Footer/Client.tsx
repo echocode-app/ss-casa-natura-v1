@@ -18,14 +18,26 @@ export default function Client() {
     setIsClient(true);
   }, []);
 
-  const clientLinks = [
+  const iubendaEnabled = process.env.NEXT_PUBLIC_IUBENDA_ENABLED === 'true';
+  const iubendaCookiePolicyId = process.env.NEXT_PUBLIC_IUBENDA_COOKIE_POLICY_ID;
+  const iubendaPrivacyHref =
+    iubendaEnabled && iubendaCookiePolicyId
+      ? `https://www.iubenda.com/privacy-policy/${iubendaCookiePolicyId}`
+      : '/privacy-policy';
+
+  const clientLinks: Array<{
+    label: string;
+    href: string;
+    isAccount?: boolean;
+    isExternal?: boolean;
+  }> = [
     { label: t('links.mission'), href: '/mission' },
     { label: t('links.support'), href: '/contatti' },
     { label: t('links.account'), href: '/account', isAccount: true },
     {
       label: t('links.legal'),
-      href: 'https://www.iubenda.com/privacy-policy/21492154',
-      isExternal: true,
+      href: iubendaPrivacyHref,
+      isExternal: iubendaPrivacyHref.startsWith('http'),
     },
   ];
 
@@ -52,6 +64,8 @@ export default function Client() {
             {isExternal ? (
               <a
                 href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline"
               >
                 {label}

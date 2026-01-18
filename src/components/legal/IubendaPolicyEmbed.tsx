@@ -10,16 +10,26 @@ export default function IubendaPolicyEmbed({
   kind,
   className = '',
   children,
+  openInNewTab = true,
 }: {
   kind: PolicyKind;
   className?: string;
   children?: React.ReactNode;
+  openInNewTab?: boolean;
 }) {
   const isPrivacy = kind === 'privacy';
 
-  const href = isPrivacy
-    ? 'https://www.iubenda.com/privacy-policy/21492154'
-    : 'https://www.iubenda.com/privacy-policy/21492154/cookie-policy';
+  const iubendaEnabled = process.env.NEXT_PUBLIC_IUBENDA_ENABLED === 'true';
+  const iubendaCookiePolicyId = process.env.NEXT_PUBLIC_IUBENDA_COOKIE_POLICY_ID;
+  const shouldUseIubenda = Boolean(iubendaEnabled && iubendaCookiePolicyId);
+
+  const href = shouldUseIubenda
+    ? isPrivacy
+      ? `https://www.iubenda.com/privacy-policy/${iubendaCookiePolicyId}`
+      : `https://www.iubenda.com/privacy-policy/${iubendaCookiePolicyId}/cookie-policy`
+    : isPrivacy
+      ? '/privacy-policy'
+      : '/cookie-policy';
 
   const title = isPrivacy ? 'Privacy Policy ' : 'Cookie Policy ';
   const fallbackLabel = isPrivacy ? 'Privacy Policy' : 'Cookie Policy';
@@ -28,13 +38,17 @@ export default function IubendaPolicyEmbed({
     <>
       <a
         href={href}
+        target={shouldUseIubenda && openInNewTab ? '_blank' : undefined}
+        rel={shouldUseIubenda && openInNewTab ? 'noopener noreferrer' : undefined}
         className={`iubenda-white iubenda-noiframe iubenda-embed iubenda-noiframe ${className}`}
         title={title}
       >
         {children || fallbackLabel}
       </a>
 
-      <Script src={IUBENDA_SCRIPT_SRC} strategy="afterInteractive" />
+      {shouldUseIubenda && !openInNewTab && (
+        <Script id="iubenda-policy-embed" src={IUBENDA_SCRIPT_SRC} strategy="afterInteractive" />
+      )}
     </>
   );
 }

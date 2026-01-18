@@ -38,6 +38,7 @@ export default function ProductsSection({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const showInitialSpinner = useSmoothLoading(loading, 150, 300);
+  const showFilteringSpinner = useSmoothLoading(isFiltering, 80, 220);
 
   const t = useTranslations('prodotti.list');
 
@@ -69,25 +70,6 @@ export default function ProductsSection({
     };
   }, []);
 
-  useEffect(() => {
-    if (initialCategoryIds.length) {
-      setSelectedCategories(initialCategoryIds);
-      setAppliedCategories(initialCategoryIds);
-      return;
-    }
-
-    if (initialFilterId) {
-      const segment = PRODUCT_FILTERS.find((f) => f.id === initialFilterId);
-      const ids = segment?.categoryIds ?? [];
-      setSelectedCategories(ids);
-      setAppliedCategories(ids);
-      return;
-    }
-
-    setSelectedCategories([]);
-    setAppliedCategories([]);
-  }, [initialFilterId, initialCategoryIds]);
-
   const filteredProducts = useMemo(() => {
     if (!appliedCategories.length) return products;
 
@@ -100,6 +82,38 @@ export default function ProductsSection({
     products: filteredProducts,
     pageSize: PRODUCTS_PER_PAGE,
   });
+
+  const externalCategoryIds = useMemo(() => {
+    return initialCategoryIds.length
+      ? initialCategoryIds
+      : initialFilterId
+        ? (PRODUCT_FILTERS.find((f) => f.id === initialFilterId)?.categoryIds ?? [])
+        : [];
+  }, [initialCategoryIds, initialFilterId]);
+
+  const externalCategoryKey = useMemo(() => externalCategoryIds.join('|'), [externalCategoryIds]);
+  const lastExternalCategoryKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (lastExternalCategoryKeyRef.current === externalCategoryKey) return;
+    lastExternalCategoryKeyRef.current = externalCategoryKey;
+
+    if (!externalCategoryIds.length) return;
+
+    setSelectedCategories(externalCategoryIds);
+    setAppliedCategories(externalCategoryIds);
+    reset();
+
+    // Smooth-scroll to the grid when filters come from URL (subcategory/category)
+    requestAnimationFrame(() => {
+      gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // Brief local loading state for better perceived responsiveness
+    setIsFiltering(true);
+    const timeoutId = window.setTimeout(() => setIsFiltering(false), 260);
+    return () => window.clearTimeout(timeoutId);
+  }, [externalCategoryIds, externalCategoryKey, reset]);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -177,12 +191,22 @@ export default function ProductsSection({
               onApply={applyFilters}
             />
 
-            <div ref={gridRef} className="relative flex-1 transition-opacity duration-300">
+            <div
+              id="products-grid"
+              ref={gridRef}
+              className="relative flex-1 scroll-mt-32 transition-opacity duration-300"
+            >
               <ProductsGridSection
                 products={displayedProducts}
                 isLoading={isFiltering}
                 showSkeleton={isFiltering && displayedProducts.length === 0}
               />
+
+              {showFilteringSpinner && displayedProducts.length > 0 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/30 backdrop-blur-[1px] pointer-events-none">
+                  <Spinner size="lg" />
+                </div>
+              )}
 
               {hasMore && displayedProducts.length > 0 && (
                 <div ref={loadMoreRef} className="flex justify-center py-8">

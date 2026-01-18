@@ -32,6 +32,11 @@ export async function computePromoDiscount(params: {
   subtotal: number;
   email?: string;
   expectedEmail?: string;
+  /**
+   * When true, do not enforce promo.issuedToEmail matching.
+   * Useful for guest flows where we cannot reliably verify ownership.
+   */
+  ignoreIssuedToEmail?: boolean;
 }): Promise<PromoComputationResult> {
   const rawCode = params.promoCode;
   if (!rawCode) return { ok: false, reason: 'invalid' };
@@ -50,7 +55,7 @@ export async function computePromoDiscount(params: {
   if (!promo) return { ok: false, reason: 'invalid' };
 
   // If this promo was issued for a specific email, require a matching email.
-  if (promo.issuedToEmail) {
+  if (promo.issuedToEmail && !params.ignoreIssuedToEmail) {
     if (!email) return { ok: false, reason: 'email_mismatch' };
     if (promo.issuedToEmail !== email) return { ok: false, reason: 'email_mismatch' };
   }

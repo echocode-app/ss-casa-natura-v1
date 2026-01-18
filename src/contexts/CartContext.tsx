@@ -7,6 +7,7 @@ import { ApiError, cartService } from '@/lib/services/cart';
 import { useAuth } from '@/components/layout/AuthContext';
 import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import notify from '@/lib/notify';
+import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 
 const GUEST_CART_KEY = 'guest_cart_v1';
 const GUEST_CART_TTL = 1000 * 60 * 60 * 24 * 7;
@@ -359,26 +360,57 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const applyPromoCode = useCallback(
-    async (code: string, email?: string) => {
+    async (code: string) => {
       setIsLoading(true);
       setError(null);
 
-      const payload: ApplyPromoCodeRequest = { promoCode: code };
-      const resolvedEmail = user?.email || email;
-
-      if (resolvedEmail) {
-        payload.email = resolvedEmail.toLowerCase();
-      } else {
-        setIsLoading(false);
-        setError('promo: PROMO_EMAIL_REQUIRED');
-        throw new Error('PROMO_EMAIL_REQUIRED');
-      }
-
       try {
-        const cart = await cartService.applyPromoCode(payload);
-        setItems(cart.items.map(cartItemToUI));
-        setPromoCode(cart.promoCode);
-        setPromoDiscount(cart.promoDiscount);
+        if (user) {
+          // Authenticated carts live on the server; email is resolved server-side.
+          const payload: ApplyPromoCodeRequest = { promoCode: code };
+          const cart = await cartService.applyPromoCode(payload);
+          setItems(cart.items.map(cartItemToUI));
+          setPromoCode(cart.promoCode);
+          setPromoDiscount(cart.promoDiscount);
+          return;
+        }
+
+        // Guest cart lives client-side; validate promo against subtotal.
+        if (!items.length) {
+          throw new ApiError(
+            'Cart is empty',
+            400,
+            'CART_EMPTY',
+            'Il carrello è vuoto. Aggiungi prodotti prima di applicare il codice.',
+          );
+        }
+
+        const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+
+        const response = await fetch('/api/promocode/validate', {
+          method: 'POST',
+          headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
+          credentials: 'include',
+          body: JSON.stringify({ promoCode: code, subtotal }),
+        });
+
+        const result = await response.json().catch(() => ({
+          success: false,
+          errorCode: 'UNKNOWN',
+          error: 'Unknown error',
+        }));
+
+        if (!response.ok || !result?.success) {
+          throw new ApiError(
+            String(result?.error || 'Failed to apply promo code'),
+            response.status,
+            String(result?.errorCode || 'UNKNOWN'),
+            result,
+          );
+        }
+
+        setPromoCode(String(result.promoCode));
+        setPromoDiscount(Number(result.promoDiscount) || 0);
       } catch (err: any) {
         const codeFromApi = err?.errorCode;
         const next = codeFromApi ? String(codeFromApi) : err?.message || 'UNKNOWN';
@@ -388,7 +420,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     },
-    [user],
+    [user, items],
   );
 
   const removePromoCode = useCallback(async () => {
@@ -396,10 +428,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const cart = await cartService.removePromoCode();
-      setItems(cart.items.map(cartItemToUI));
-      setPromoCode(cart.promoCode);
-      setPromoDiscount(cart.promoDiscount);
+      if (user) {
+        const cart = await cartService.removePromoCode();
+        setItems(cart.items.map(cartItemToUI));
+        setPromoCode(cart.promoCode);
+        setPromoDiscount(cart.promoDiscount);
+      } else {
+        setPromoCode(undefined);
+        setPromoDiscount(undefined);
+      }
     } catch (err: any) {
       const codeFromApi = err?.errorCode;
       const next = codeFromApi ? String(codeFromApi) : err?.message || 'UNKNOWN';
@@ -408,7 +445,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user]);
 
   const getItemCount = useCallback(() => items.reduce((t, i) => t + i.quantity, 0), [items]);
 

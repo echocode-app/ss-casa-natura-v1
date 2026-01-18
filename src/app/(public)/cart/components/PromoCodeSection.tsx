@@ -8,7 +8,6 @@ import {
 } from '@/lib/utils/cartPromoMessages';
 
 type Props = {
-  isAuthenticated: boolean;
   isDisabled: boolean;
   isApplyingPromo: boolean;
   showPromoSpinner: boolean;
@@ -16,39 +15,25 @@ type Props = {
   promoDiscount?: number;
   error: string | null;
 
-  promoEmail: string;
-  setPromoEmail: (next: string) => void;
-  promoEmailError: string;
-  setPromoEmailError: (next: string) => void;
-
   promoInput: string;
   setPromoInput: (next: string) => void;
-
-  isValidEmail: (email: string) => boolean;
   onApplyPromo: () => Promise<void>;
   onRemovePromo: () => Promise<void>;
 };
 
 export function PromoCodeSection({
-  isAuthenticated,
   isDisabled,
   isApplyingPromo,
   showPromoSpinner,
   promoCode,
   promoDiscount,
   error,
-  promoEmail,
-  setPromoEmail,
-  promoEmailError,
-  setPromoEmailError,
   promoInput,
   setPromoInput,
-  isValidEmail,
   onApplyPromo,
   onRemovePromo,
 }: Props) {
   const t = useTranslations('user.cart');
-  const tProfile = useTranslations('user.account.profile');
 
   const promoErrorMessage =
     error && error.includes('promo')
@@ -90,34 +75,6 @@ export function PromoCodeSection({
 
   return (
     <div>
-      {!isAuthenticated && (
-        <div>
-          <div
-            className={`
-              flex items-center justify-between pl-2
-              border border-dashed rounded-input-xl
-              ${isDisabled ? 'opacity-60' : ''}
-            `}
-          >
-            <input
-              type="email"
-              placeholder={tProfile('email')}
-              value={promoEmail}
-              disabled={isDisabled}
-              onChange={(e) => {
-                setPromoEmail(e.target.value);
-                setPromoEmailError('');
-              }}
-              className="flex-1 border-none outline-none bg-transparent text-[clamp(12px,3vw,18px)]"
-            />
-          </div>
-
-          {promoEmailError && (
-            <p className="mt-1 px-2 text-[clamp(10px,3vw,14px)] text-red-500">{promoEmailError}</p>
-          )}
-        </div>
-      )}
-
       <div
         className={`
           mt-5
@@ -140,12 +97,7 @@ export function PromoCodeSection({
           <button
             type="button"
             onClick={onApplyPromo}
-            disabled={
-              isDisabled ||
-              isApplyingPromo ||
-              !promoInput.trim() ||
-              (!isAuthenticated && !isValidEmail(promoEmail.trim()))
-            }
+            disabled={isDisabled || isApplyingPromo || !promoInput.trim()}
             className={`
               bg-background-green text-black
               min-w-[60px] lg:min-w-[100px]
@@ -154,10 +106,7 @@ export function PromoCodeSection({
               font-semibold
               transition-opacity duration-300
               ${
-                isDisabled ||
-                isApplyingPromo ||
-                !promoInput.trim() ||
-                (!isAuthenticated && !isValidEmail(promoEmail.trim()))
+                isDisabled || isApplyingPromo || !promoInput.trim()
                   ? 'cursor-not-allowed opacity-60'
                   : 'hover:opacity-90'
               }

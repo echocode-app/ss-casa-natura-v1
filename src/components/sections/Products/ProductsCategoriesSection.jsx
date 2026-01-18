@@ -26,18 +26,6 @@ export default function ProductsCategoriesSection() {
     setCanSlide(PRODUCT_CATEGORIES.length > 4);
   }, []);
 
-  const handleCategoryClick = () => {
-    // Smooth scroll to products grid
-    setTimeout(() => {
-      const productsGrid = document.querySelector(
-        'main > section:nth-of-type(3) div[class*="flex-1"]',
-      );
-      if (productsGrid) {
-        productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
-  };
-
   const buttonBaseClass = `
     bg-[#F3F2E3]
     absolute top-1/2 -translate-y-1/2 z-20 
@@ -54,7 +42,7 @@ export default function ProductsCategoriesSection() {
       <Link
         key={category.id}
         href={`/prodotti?subcategory=${category.id}`}
-        onClick={handleCategoryClick}
+        scroll={false}
         className="group flex flex-col items-center gap-2 lg:gap-3 focus:outline-none py-1"
       >
         <div

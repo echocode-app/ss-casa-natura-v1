@@ -6,6 +6,7 @@ import { Raleway } from 'next/font/google';
 import ClientLoader from '@/components/layout/ClientLoader';
 import { AuthProvider } from '@/components/layout/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
+import CsrfBootstrap from '@/components/security/CsrfBootstrap';
 
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
@@ -30,22 +31,40 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const locale = await getLocale();
   const messages = await getMessages();
 
+  const iubendaEnabled = process.env.NEXT_PUBLIC_IUBENDA_ENABLED === 'true';
+  const iubendaSiteId = process.env.NEXT_PUBLIC_IUBENDA_SITE_ID;
+  const iubendaCookiePolicyId = process.env.NEXT_PUBLIC_IUBENDA_COOKIE_POLICY_ID;
+
+  const shouldLoadIubenda = Boolean(iubendaEnabled && iubendaSiteId && iubendaCookiePolicyId);
+
   return (
     <html lang={locale}>
       <body className={raleway.className}>
-        {process.env.NEXT_PUBLIC_IUBENDA_ENABLED === 'true' && (
-          <Script
-            src="https://cdn.iubenda.com/cs/iubenda_cs.js"
-            strategy="beforeInteractive"
-            data-site-id="__IUBENDA_SITE_ID__"
-            data-cookie-policy-id="__IUBENDA_POLICY_ID__"
-          />
+        {shouldLoadIubenda && (
+          <>
+            <Script id="iubenda-cs-init" strategy="beforeInteractive">
+              {`window._iub = window._iub || [];
+window._iub.csConfiguration = {
+  siteId: ${JSON.stringify(iubendaSiteId)},
+  cookiePolicyId: ${JSON.stringify(iubendaCookiePolicyId)},
+  lang: ${JSON.stringify(locale)},
+};`}
+            </Script>
+            <Script
+              src="https://cdn.iubenda.com/cs/iubenda_cs.js"
+              strategy="beforeInteractive"
+              data-site-id={iubendaSiteId}
+              data-cookie-policy-id={iubendaCookiePolicyId}
+              data-lang={locale}
+            />
+          </>
         )}
 
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
             <CartProvider>
               <ClientLoader>{children}</ClientLoader>
+              <CsrfBootstrap />
             </CartProvider>
           </AuthProvider>
         </NextIntlClientProvider>

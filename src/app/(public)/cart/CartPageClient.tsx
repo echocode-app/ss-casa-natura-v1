@@ -7,16 +7,14 @@ import SimpleBreadcrumbs from '@/components/ui/Breadcrumbs/SimpleBreadcrumbs';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import Link from 'next/link';
 import Spinner from '@/components/ui/Spinner/Spinner';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
-import { useAuth } from '@/components/layout/AuthContext';
 import { useRouter } from 'next/navigation';
 import { CartItemsPanel } from './components/CartItemsPanel';
 import { CartSummaryPanel } from './components/CartSummaryPanel';
 
 export function CartPageClient() {
   const t = useTranslations('user.cart');
-  const tValidation = useTranslations('validation');
   const tHeaderActions = useTranslations('header.actions');
   const router = useRouter();
   const {
@@ -35,26 +33,16 @@ export function CartPageClient() {
     promoDiscount,
     error,
   } = useCart();
-  const { isAuthenticated, user } = useAuth();
 
   const [promoInput, setPromoInput] = useState('');
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
-  const [promoEmail, setPromoEmail] = useState('');
-  const [promoEmailError, setPromoEmailError] = useState('');
 
   const showInitSpinner = useSmoothLoading(isInitializing, 120, 300);
   const showActionSpinner = useSmoothLoading(isLoading && !isInitializing, 120, 220);
   const showPromoSpinner = useSmoothLoading(isApplyingPromo, 120, 220);
 
   const isDisabled = items.length === 0 || isLoading;
-
-  useEffect(() => {
-    setPromoEmail(user?.email || '');
-  }, [user]);
-
-  const isValidEmail = (email: string) => /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
-
   const totalQuantity = getItemCount();
   const subtotal = getSubtotal();
   const total = getTotal();
@@ -93,17 +81,9 @@ export function CartPageClient() {
   const handleApplyPromo = async () => {
     if (!promoInput.trim()) return;
     setIsApplyingPromo(true);
-    setPromoEmailError('');
 
-    if (!isAuthenticated && !isValidEmail(promoEmail.trim())) {
-      setPromoEmailError(tValidation('invalidEmail'));
-      setIsApplyingPromo(false);
-      return;
-    }
-
-    const emailToSend = isAuthenticated ? user?.email : promoEmail.trim();
     try {
-      await applyPromoCode(promoInput.trim().toUpperCase(), emailToSend || undefined);
+      await applyPromoCode(promoInput.trim().toUpperCase());
       setPromoInput('');
     } catch {
     } finally {
@@ -194,20 +174,14 @@ export function CartPageClient() {
             totalQuantity={totalQuantity}
             subtotal={subtotal}
             total={total}
-            isAuthenticated={isAuthenticated}
             isDisabled={isDisabled}
             promoCode={promoCode}
             promoDiscount={promoDiscount}
             error={error}
-            promoEmail={promoEmail}
-            setPromoEmail={setPromoEmail}
-            promoEmailError={promoEmailError}
-            setPromoEmailError={setPromoEmailError}
             promoInput={promoInput}
             setPromoInput={setPromoInput}
             isApplyingPromo={isApplyingPromo}
             showPromoSpinner={showPromoSpinner}
-            isValidEmail={isValidEmail}
             onApplyPromo={handleApplyPromo}
             onRemovePromo={handleRemovePromo}
             onProceedToCheckout={handleProceedToCheckout}

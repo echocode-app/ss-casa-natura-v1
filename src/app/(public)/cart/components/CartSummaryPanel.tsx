@@ -8,26 +8,17 @@ type Props = {
   totalQuantity: number;
   subtotal: number;
   total: number;
-
-  isAuthenticated: boolean;
   isDisabled: boolean;
 
   promoCode?: string;
   promoDiscount?: number;
   error: string | null;
 
-  promoEmail: string;
-  setPromoEmail: (next: string) => void;
-  promoEmailError: string;
-  setPromoEmailError: (next: string) => void;
-
   promoInput: string;
   setPromoInput: (next: string) => void;
 
   isApplyingPromo: boolean;
   showPromoSpinner: boolean;
-
-  isValidEmail: (email: string) => boolean;
   onApplyPromo: () => Promise<void>;
   onRemovePromo: () => Promise<void>;
 
@@ -39,20 +30,14 @@ export function CartSummaryPanel({
   totalQuantity,
   subtotal,
   total,
-  isAuthenticated,
   isDisabled,
   promoCode,
   promoDiscount,
   error,
-  promoEmail,
-  setPromoEmail,
-  promoEmailError,
-  setPromoEmailError,
   promoInput,
   setPromoInput,
   isApplyingPromo,
   showPromoSpinner,
-  isValidEmail,
   onApplyPromo,
   onRemovePromo,
   onProceedToCheckout,
@@ -75,20 +60,14 @@ export function CartSummaryPanel({
 
           <div className="space-y-5">
             <PromoCodeSection
-              isAuthenticated={isAuthenticated}
               isDisabled={isDisabled}
               isApplyingPromo={isApplyingPromo}
               showPromoSpinner={showPromoSpinner}
               promoCode={promoCode}
               promoDiscount={promoDiscount}
               error={error}
-              promoEmail={promoEmail}
-              setPromoEmail={setPromoEmail}
-              promoEmailError={promoEmailError}
-              setPromoEmailError={setPromoEmailError}
               promoInput={promoInput}
               setPromoInput={setPromoInput}
-              isValidEmail={isValidEmail}
               onApplyPromo={onApplyPromo}
               onRemovePromo={onRemovePromo}
             />
