@@ -40,7 +40,14 @@ async function main() {
       [
         '// Auto-generated for Vercel build compatibility.',
         '// Next.js may omit this file in some build modes.',
-        'export {};',
+        "'use strict';",
+        "const { NextResponse } = require('next/server');",
+        '',
+        'function middleware() {',
+        '  return NextResponse.next();',
+        '}',
+        '',
+        'module.exports = { middleware };',
         '',
       ].join('\n'),
     );
@@ -77,7 +84,7 @@ async function main() {
 
   const payload = {
     version: 1,
-    files: uniq(files).filter(Boolean),
+    files: uniq(['middleware.js', ...files]).filter(Boolean),
   };
 
   await fs.writeFile(target, JSON.stringify(payload));
