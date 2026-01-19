@@ -25,18 +25,32 @@ async function main() {
 
   if (!(await fileExists(serverDir))) return;
 
-  // Next.js (особенно с Turbopack) может не генерировать `.next/server/middleware.js`
-  // даже при наличии middleware. Если мы создадим `middleware.js.nft.json` без
-  // соответствующего `middleware.js`, Vercel может упасть на lstat middleware.js.
+  const manifestPath = path.join(serverDir, 'middleware-manifest.json');
+  const nestedManifestPath = path.join(serverDir, 'middleware', 'middleware-manifest.json');
+
+  // Если middleware отсутствует (нет ни одного манифеста) — ничего не делаем.
+  if (!(await fileExists(manifestPath)) && !(await fileExists(nestedManifestPath))) return;
+
+  // Next.js (особенно с Turbopack) может не генерировать `.next/server/middleware.js`.
+  // Но Vercel ожидает этот файл и/или `.nft.json`. Поэтому гарантируем их наличие.
   const middlewareEntrypoint = path.join(serverDir, 'middleware.js');
-  if (!(await fileExists(middlewareEntrypoint))) return;
+  if (!(await fileExists(middlewareEntrypoint))) {
+    await fs.writeFile(
+      middlewareEntrypoint,
+      [
+        '// Auto-generated for Vercel build compatibility.',
+        '// Next.js may omit this file in some build modes.',
+        'export {};',
+        '',
+      ].join('\n'),
+    );
+  }
 
   const target = path.join(serverDir, 'middleware.js.nft.json');
   if (await fileExists(target)) return;
 
   const files = [];
 
-  const manifestPath = path.join(serverDir, 'middleware-manifest.json');
   if (await fileExists(manifestPath)) {
     try {
       const raw = await fs.readFile(manifestPath, 'utf8');
@@ -57,8 +71,6 @@ async function main() {
       // ignore parse errors; we'll still create a minimal trace file
     }
   }
-
-  const nestedManifestPath = path.join(serverDir, 'middleware', 'middleware-manifest.json');
   if (await fileExists(nestedManifestPath)) {
     files.push(toPosix(path.relative(serverDir, nestedManifestPath)));
   }
