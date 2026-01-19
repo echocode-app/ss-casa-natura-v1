@@ -32,6 +32,21 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  async redirects() {
+    return [
+      {
+        source: '/legal',
+        destination: '/privacy-policy',
+        permanent: true,
+      },
+      {
+        source: '/supporto',
+        destination: '/contatti',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

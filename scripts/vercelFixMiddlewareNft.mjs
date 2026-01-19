@@ -25,6 +25,12 @@ async function main() {
 
   if (!(await fileExists(serverDir))) return;
 
+  // Next.js (особенно с Turbopack) может не генерировать `.next/server/middleware.js`
+  // даже при наличии middleware. Если мы создадим `middleware.js.nft.json` без
+  // соответствующего `middleware.js`, Vercel может упасть на lstat middleware.js.
+  const middlewareEntrypoint = path.join(serverDir, 'middleware.js');
+  if (!(await fileExists(middlewareEntrypoint))) return;
+
   const target = path.join(serverDir, 'middleware.js.nft.json');
   if (await fileExists(target)) return;
 
