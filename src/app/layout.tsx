@@ -48,6 +48,14 @@ window._iub.csConfiguration = {
   siteId: ${JSON.stringify(iubendaSiteId)},
   cookiePolicyId: ${JSON.stringify(iubendaCookiePolicyId)},
   lang: ${JSON.stringify(locale)},
+  // Prefer a compact, non-intrusive banner; CSS overrides in globals.css handle final styling.
+  banner: {
+    position: 'float-bottom-left',
+    backgroundColor: '#fdfcfa',
+    textColor: '#555555',
+    acceptButtonColor: '#FFFC8A',
+    acceptButtonCaptionColor: '#151515',
+  },
 };`}
             </Script>
             <Script

@@ -25,7 +25,19 @@ const nextConfig: NextConfig = {
 
   // Security headers
   async headers() {
+    const securityHeadersWithoutCsp = securityHeaders.filter(
+      (h) => h.key !== 'Content-Security-Policy',
+    );
+
     return [
+      {
+        source: '/admin/:path*',
+        headers: securityHeadersWithoutCsp,
+      },
+      {
+        source: '/api/:path*',
+        headers: securityHeadersWithoutCsp,
+      },
       {
         source: '/:path*',
         headers: securityHeaders,
