@@ -3,11 +3,20 @@ import { handleApi } from '@/lib/utils/handleApi';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
 import connectToDB from '@/lib/db/mongo';
 import HeroBanner from '@/lib/db/models/HeroBanner';
+import { destroyImage } from '@/lib/cloudinary/server';
 import { z } from 'zod';
 
 const patchSchema = z
   .object({
-    image: z.string().min(1).optional(),
+    image: z
+      .string()
+      .min(1)
+      .refine(
+        (value) => value.startsWith('https://res.cloudinary.com/') || value.startsWith('/images/'),
+        { message: 'Image must be a Cloudinary URL (or a legacy /images/ path)' },
+      )
+      .optional(),
+    imagePublicId: z.string().optional().nullable(),
     title: z.string().max(120).optional().nullable(),
     text: z.string().max(300).optional().nullable(),
     cta: z.string().max(80).optional().nullable(),
@@ -66,9 +75,25 @@ export const PUT = handleApi(
       }
     }
 
+    const existing = await HeroBanner.findById(id).lean();
+    if (!existing) {
+      return NextResponse.json({ success: false, error: 'Banner non trovato' }, { status: 404 });
+    }
+
     const updated = await HeroBanner.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!updated) {
       return NextResponse.json({ success: false, error: 'Banner non trovato' }, { status: 404 });
+    }
+
+    // If image changed and we have an old Cloudinary publicId, try to clean it up.
+    const newPublicId = (updated as any)?.imagePublicId;
+    const oldPublicId = (existing as any)?.imagePublicId;
+    if (oldPublicId && newPublicId && oldPublicId !== newPublicId) {
+      try {
+        await destroyImage(oldPublicId);
+      } catch {
+        // best-effort
+      }
     }
 
     return NextResponse.json({ success: true, banner: updated });
@@ -87,6 +112,15 @@ export const DELETE = handleApi(
     const deleted = await HeroBanner.findByIdAndDelete(id).lean();
     if (!deleted) {
       return NextResponse.json({ success: false, error: 'Banner non trovato' }, { status: 404 });
+    }
+
+    const publicId = (deleted as any)?.imagePublicId;
+    if (publicId) {
+      try {
+        await destroyImage(publicId);
+      } catch {
+        // best-effort
+      }
     }
 
     return NextResponse.json({ success: true });

@@ -6,7 +6,14 @@ import HeroBanner from '@/lib/db/models/HeroBanner';
 import { z } from 'zod';
 
 const bannerSchema = z.object({
-  image: z.string().min(1),
+  image: z
+    .string()
+    .min(1)
+    .refine(
+      (value) => value.startsWith('https://res.cloudinary.com/') || value.startsWith('/images/'),
+      { message: 'Image must be a Cloudinary URL (or a legacy /images/ path)' },
+    ),
+  imagePublicId: z.string().optional(),
   title: z.string().max(120).optional(),
   text: z.string().max(300).optional(),
   cta: z.string().max(80).optional(),

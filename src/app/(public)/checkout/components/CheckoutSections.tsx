@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Elements,
   ExpressCheckoutElement,
@@ -9,13 +9,185 @@ import {
   useStripe,
 } from '@stripe/react-stripe-js';
 import type { Stripe } from '@stripe/stripe-js';
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import FormError from '@/components/ui/Form/FormError';
 import { normalizeInputValue } from '@/lib/utils/inputHelpers';
 import IubendaPolicyEmbed from '@/components/legal/IubendaPolicyEmbed';
+import { useDebounce } from '@/hooks/useDebounce';
+import { IT_PROVINCES } from '@/lib/address/itProvinces';
+
+type MapboxProxyOk = { features: MapboxFeature[] };
+type MapboxProxyErr = { error: { code: string; message: string } };
+
+type MapboxFeature = {
+  id: string;
+  place_name: string;
+  text: string;
+  address?: string;
+  center?: [number, number];
+  context?: Array<{ id: string; text: string; short_code?: string } | undefined>;
+  properties?: { postcode?: string };
+};
+
+function pickMapboxContextText(feature: MapboxFeature, prefix: string): string | null {
+  const ctx = feature.context || [];
+  const found = ctx.find((c) => c?.id?.startsWith(prefix));
+  return found?.text || null;
+}
+
+function getMapboxPostcode(feature: MapboxFeature): string | null {
+  const direct = feature.properties?.postcode;
+  if (direct) return direct;
+  return pickMapboxContextText(feature, 'postcode.');
+}
+
+async function fetchMapbox(
+  query: string,
+  {
+    types,
+    country,
+    language,
+    limit,
+    proximity,
+  }: {
+    types: string;
+    country?: string;
+    language?: string;
+    limit?: number;
+    proximity?: [number, number];
+  },
+): Promise<{ features: MapboxFeature[]; error: MapboxProxyErr['error'] | null }> {
+  const trimmed = query.trim();
+  if (!trimmed) return { features: [], error: null };
+
+  const url = new URL('/api/mapbox/geocode', window.location.origin);
+  url.searchParams.set('q', trimmed);
+  url.searchParams.set('types', types);
+  url.searchParams.set('limit', String(limit ?? 6));
+  if (language) url.searchParams.set('language', language);
+  if (country && /^[A-Z]{2}$/.test(country.toUpperCase())) {
+    url.searchParams.set('country', country.toUpperCase());
+  }
+  if (proximity) {
+    url.searchParams.set('proximity', `${proximity[0]},${proximity[1]}`);
+  }
+
+  const res = await fetch(url.toString());
+  const data = (await res.json()) as MapboxProxyOk | MapboxProxyErr;
+  if (!res.ok || 'error' in data) {
+    return {
+      features: [],
+      error: 'error' in data ? data.error : { code: 'UNKNOWN', message: 'Unknown error' },
+    };
+  }
+  return { features: (data.features || []).filter(Boolean), error: null };
+}
+
+async function fetchMapboxReverse(
+  center: [number, number],
+  {
+    types,
+    country,
+    language,
+    limit,
+  }: {
+    types: string;
+    country?: string;
+    language?: string;
+    limit?: number;
+  },
+): Promise<{ features: MapboxFeature[]; error: MapboxProxyErr['error'] | null }> {
+  const url = new URL('/api/mapbox/geocode', window.location.origin);
+  url.searchParams.set('reverse', '1');
+  url.searchParams.set('center', `${center[0]},${center[1]}`);
+  url.searchParams.set('types', types);
+  url.searchParams.set('limit', String(limit ?? 1));
+  if (language) url.searchParams.set('language', language);
+  if (country && /^[A-Z]{2}$/.test(country.toUpperCase())) {
+    url.searchParams.set('country', country.toUpperCase());
+  }
+
+  const res = await fetch(url.toString());
+  const data = (await res.json()) as MapboxProxyOk | MapboxProxyErr;
+  if (!res.ok || 'error' in data) {
+    return {
+      features: [],
+      error: 'error' in data ? data.error : { code: 'UNKNOWN', message: 'Unknown error' },
+    };
+  }
+  return { features: (data.features || []).filter(Boolean), error: null };
+}
+
+function buildStreetLine(feature: MapboxFeature): string {
+  const parts = [feature.text, feature.address].filter(Boolean);
+  return parts.join(' ').trim();
+}
+
+function SuggestionsDropdown({
+  open,
+  isLoading,
+  emptyText,
+  items,
+  activeIndex,
+  onPick,
+  ariaLabel,
+}: {
+  open: boolean;
+  isLoading: boolean;
+  emptyText: string;
+  items: Array<{ key: string; label: string }>;
+  activeIndex: number;
+  onPick: (index: number) => void;
+  ariaLabel?: string;
+}) {
+  if (!open) return null;
+
+  return (
+    <div className="absolute z-50 mt-2 w-full rounded-input-xl border border-input bg-white shadow-lg overflow-hidden">
+      {isLoading ? (
+        <div className="px-4 py-3 text-sm text-text-muted flex items-center gap-2">
+          <Spinner size="sm" />
+          <span>Caricamento…</span>
+        </div>
+      ) : items.length === 0 ? (
+        <div className="px-4 py-3 text-sm text-text-muted">{emptyText}</div>
+      ) : (
+        <ul
+          role="listbox"
+          aria-label={ariaLabel || 'Suggestions'}
+          className="max-h-64 overflow-auto"
+        >
+          {items.map((it, idx) => {
+            const isActive = idx === activeIndex;
+            return (
+              <li
+                key={it.key}
+                role="option"
+                aria-selected={isActive}
+                onMouseDown={(e) => {
+                  // prevent input blur before click
+                  e.preventDefault();
+                  onPick(idx);
+                }}
+                className={
+                  'px-4 py-3 text-sm cursor-pointer ' +
+                  (isActive
+                    ? 'bg-background-secondary text-text-extrablack'
+                    : 'text-text-extrablack')
+                }
+              >
+                {it.label}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export type ShippingQuote = {
   shippingPrice: number;
@@ -310,8 +482,8 @@ export function CheckoutDeliverySection({
   touchField,
   validateField,
 }: {
-  country: 'IT';
-  setCountry: (value: 'IT') => void;
+  country: string;
+  setCountry: (value: string) => void;
   postalCode: string;
   setPostalCode: (value: string) => void;
   name: string;
@@ -337,6 +509,155 @@ export function CheckoutDeliverySection({
   validateField: (field: string, value: unknown) => boolean;
 }) {
   const t = useTranslations('checkout');
+  const locale = useLocale();
+
+  const FIXED_COUNTRY = 'IT';
+
+  const countryDisplayNames = useMemo(() => {
+    try {
+      return new Intl.DisplayNames([locale], { type: 'region' });
+    } catch {
+      return null;
+    }
+  }, [locale]);
+
+  useEffect(() => {
+    if ((country || '').toUpperCase() !== FIXED_COUNTRY) {
+      setCountry(FIXED_COUNTRY);
+    }
+  }, [country, setCountry]);
+
+  const countryLabel = useMemo(() => {
+    return countryDisplayNames?.of?.(FIXED_COUNTRY) || 'Italia';
+  }, [countryDisplayNames]);
+
+  const provinceOptions = useMemo(() => {
+    return IT_PROVINCES.map((p) => ({ value: p.code, label: `${p.name} (${p.code})` }));
+  }, []);
+
+  useEffect(() => {
+    if (province && !IT_PROVINCES.some((p) => p.code === province)) {
+      setProvince('');
+    }
+  }, [province, setProvince]);
+
+  const [addrOpen, setAddrOpen] = useState(false);
+  const [addrLoading, setAddrLoading] = useState(false);
+  const [addrActiveIndex, setAddrActiveIndex] = useState(-1);
+  const [addrFeatures, setAddrFeatures] = useState<MapboxFeature[]>([]);
+  const [addrError, setAddrError] = useState<string | null>(null);
+
+  const [cityOpen, setCityOpen] = useState(false);
+  const [cityLoading, setCityLoading] = useState(false);
+  const [cityActiveIndex, setCityActiveIndex] = useState(-1);
+  const [cityFeatures, setCityFeatures] = useState<MapboxFeature[]>([]);
+  const [cityError, setCityError] = useState<string | null>(null);
+
+  const lastCityCenterRef = useRef<[number, number] | null>(null);
+
+  const debouncedAddressSearch = useDebounce(async (q: string, _cc: string) => {
+    setAddrLoading(true);
+    try {
+      const { features, error } = await fetchMapbox(q, {
+        types: 'address',
+        country: FIXED_COUNTRY,
+        language: locale,
+        limit: 6,
+      });
+      setAddrError(error ? error.message : null);
+      setAddrFeatures(features);
+      setAddrActiveIndex(features.length ? 0 : -1);
+    } finally {
+      setAddrLoading(false);
+    }
+  }, 250);
+
+  const debouncedCitySearch = useDebounce(async (q: string, _cc: string) => {
+    setCityLoading(true);
+    try {
+      const { features, error } = await fetchMapbox(q, {
+        types: 'place',
+        country: FIXED_COUNTRY,
+        language: locale,
+        limit: 6,
+      });
+      setCityError(error ? error.message : null);
+      setCityFeatures(features);
+      setCityActiveIndex(features.length ? 0 : -1);
+    } finally {
+      setCityLoading(false);
+    }
+  }, 250);
+
+  const addressItems = useMemo(
+    () => addrFeatures.map((f) => ({ key: f.id, label: f.place_name })),
+    [addrFeatures],
+  );
+
+  const cityItems = useMemo(
+    () => cityFeatures.map((f) => ({ key: f.id, label: f.text || f.place_name })),
+    [cityFeatures],
+  );
+
+  async function tryFillPostalCodeFromCityCenter(center: [number, number] | null) {
+    if (!center) return;
+    if (postalCode.trim()) return;
+    const { features } = await fetchMapboxReverse(center, {
+      types: 'postcode',
+      country: FIXED_COUNTRY,
+      language: locale,
+      limit: 1,
+    });
+    const first = features[0];
+    const pc = first ? getMapboxPostcode(first) : null;
+    if (pc) setPostalCode(String(pc).replace(/\s/g, '').slice(0, 20));
+  }
+
+  function applySelectedAddress(feature: MapboxFeature) {
+    const nextAddress1 = buildStreetLine(feature);
+    const nextCity = pickMapboxContextText(feature, 'place.') || city;
+    const nextProvince = pickMapboxContextText(feature, 'region.') || province;
+    const nextPostal = getMapboxPostcode(feature) || postalCode;
+
+    setCountry(FIXED_COUNTRY);
+    setAddress1(nextAddress1);
+    if (nextCity) setCity(nextCity);
+    if (nextProvince) setProvince(nextProvince);
+    if (nextPostal) setPostalCode(String(nextPostal).replace(/\s/g, '').slice(0, 20));
+
+    // If postcode is missing but we have coordinates, try reverse-lookup a nearby CAP.
+    if (!getMapboxPostcode(feature) && feature.center && !postalCode.trim()) {
+      void (async () => {
+        const { features } = await fetchMapboxReverse(feature.center as [number, number], {
+          types: 'postcode',
+          country: FIXED_COUNTRY,
+          language: locale,
+          limit: 1,
+        });
+        const first = features[0];
+        const pc = first ? getMapboxPostcode(first) : null;
+        if (pc) setPostalCode(String(pc).replace(/\s/g, '').slice(0, 20));
+      })();
+    }
+
+    // Re-validate touched fields immediately.
+    if (touched.country) validateField('country', FIXED_COUNTRY);
+    if (touched.addressLine1) validateField('addressLine1', nextAddress1);
+    if (touched.city) validateField('city', nextCity);
+    if (touched.province) validateField('province', nextProvince);
+    if (touched.postalCode) validateField('postalCode', nextPostal);
+
+    setAddrOpen(false);
+  }
+
+  function applySelectedCity(feature: MapboxFeature) {
+    const nextCity = feature.text || feature.place_name;
+    setCity(nextCity);
+    lastCityCenterRef.current = feature.center || null;
+    if (touched.city) validateField('city', nextCity);
+    setCityOpen(false);
+    void tryFillPostalCodeFromCityCenter(lastCityCenterRef.current);
+  }
 
   return (
     <section className="bg-background-secondary rounded-[20px] p-4 md:p-6">
@@ -347,19 +668,12 @@ export function CheckoutDeliverySection({
           <label htmlFor="checkout-country" className="text-sm font-medium text-text-muted">
             {t('delivery.country')}
           </label>
-          <select
+          <input
             id="checkout-country"
-            value={country}
-            onChange={(e) => {
-              const next = (e.target.value.toUpperCase() as 'IT') || 'IT';
-              setCountry(next);
-              touchField('country');
-              validateField('country', next);
-            }}
+            value={countryLabel}
+            readOnly
             className={getInputClass('country')}
-          >
-            <option value="IT">Italia</option>
-          </select>
+          />
           <FormError message={touched.country ? fieldErrors.country : ''} />
         </div>
 
@@ -458,7 +772,7 @@ export function CheckoutDeliverySection({
           <FormError message={touched.company ? fieldErrors.company : ''} />
         </div>
 
-        <div className="sm:col-span-2">
+        <div className="sm:col-span-2 relative">
           <label htmlFor="checkout-address1" className="text-sm font-medium text-text-muted">
             {t('delivery.address1')}
           </label>
@@ -468,17 +782,60 @@ export function CheckoutDeliverySection({
             onChange={(e) => {
               const next = e.target.value;
               setAddress1(next);
+              setAddrOpen(true);
+              if (next.trim().length >= 3) {
+                debouncedAddressSearch(next, 'IT');
+              } else {
+                setAddrFeatures([]);
+                setAddrActiveIndex(-1);
+                setAddrError(null);
+              }
               if (touched.addressLine1) validateField('addressLine1', next);
+            }}
+            onFocus={() => {
+              if (address1.trim().length >= 3) setAddrOpen(true);
             }}
             onBlur={(e) => {
               touchField('addressLine1');
               const normalized = normalizeInputValue(e.target.value, 'addressLine1');
               if (normalized !== e.target.value) setAddress1(normalized);
               validateField('addressLine1', normalized);
+              // close after focus moves (mouse picks are handled via onMouseDown)
+              setTimeout(() => setAddrOpen(false), 0);
+            }}
+            onKeyDown={(e) => {
+              if (!addrOpen) return;
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setAddrActiveIndex((i) => Math.min(addressItems.length - 1, Math.max(0, i + 1)));
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setAddrActiveIndex((i) => Math.max(0, i - 1));
+              } else if (e.key === 'Enter') {
+                if (addrActiveIndex >= 0 && addrActiveIndex < addrFeatures.length) {
+                  e.preventDefault();
+                  applySelectedAddress(addrFeatures[addrActiveIndex]);
+                }
+              } else if (e.key === 'Escape') {
+                setAddrOpen(false);
+              }
             }}
             autoComplete="street-address"
             placeholder={t('delivery.addressAutocompletePlaceholder')}
             className={getInputClass('addressLine1')}
+          />
+          <SuggestionsDropdown
+            open={addrOpen && address1.trim().length >= 3}
+            isLoading={addrLoading}
+            emptyText={
+              addrError
+                ? `Autocomplete non disponibile: ${addrError}`
+                : 'Nessun risultato. Continua a digitare oppure inserisci manualmente.'
+            }
+            items={addressItems}
+            activeIndex={addrActiveIndex}
+            onPick={(idx) => applySelectedAddress(addrFeatures[idx])}
+            ariaLabel="Address suggestions"
           />
           <FormError message={touched.addressLine1 ? fieldErrors.addressLine1 : ''} />
         </div>
@@ -505,7 +862,7 @@ export function CheckoutDeliverySection({
           <FormError message={touched.addressLine2 ? fieldErrors.addressLine2 : ''} />
         </div>
 
-        <div>
+        <div className="relative">
           <label htmlFor="checkout-city" className="text-sm font-medium text-text-muted">
             {t('delivery.city')}
           </label>
@@ -515,16 +872,58 @@ export function CheckoutDeliverySection({
             onChange={(e) => {
               const next = e.target.value;
               setCity(next);
+              setCityOpen(true);
+              if (next.trim().length >= 2) {
+                debouncedCitySearch(next, 'IT');
+              } else {
+                setCityFeatures([]);
+                setCityActiveIndex(-1);
+                setCityError(null);
+              }
               if (touched.city) validateField('city', next);
+            }}
+            onFocus={() => {
+              if (city.trim().length >= 2) setCityOpen(true);
             }}
             onBlur={(e) => {
               touchField('city');
               const normalized = normalizeInputValue(e.target.value, 'city');
               if (normalized !== e.target.value) setCity(normalized);
               validateField('city', normalized);
+              setTimeout(() => setCityOpen(false), 0);
+            }}
+            onKeyDown={(e) => {
+              if (!cityOpen) return;
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setCityActiveIndex((i) => Math.min(cityItems.length - 1, Math.max(0, i + 1)));
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setCityActiveIndex((i) => Math.max(0, i - 1));
+              } else if (e.key === 'Enter') {
+                if (cityActiveIndex >= 0 && cityActiveIndex < cityFeatures.length) {
+                  e.preventDefault();
+                  applySelectedCity(cityFeatures[cityActiveIndex]);
+                }
+              } else if (e.key === 'Escape') {
+                setCityOpen(false);
+              }
             }}
             autoComplete="address-level2"
             className={getInputClass('city')}
+          />
+          <SuggestionsDropdown
+            open={cityOpen && city.trim().length >= 2}
+            isLoading={cityLoading}
+            emptyText={
+              cityError
+                ? `Autocomplete non disponibile: ${cityError}`
+                : 'Nessun risultato. Inserisci manualmente.'
+            }
+            items={cityItems}
+            activeIndex={cityActiveIndex}
+            onPick={(idx) => applySelectedCity(cityFeatures[idx])}
+            ariaLabel="City suggestions"
           />
           <FormError message={touched.city ? fieldErrors.city : ''} />
         </div>
@@ -533,23 +932,24 @@ export function CheckoutDeliverySection({
           <label htmlFor="checkout-province" className="text-sm font-medium text-text-muted">
             {t('delivery.province')}
           </label>
-          <input
+          <select
             id="checkout-province"
             value={province}
             onChange={(e) => {
               const next = e.target.value;
               setProvince(next);
-              if (touched.province) validateField('province', next);
-            }}
-            onBlur={(e) => {
               touchField('province');
-              const normalized = normalizeInputValue(e.target.value, 'province');
-              if (normalized !== e.target.value) setProvince(normalized);
-              validateField('province', normalized);
+              validateField('province', next);
             }}
-            autoComplete="address-level1"
             className={getInputClass('province')}
-          />
+          >
+            <option value="">—</option>
+            {provinceOptions.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </select>
           <FormError message={touched.province ? fieldErrors.province : ''} />
         </div>
 

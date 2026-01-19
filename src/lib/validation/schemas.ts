@@ -71,23 +71,58 @@ export const requiredPhoneSchema = z
     return digits.length >= 8 && digits.length <= 15;
   }, 'phoneInvalid');
 
-export const checkoutFormSchema = z.object({
+export const checkoutFormBaseSchema = z.object({
   email: emailSchema,
   name: nameSchema,
   surname: nameSchema,
   phone: requiredPhoneSchema,
 
-  country: z.literal('IT', { message: 'countryInvalid' }),
+  country: z
+    .string()
+    .trim()
+    .transform((v) => v.toUpperCase())
+    .refine((v) => v === 'IT', { message: 'countryInvalid' }),
   company: companySchema,
   addressLine1: addressLine1Schema,
   addressLine2: z.string().trim().max(200, 'fieldTooLong').optional().or(z.literal('')),
-  postalCode: postalCodeITSchema,
+  postalCode: z.string().trim().min(1, 'postalCodeRequired').max(20, 'fieldTooLong'),
   city: citySchema,
   province: provinceSchema,
 
   marketingOptIn: z.boolean().optional(),
   shippingMethod: z.enum(['one_time', 'recurring_4w']).optional(),
 });
+
+function refineItalianPostalCode(
+  data: { country?: string; postalCode?: unknown },
+  ctx: z.RefinementCtx,
+) {
+  // Keep strict Italian CAP rules when shipping to Italy.
+  if (data.country === 'IT' && !/^\d{5}$/.test(String(data.postalCode || '').trim())) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['postalCode'],
+      message: 'postalCodeInvalid',
+    });
+  }
+}
+
+export const checkoutFormSchema = checkoutFormBaseSchema.superRefine(refineItalianPostalCode);
+
+export const checkoutAddressSchema = checkoutFormBaseSchema
+  .pick({
+    name: true,
+    surname: true,
+    phone: true,
+    country: true,
+    company: true,
+    addressLine1: true,
+    addressLine2: true,
+    postalCode: true,
+    city: true,
+    province: true,
+  })
+  .superRefine(refineItalianPostalCode);
 
 export const authSchemas = {
   login: z.object({

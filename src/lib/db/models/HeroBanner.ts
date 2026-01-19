@@ -2,6 +2,7 @@ import mongoose, { Schema, model } from 'mongoose';
 
 export interface IHeroBanner {
   image: string;
+  imagePublicId?: string;
   title?: string;
   text?: string;
   cta?: string;
@@ -23,6 +24,7 @@ export interface IHeroBanner {
 const heroBannerSchema = new Schema<IHeroBanner>(
   {
     image: { type: String, required: true },
+    imagePublicId: { type: String },
     title: { type: String },
     text: { type: String },
     cta: { type: String },

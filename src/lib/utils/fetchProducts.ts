@@ -74,9 +74,13 @@ export async function fetchProductsPaginated(
     ...(sortOrder && { sortOrder }),
   });
 
-  const res = await fetch(buildApiUrl(`/api/products?${params}`), { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch products');
-  return res.json();
+  try {
+    const res = await fetch(buildApiUrl(`/api/products?${params}`), { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch products');
+    return res.json();
+  } catch {
+    return fetchProductsPaginated(options, true);
+  }
 }
 
 export async function fetchProducts(useMock: boolean = false): Promise<Product[]> {
@@ -85,9 +89,13 @@ export async function fetchProducts(useMock: boolean = false): Promise<Product[]
     return PRODUCTS_MOCK;
   }
 
-  const res = await fetch(buildApiUrl('/api/products'), { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch products');
-  return res.json();
+  try {
+    const res = await fetch(buildApiUrl('/api/products'), { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch products');
+    return res.json();
+  } catch {
+    return fetchProducts(true);
+  }
 }
 
 export async function fetchProduct(
@@ -99,8 +107,12 @@ export async function fetchProduct(
     return PRODUCTS_MOCK.find((p) => p.slug === slug) || null;
   }
 
-  const res = await fetch(buildApiUrl(`/api/products/${slug}`), { cache: 'no-store' });
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error('Failed to fetch product');
-  return res.json();
+  try {
+    const res = await fetch(buildApiUrl(`/api/products/${slug}`), { cache: 'no-store' });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error('Failed to fetch product');
+    return res.json();
+  } catch {
+    return fetchProduct(slug, true);
+  }
 }

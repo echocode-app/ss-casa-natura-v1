@@ -12,6 +12,7 @@ import { PRODUCT_CATEGORIES } from '@/config/products/product.categories';
 type HeroBanner = {
   _id: string;
   image: string;
+  imagePublicId?: string;
   href?: string;
   isActive: boolean;
   sortOrder: number;
@@ -53,10 +54,13 @@ export default function AdminBannersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState<Record<string, boolean>>({});
   const [isDeleting, setIsDeleting] = useState<Record<string, boolean>>({});
+  const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
+  const [isUploadingNew, setIsUploadingNew] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const [newBanner, setNewBanner] = useState<Partial<HeroBanner>>({
     image: '',
+    imagePublicId: undefined,
     isActive: true,
     sortOrder: 0,
     href: '/prodotti',
@@ -90,11 +94,61 @@ export default function AdminBannersPage() {
     void load();
   }, []);
 
+  const uploadHeroImage = async (file: File, target: 'new' | string) => {
+    const folder = 'ss-casa-natura-v1/hero-banners';
+
+    if (target === 'new') {
+      setIsUploadingNew(true);
+    } else {
+      setIsUploading((p) => ({ ...p, [target]: true }));
+    }
+
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('folder', folder);
+
+      const res = await fetch('/api/admin/images', {
+        method: 'POST',
+        headers: getCsrfHeaders(),
+        credentials: 'include',
+        body: form,
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.success) throw new Error(data?.error || 'Upload fallito');
+
+      const url = String(data?.asset?.url || '');
+      const publicId = String(data?.asset?.publicId || '');
+      if (!url) throw new Error('Upload fallito: url mancante');
+
+      if (target === 'new') {
+        setNewBanner((p) => ({ ...p, image: url, imagePublicId: publicId || undefined }));
+      } else {
+        setItems((prev) =>
+          prev.map((x) =>
+            x._id === target ? { ...x, image: url, imagePublicId: publicId || undefined } : x,
+          ),
+        );
+      }
+
+      notify.success('Immagine caricata');
+    } catch (e: any) {
+      notify.error(e?.message || 'Upload fallito');
+    } finally {
+      if (target === 'new') {
+        setIsUploadingNew(false);
+      } else {
+        setIsUploading((p) => ({ ...p, [target]: false }));
+      }
+    }
+  };
+
   const save = async (banner: HeroBanner) => {
     setIsSaving((p) => ({ ...p, [banner._id]: true }));
     try {
       const payload = {
         image: banner.image,
+        imagePublicId: banner.imagePublicId || undefined,
         href: normalizeText(banner.href || '') ?? null,
         isActive: !!banner.isActive,
         sortOrder: Number.isFinite(Number(banner.sortOrder)) ? Number(banner.sortOrder) : 0,
@@ -157,6 +211,7 @@ export default function AdminBannersPage() {
     try {
       const payload = {
         image: newBanner.image.trim(),
+        ...(newBanner.imagePublicId ? { imagePublicId: newBanner.imagePublicId } : {}),
         href: normalizeText(newBanner.href || '') ?? null,
         isActive: !!newBanner.isActive,
         sortOrder: Number.isFinite(Number(newBanner.sortOrder)) ? Number(newBanner.sortOrder) : 0,
@@ -181,6 +236,7 @@ export default function AdminBannersPage() {
       setNewBanner((p) => ({
         ...p,
         image: '',
+        imagePublicId: undefined,
         titleIt: '',
         subtitleIt: '',
         titleEn: '',
@@ -235,15 +291,30 @@ export default function AdminBannersPage() {
                 htmlFor="new_banner_image"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Immagine (URL) *
+                Immagine (Cloudinary) *
               </label>
               <input
                 id="new_banner_image"
-                value={String(newBanner.image || '')}
-                onChange={(e) => setNewBanner((p) => ({ ...p, image: e.target.value }))}
-                placeholder="/images/pages/lavanda-baner.jpg oppure https://..."
+                type="file"
+                accept="image/*"
                 className={inputBase}
+                disabled={isUploadingNew}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  void uploadHeroImage(file, 'new');
+                  e.currentTarget.value = '';
+                }}
               />
+              {newBanner.image ? (
+                <div className="mt-2">
+                  <img
+                    src={String(newBanner.image)}
+                    alt="Anteprima"
+                    className="max-h-40 rounded-md border border-black/5"
+                  />
+                </div>
+              ) : null}
             </div>
             <div>
               <label
@@ -424,19 +495,30 @@ export default function AdminBannersPage() {
                       htmlFor={`banner_${b._id}_image`}
                       className="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      Immagine (URL)
+                      Immagine (Cloudinary)
                     </label>
                     <input
                       id={`banner_${b._id}_image`}
-                      value={b.image}
-                      onChange={(e) =>
-                        setItems((prev) =>
-                          prev.map((x) => (x._id === b._id ? { ...x, image: e.target.value } : x)),
-                        )
-                      }
-                      placeholder="/images/... oppure https://..."
+                      type="file"
+                      accept="image/*"
                       className={inputBase}
+                      disabled={!!isUploading[b._id]}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        void uploadHeroImage(file, b._id);
+                        e.currentTarget.value = '';
+                      }}
                     />
+                    {b.image ? (
+                      <div className="mt-2">
+                        <img
+                          src={b.image}
+                          alt="Anteprima"
+                          className="max-h-40 rounded-md border border-black/5"
+                        />
+                      </div>
+                    ) : null}
                   </div>
                   <div>
                     <label

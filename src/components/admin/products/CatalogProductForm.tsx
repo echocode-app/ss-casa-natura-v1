@@ -10,7 +10,7 @@ import { PRODUCT_CATEGORIES } from '@/config/products/product.categories';
 
 type Unit = 'ml' | 'l' | 'kg' | 'g';
 
-type CatalogImage = { src: string; alt?: string };
+type CatalogImage = { src: string; alt?: string; publicId?: string };
 
 type CatalogVariant = {
   id: string;
@@ -76,7 +76,7 @@ function normalizeDraft(draft: CatalogProductDraft): CatalogProductDraft {
     lineId: draft.lineId?.trim() || undefined,
     images: (draft.images || [])
       .filter((i) => i.src?.trim())
-      .map((i) => ({ src: i.src.trim(), alt: i.alt })),
+      .map((i) => ({ src: i.src.trim(), alt: i.alt, publicId: i.publicId })),
     variants: (draft.variants || []).filter((v) => v.id?.trim() && v.label?.trim()),
   };
 }
@@ -91,6 +91,7 @@ export default function CatalogProductForm({
   const [draft, setDraft] = useState<CatalogProductDraft>(initial);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState<Record<number, boolean>>({});
 
   const isArchived = !!draft.archived;
 
@@ -150,6 +151,40 @@ export default function CatalogProductForm({
       notify.error(e?.message || 'Salvataggio fallito');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const uploadProductImage = async (file: File, idx: number) => {
+    setIsUploadingImage((p) => ({ ...p, [idx]: true }));
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('folder', 'ss-casa-natura-v1/products');
+
+      const res = await fetch('/api/admin/images', {
+        method: 'POST',
+        headers: getCsrfHeaders(),
+        credentials: 'include',
+        body: form,
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.success) throw new Error(data?.error || 'Upload fallito');
+
+      const url = String(data?.asset?.url || '');
+      const publicId = String(data?.asset?.publicId || '');
+      if (!url) throw new Error('Upload fallito: url mancante');
+
+      setDraft((p) => ({
+        ...p,
+        images: p.images.map((it, i) =>
+          i === idx ? { ...it, src: url, publicId: publicId || undefined } : it,
+        ),
+      }));
+      notify.success('Immagine caricata');
+    } catch (e: any) {
+      notify.error(e?.message || 'Upload fallito');
+    } finally {
+      setIsUploadingImage((p) => ({ ...p, [idx]: false }));
     }
   };
 
@@ -511,25 +546,38 @@ export default function CatalogProductForm({
             <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
               <div className="md:col-span-7">
                 <label
-                  htmlFor={`image_src_${idx}`}
+                  htmlFor={`image_file_${idx}`}
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  URL immagine
+                  Immagine (Cloudinary)
                 </label>
                 <input
-                  id={`image_src_${idx}`}
-                  value={img.src}
-                  onChange={(e) =>
-                    setDraft((p) => ({
-                      ...p,
-                      images: p.images.map((it, i) =>
-                        i === idx ? { ...it, src: e.target.value } : it,
-                      ),
-                    }))
-                  }
+                  id={`image_file_${idx}`}
+                  type="file"
+                  accept="image/*"
                   className={inputBase}
-                  placeholder="/images/prodotti/xxx.jpg oppure https://..."
+                  disabled={!!isUploadingImage[idx]}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    void uploadProductImage(file, idx);
+                    e.currentTarget.value = '';
+                  }}
                 />
+                {img.src ? (
+                  <div className="mt-2">
+                    <img
+                      src={img.src}
+                      alt={img.alt || 'Anteprima'}
+                      className="max-h-40 rounded-md border border-black/5"
+                    />
+                    <div className="mt-1 text-xs text-gray-500 break-all">{img.src}</div>
+                  </div>
+                ) : (
+                  <div className="mt-1 text-xs text-gray-500">
+                    Carica un file: non sono accettati URL esterni.
+                  </div>
+                )}
               </div>
               <div className="md:col-span-4">
                 <label
@@ -573,7 +621,10 @@ export default function CatalogProductForm({
               type="button"
               className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
               onClick={() =>
-                setDraft((p) => ({ ...p, images: [...p.images, { src: '', alt: '' }] }))
+                setDraft((p) => ({
+                  ...p,
+                  images: [...p.images, { src: '', alt: '', publicId: undefined }],
+                }))
               }
             >
               + Aggiungi immagine

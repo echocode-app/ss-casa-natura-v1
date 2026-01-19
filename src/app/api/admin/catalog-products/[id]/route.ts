@@ -25,8 +25,18 @@ const patchSchema = z
     images: z
       .array(
         z.object({
-          src: z.string().min(1),
+          src: z
+            .string()
+            .min(1)
+            .refine(
+              (value) =>
+                value.startsWith('https://res.cloudinary.com/') || value.startsWith('/images/'),
+              {
+                message: 'Image src must be a Cloudinary URL (or a legacy /images/ path)',
+              },
+            ),
           alt: z.string().optional(),
+          publicId: z.string().optional(),
         }),
       )
       .optional(),

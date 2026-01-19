@@ -12,11 +12,73 @@ export function capitalizeFirstLetter(value: string): string {
  */
 export function capitalizeWords(value: string): string {
   if (!value) return value;
-  return value
-    .split(' ')
-    .map((word) => {
-      if (!word) return word;
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  const lowerCaseWords = new Set([
+    'a',
+    'ad',
+    'al',
+    'alla',
+    'alle',
+    'allo',
+    'agli',
+    'ai',
+    'da',
+    'dal',
+    'dalla',
+    'dalle',
+    'dallo',
+    'dagli',
+    'dei',
+    'degli',
+    'del',
+    'della',
+    'dello',
+    'd',
+    "d'",
+    'de',
+    'di',
+    'e',
+    'ed',
+    'il',
+    'lo',
+    'la',
+    'i',
+    'gli',
+    'le',
+    'in',
+    'su',
+  ]);
+
+  const capitalizeSegment = (segmentRaw: string, isFirstWord: boolean) => {
+    const segment = segmentRaw.trim();
+    if (!segment) return segmentRaw;
+    // Keep segments with digits as-is (e.g. "Viale 2 Giugno").
+    if (/\d/.test(segment)) return segmentRaw;
+
+    const normalized = segment.toLowerCase();
+
+    // Handle d'angelo / d’angelo → d'Angelo (unless first word then D'Angelo).
+    const apostropheMatch = normalized.match(/^(d)(['’])(.+)$/);
+    if (apostropheMatch) {
+      const d = apostropheMatch[1];
+      const ap = apostropheMatch[2];
+      const rest = apostropheMatch[3];
+      const head = isFirstWord ? d.toUpperCase() : d;
+      const restCased = rest.charAt(0).toUpperCase() + rest.slice(1);
+      return `${head}${ap}${restCased}`;
+    }
+
+    if (!isFirstWord && lowerCaseWords.has(normalized)) return normalized;
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  };
+
+  const words = value.trim().split(/\s+/);
+  return words
+    .map((word, wordIndex) => {
+      const isFirstWord = wordIndex === 0;
+      // Preserve hyphenated chunks: santa-maria → Santa-Maria
+      const parts = word.split('-');
+      if (parts.length <= 1) return capitalizeSegment(word, isFirstWord);
+      return parts.map((p, i) => capitalizeSegment(p, isFirstWord && i === 0)).join('-');
     })
     .join(' ');
 }

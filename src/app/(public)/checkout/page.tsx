@@ -11,8 +11,7 @@ import { useAuth } from '@/components/layout/AuthContext';
 import AuthModal from '@/components/ui/Modal/AuthModal';
 import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 import { getUserFacingErrorMessage } from '@/lib/utils/userFacingError';
-import { validateField as validateSingleField } from '@/lib/validation/helpers';
-import { checkoutFormSchema } from '@/lib/validation/schemas';
+import { checkoutAddressSchema, checkoutFormSchema } from '@/lib/validation/schemas';
 import { useDebounce } from '@/hooks/useDebounce';
 
 import {
@@ -77,7 +76,7 @@ export default function CheckoutPage() {
   const [company, setCompany] = useState('');
   const [phone, setPhone] = useState(user?.phone || '');
 
-  const [country, setCountry] = useState<'IT'>('IT');
+  const [country, setCountry] = useState('IT');
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [address1, setAddress1] = useState('');
@@ -243,20 +242,7 @@ export default function CheckoutPage() {
   );
 
   const isAddressValid = useMemo(() => {
-    const parsed = checkoutFormSchema
-      .pick({
-        name: true,
-        surname: true,
-        phone: true,
-        country: true,
-        company: true,
-        addressLine1: true,
-        addressLine2: true,
-        postalCode: true,
-        city: true,
-        province: true,
-      })
-      .safeParse(currentFormData);
+    const parsed = checkoutAddressSchema.safeParse(currentFormData);
     return parsed.success;
   }, [currentFormData]);
 
@@ -284,13 +270,25 @@ export default function CheckoutPage() {
   };
 
   const validateField = (field: string, rawValue: unknown) => {
-    const error = validateSingleField(checkoutFormSchema, field, rawValue, tValidation);
+    const candidate: any = {
+      ...currentFormData,
+      shippingMethod: shippingMethod || undefined,
+      [field]: rawValue,
+    };
+
+    const result = checkoutFormSchema.safeParse(candidate);
+    const errorIssue = result.success
+      ? null
+      : result.error.issues.find((issue) => String(issue.path[0]) === field);
+    const error = errorIssue ? tValidation(errorIssue.message) : '';
+
     setFieldErrors((prev) => {
       const next = { ...prev };
       if (error) next[field] = error;
       else delete next[field];
       return next;
     });
+
     return !error;
   };
 

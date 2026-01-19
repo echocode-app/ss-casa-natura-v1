@@ -40,7 +40,7 @@ export const securityHeaders = [
       "style-src-elem 'self' 'unsafe-inline' https://cdn.iubenda.com",
       "img-src 'self' data: https: blob: https://cdn.iubenda.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://api.stripe.com https://*.mailchimp.com https://idb.iubenda.com",
+      "connect-src 'self' https://api.stripe.com https://*.mailchimp.com https://idb.iubenda.com https://cpl.iubenda.com https://api.mapbox.com",
       "frame-src 'self' https://js.stripe.com https://www.iubenda.com",
       "object-src 'none'",
       "base-uri 'self'",

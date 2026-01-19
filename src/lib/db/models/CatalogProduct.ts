@@ -4,6 +4,7 @@ const productImageSchema = new Schema(
   {
     src: { type: String, required: true },
     alt: { type: String },
+    publicId: { type: String },
   },
   { _id: false },
 );
@@ -48,7 +49,7 @@ export interface ICatalogProduct {
   description: string;
   categoryIds: string[];
   lineId?: string;
-  images: Array<{ src: string; alt?: string }>;
+  images: Array<{ src: string; alt?: string; publicId?: string }>;
   variants: Array<{
     id: string;
     label: string;
