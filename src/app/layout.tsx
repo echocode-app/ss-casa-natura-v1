@@ -1,5 +1,4 @@
 import '@/app/globals.css';
-import Script from 'next/script';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Raleway } from 'next/font/google';
@@ -31,43 +30,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const locale = await getLocale();
   const messages = await getMessages();
 
-  const iubendaEnabled = process.env.NEXT_PUBLIC_IUBENDA_ENABLED === 'true';
-  const iubendaSiteId = process.env.NEXT_PUBLIC_IUBENDA_SITE_ID;
-  const iubendaCookiePolicyId = process.env.NEXT_PUBLIC_IUBENDA_COOKIE_POLICY_ID;
-
-  const shouldLoadIubenda = Boolean(iubendaEnabled && iubendaSiteId && iubendaCookiePolicyId);
-
   return (
     <html lang={locale}>
       <body className={raleway.className}>
-        {shouldLoadIubenda && (
-          <>
-            <Script id="iubenda-cs-init" strategy="beforeInteractive">
-              {`window._iub = window._iub || [];
-window._iub.csConfiguration = {
-  siteId: ${JSON.stringify(iubendaSiteId)},
-  cookiePolicyId: ${JSON.stringify(iubendaCookiePolicyId)},
-  lang: ${JSON.stringify(locale)},
-  // Prefer a compact, non-intrusive banner; CSS overrides in globals.css handle final styling.
-  banner: {
-    position: 'float-bottom-left',
-    backgroundColor: '#fdfcfa',
-    textColor: '#555555',
-    acceptButtonColor: '#FFFC8A',
-    acceptButtonCaptionColor: '#151515',
-  },
-};`}
-            </Script>
-            <Script
-              src="https://cdn.iubenda.com/cs/iubenda_cs.js"
-              strategy="beforeInteractive"
-              data-site-id={iubendaSiteId}
-              data-cookie-policy-id={iubendaCookiePolicyId}
-              data-lang={locale}
-            />
-          </>
-        )}
-
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
             <CartProvider>

@@ -18,13 +18,6 @@ export default function Client() {
     setIsClient(true);
   }, []);
 
-  const iubendaEnabled = process.env.NEXT_PUBLIC_IUBENDA_ENABLED === 'true';
-  const iubendaCookiePolicyId = process.env.NEXT_PUBLIC_IUBENDA_COOKIE_POLICY_ID;
-  const iubendaPrivacyHref =
-    iubendaEnabled && iubendaCookiePolicyId
-      ? `https://www.iubenda.com/privacy-policy/${iubendaCookiePolicyId}`
-      : '/privacy-policy';
-
   const clientLinks: Array<{
     label: string;
     href: string;
@@ -36,8 +29,7 @@ export default function Client() {
     { label: t('links.account'), href: '/account', isAccount: true },
     {
       label: t('links.legal'),
-      href: iubendaPrivacyHref,
-      isExternal: iubendaPrivacyHref.startsWith('http'),
+      href: '/privacy-policy',
     },
   ];
 

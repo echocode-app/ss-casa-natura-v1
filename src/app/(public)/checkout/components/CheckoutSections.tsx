@@ -15,7 +15,6 @@ import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import FormError from '@/components/ui/Form/FormError';
 import { normalizeInputValue } from '@/lib/utils/inputHelpers';
-import IubendaPolicyEmbed from '@/components/legal/IubendaPolicyEmbed';
 import { useDebounce } from '@/hooks/useDebounce';
 import { IT_PROVINCES } from '@/lib/address/itProvinces';
 
@@ -303,14 +302,14 @@ function CheckoutPaymentForm({ orderId }: { orderId: string }) {
       <div className="text-xs text-text-muted">
         {t.rich('payment.recurringDisclaimer', {
           privacy: (chunks) => (
-            <IubendaPolicyEmbed kind="privacy" className="underline hover:no-underline">
+            <a href="/privacy-policy" className="underline hover:no-underline">
               {chunks}
-            </IubendaPolicyEmbed>
+            </a>
           ),
           terms: (chunks) => (
-            <IubendaPolicyEmbed kind="cookie" className="underline hover:no-underline">
+            <a href="/cookie-policy" className="underline hover:no-underline">
               {chunks}
-            </IubendaPolicyEmbed>
+            </a>
           ),
         })}
       </div>
