@@ -4,18 +4,22 @@ export interface Product {
   id: string;
   slug: string;
 
+  /** Auto-generated SKU in format: 0001, 0002, ..., 0100, 0101, etc. */
   sku: string;
 
   title: string;
-  shortDescription?: string;
-  description: string;
+  description?: string;
 
   categoryIds: ProductCategory['id'][];
   lineId?: ProductLine['id'];
 
+  /** Images from Cloudinary (products folder). Alt text is required. */
   images: ProductImage[];
 
-  variants: ProductVariant[];
+  /** Optional variants, max 5. Each variant needs weightGrams. */
+  variants?: ProductVariant[];
+
+  /** Weight in grams (required for shipping calculation) */
   weightGrams: number;
 
   price: number;
@@ -27,12 +31,7 @@ export interface Product {
   discount?: ProductDiscount;
   promoEligible?: boolean;
 
-  isEco?: boolean;
-  isNew?: boolean;
   isBestSeller?: boolean;
-  isSeasonal?: boolean;
-
-  relatedProductIds?: Product['id'][];
 
   filters?: ProductFilterValue[];
 
@@ -47,6 +46,8 @@ export interface ProductVariant {
   label: string; // "500 ml", "1 L"
   volume: number;
   unit: 'ml' | 'l' | 'kg' | 'g';
+  /** Weight in grams for this variant (required for shipping) */
+  weightGrams: number;
   priceModifier?: number; // + / -
   stock?: number;
   isAvailable?: boolean;
@@ -82,7 +83,8 @@ export interface ProductLine {
 
 export interface ProductImage {
   src: string;
-  alt?: string;
+  /** Required alt text for accessibility and SEO */
+  alt: string;
 }
 
 /* ================= Filters ================= */

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { loadStripe } from '@stripe/stripe-js';
@@ -11,7 +11,7 @@ import { useAuth } from '@/components/layout/AuthContext';
 import AuthModal from '@/components/ui/Modal/AuthModal';
 import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 import { getUserFacingErrorMessage } from '@/lib/utils/userFacingError';
-import { checkoutAddressSchema, checkoutFormSchema } from '@/lib/validation/schemas';
+import { checkoutFormSchema } from '@/lib/validation/schemas';
 import { useDebounce } from '@/hooks/useDebounce';
 
 import {
@@ -92,6 +92,9 @@ export default function CheckoutPage() {
 
   const [quote, setQuote] = useState<ShippingQuote | null>(null);
   const [isQuoting, setIsQuoting] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+  const quoteAbortRef = useRef<AbortController | null>(null);
+  const quoteSeqRef = useRef(0);
 
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -202,6 +205,7 @@ export default function CheckoutPage() {
         setClientSecret(null);
         setOrderId(null);
         setQuote(null);
+        setQuoteError(null);
       }
     } catch {
       // ignore
@@ -241,10 +245,18 @@ export default function CheckoutPage() {
     ],
   );
 
-  const isAddressValid = useMemo(() => {
-    const parsed = checkoutAddressSchema.safeParse(currentFormData);
-    return parsed.success;
-  }, [currentFormData]);
+  // Shipping quote/UI should not depend on "province" selection.
+  // We still require enough address to compute a meaningful quote.
+  const isAddressReadyForShipping = useMemo(() => {
+    if (isCartEmpty) return false;
+
+    const hasCountry = Boolean(country && country.trim());
+    const hasPostalCode = Boolean(postalCode && postalCode.trim());
+    const hasCity = Boolean(city && city.trim());
+    const hasAddress1 = Boolean(address1 && address1.trim());
+
+    return hasCountry && hasPostalCode && hasCity && hasAddress1;
+  }, [address1, city, country, isCartEmpty, postalCode]);
 
   const canCreate = useMemo(() => {
     const parsed = checkoutFormSchema.safeParse({
@@ -342,14 +354,24 @@ export default function CheckoutPage() {
   };
 
   const handleQuote = async () => {
+    if (!isAddressReadyForShipping) return;
+    if (!checkoutItems.length) return;
+
+    quoteAbortRef.current?.abort();
+    const abortController = new AbortController();
+    quoteAbortRef.current = abortController;
+
+    const seq = ++quoteSeqRef.current;
+
     setIsQuoting(true);
-    setError(null);
+    setQuoteError(null);
 
     try {
       const res = await fetch('/api/shipping/quote', {
         method: 'POST',
         headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
         credentials: 'include',
+        signal: abortController.signal,
         body: JSON.stringify({
           address: {
             country,
@@ -368,37 +390,45 @@ export default function CheckoutPage() {
         throw new Error(getUserFacingErrorMessage(data?.error, t('errors.checkoutFailed')));
       }
 
+      if (quoteSeqRef.current !== seq) return;
       setQuote(data.quote);
     } catch (e: any) {
-      setError(e?.message || t('errors.checkoutFailed'));
+      if (abortController.signal.aborted) return;
+      if (quoteSeqRef.current !== seq) return;
+
+      setQuote(null);
+      setQuoteError(e?.message || t('errors.checkoutFailed'));
     } finally {
+      if (quoteSeqRef.current !== seq) return;
       setIsQuoting(false);
     }
   };
 
   const debouncedQuote = useDebounce(() => {
-    if (!isAddressValid) return;
+    if (!isAddressReadyForShipping) return;
     void handleQuote();
   }, 450);
 
   useEffect(() => {
     if (isCartEmpty) {
       setQuote(null);
+      setQuoteError(null);
       setShippingMethod('');
       return;
     }
 
-    // Reset dependent states when address becomes invalid
-    if (!isAddressValid) {
+    // Reset dependent states when shipping cannot be computed
+    if (!isAddressReadyForShipping) {
       setQuote(null);
+      setQuoteError(null);
       setShippingMethod('');
       return;
     }
 
-    // Auto-requote when a valid address changes
+    // Auto-requote when a shippable address changes
     debouncedQuote();
   }, [
-    isAddressValid,
+    isAddressReadyForShipping,
     isCartEmpty,
     country,
     postalCode,
@@ -408,6 +438,12 @@ export default function CheckoutPage() {
     province,
     subtotal,
   ]);
+
+  useEffect(() => {
+    return () => {
+      quoteAbortRef.current?.abort();
+    };
+  }, []);
 
   const handleCreateIntent = async () => {
     if (!validateAll()) return;
@@ -477,8 +513,9 @@ export default function CheckoutPage() {
     }
   };
 
-  const totalForUi = quote?.total ?? Math.round((subtotal - (promoDiscount || 0)) * 100) / 100;
   const shippingPriceForUi = quote?.shippingPrice ?? 5.9;
+  const totalForUi =
+    quote?.total ?? Math.round((subtotal - (promoDiscount || 0) + shippingPriceForUi) * 100) / 100;
 
   const clearShippingMethodError = () =>
     setFieldErrors((prev) => {
@@ -488,7 +525,7 @@ export default function CheckoutPage() {
     });
 
   return (
-    <section className="py-6 md:py-9 overflow-hidden">
+    <section className="py-6 md:py-9">
       <SimpleBreadcrumbs
         className="py-0"
         items={[
@@ -502,8 +539,8 @@ export default function CheckoutPage() {
           {t('title')}
         </h1>
 
-        <div className="flex flex-col-reverse lg:flex-row gap-4 items-center lg:items-start justify-center">
-          <div className="flex-1 w-full lg:max-w-[70%] space-y-6">
+        <div className="flex flex-col-reverse gap-4 items-center justify-center lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-6 lg:items-start">
+          <div className="w-full space-y-6 overflow-x-hidden lg:overflow-x-visible">
             <CheckoutExpressSection
               clientSecret={clientSecret}
               orderId={orderId}
@@ -558,8 +595,10 @@ export default function CheckoutPage() {
             />
 
             <CheckoutShippingMethodSection
-              isAddressValid={isAddressValid}
+              isAddressReady={isAddressReadyForShipping}
               isQuoting={isQuoting}
+              quoteError={quoteError}
+              onRetryQuote={handleQuote}
               shippingMethod={shippingMethod}
               setShippingMethod={setShippingMethod}
               touchField={touchField}
@@ -579,25 +618,29 @@ export default function CheckoutPage() {
             />
           </div>
 
-          <div className="w-full lg:max-w-[30%] space-y-6">
-            <CheckoutSummaryPanel
-              isStripeConfigured={isStripeConfigured}
-              subtotal={subtotal}
-              promoDiscount={promoDiscount || 0}
-              quote={quote}
-              totalForUi={totalForUi}
-            />
+          <div className="w-full self-start lg:self-stretch">
+            <div className="space-y-6 lg:pb-6 lg:sticky lg:top-48">
+              <CheckoutSummaryPanel
+                isStripeConfigured={isStripeConfigured}
+                subtotal={subtotal}
+                promoDiscount={promoDiscount || 0}
+                shippingPrice={shippingPriceForUi}
+                isQuoting={isQuoting}
+                quoteError={quoteError}
+                totalForUi={totalForUi}
+              />
 
-            <Link
-              href="/cart"
-              className="group text-sm flex items-center justify-center gap-2 py-4 px-6
-               text-text-extrablack duration-300 transition-all hover:underline
-                bg-brand-accent text-center rounded-[25px] font-semibold
-               "
-            >
-              <Cart className="w-5 h-5 fill-current transition-transform duration-300 group-hover:scale-110" />
-              {t('misc.backToCart')}
-            </Link>
+              <Link
+                href="/cart"
+                className="group text-sm flex items-center justify-center gap-2 py-4 px-6
+                 text-text-extrablack duration-300 transition-all hover:underline
+                  bg-brand-accent text-center rounded-[25px] font-semibold
+                 "
+              >
+                <Cart className="w-5 h-5 fill-current transition-transform duration-300 group-hover:scale-110" />
+                {t('misc.backToCart')}
+              </Link>
+            </div>
           </div>
         </div>
       </div>

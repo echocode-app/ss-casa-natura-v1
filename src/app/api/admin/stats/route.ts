@@ -83,21 +83,59 @@ export const GET = handleApi(async () => {
     }));
 
   const integrations = {
-    stripe: {
+    MongoDB: {
+      ok: Boolean(process.env.MONGO_URI || process.env.DATABASE_URL),
+      url: 'https://cloud.mongodb.com',
+      details: process.env.MONGO_URI ? 'Cluster0' : undefined,
+      info: 'Database NoSQL - Free tier: 512MB storage',
+    },
+    Stripe: {
       ok: Boolean(process.env.STRIPE_SECRET_KEY),
       url: 'https://dashboard.stripe.com',
+      details: process.env.STRIPE_SECRET_KEY?.startsWith('sk_test') ? 'Test Mode' : 'Live Mode',
+      info: 'Payment processor - No monthly fees, per transaction',
     },
-    mailchimp: {
-      ok: Boolean(process.env.MAILCHIMP_API_KEY || process.env.MAILCHIMP_SERVER_PREFIX),
+    Mailchimp: {
+      ok: Boolean(process.env.MAILCHIMP_API_KEY && process.env.MAILCHIMP_SERVER_PREFIX),
       url: 'https://login.mailchimp.com',
+      details: process.env.MAILCHIMP_SERVER_PREFIX
+        ? `Server: ${process.env.MAILCHIMP_SERVER_PREFIX}`
+        : undefined,
+      info: 'Email marketing - Free tier: 500 contacts, 1000 emails/month',
     },
-    vercel: {
-      ok: Boolean(process.env.VERCEL),
+    Cloudinary: {
+      ok: Boolean(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY),
+      url: 'https://console.cloudinary.com',
+      details: process.env.CLOUDINARY_CLOUD_NAME
+        ? `Cloud: ${process.env.CLOUDINARY_CLOUD_NAME}`
+        : undefined,
+      info: 'Media storage - Free tier: 25GB storage, 25GB bandwidth/month',
+    },
+    Mapbox: {
+      ok: Boolean(process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN),
+      url: 'https://account.mapbox.com',
+      details: 'Geocoding API',
+      info: 'Maps & geocoding - Free tier: 100,000 requests/month',
+    },
+    Iubenda: {
+      ok: Boolean(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID),
+      url: 'https://www.iubenda.com/en/privacy-and-cookie-policy-generator',
+      details: process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID
+        ? `Policy ID: ${process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID}`
+        : undefined,
+      info: 'Privacy & Cookie policy - Check subscription plan',
+    },
+    Vercel: {
+      ok: true,
       url: 'https://vercel.com/dashboard',
+      details: process.env.VERCEL_ENV || 'Development (local)',
+      info: 'Hosting & deployment - Hobby plan: 100GB bandwidth/month',
     },
-    mongodb: {
-      ok: Boolean(process.env.MONGODB_URI),
-      url: 'https://cloud.mongodb.com',
+    'Aruba Domain': {
+      ok: true,
+      url: 'https://www.aruba.it/home.aspx',
+      details: 'deltagreen.it',
+      info: 'Domain registrar - Annual renewal required',
     },
   };
 

@@ -1,9 +1,11 @@
 /**
  * Security Headers Configuration for Next.js
  * Implements OWASP recommended security headers
+ * Compatible with Edge Runtime (no Node.js APIs)
  */
 
-export const securityHeaders = [
+// Base security headers that work in all environments
+const baseHeaders = [
   // Prevent clickjacking attacks
   {
     key: 'X-Frame-Options',
@@ -34,14 +36,14 @@ export const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.iubenda.com",
-      "script-src-elem 'self' 'unsafe-inline' https://js.stripe.com https://cdn.iubenda.com",
-      "style-src 'self' 'unsafe-inline' https://cdn.iubenda.com",
-      "style-src-elem 'self' 'unsafe-inline' https://cdn.iubenda.com",
-      "img-src 'self' data: https: blob: https://cdn.iubenda.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+      "script-src-elem 'self' 'unsafe-inline' https://js.stripe.com",
+      "style-src 'self' 'unsafe-inline'",
+      "style-src-elem 'self' 'unsafe-inline'",
+      "img-src 'self' data: https: blob:",
       "font-src 'self' data:",
       "connect-src 'self' https://api.stripe.com https://*.mailchimp.com https://api.mapbox.com",
-      "frame-src 'self' https://js.stripe.com https://www.iubenda.com",
+      "frame-src 'self' https://js.stripe.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -49,13 +51,11 @@ export const securityHeaders = [
       'upgrade-insecure-requests',
     ].join('; '),
   },
-  // HSTS - Force HTTPS for 1 year (only in production)
-  ...(process.env.NODE_ENV === 'production'
-    ? [
-        {
-          key: 'Strict-Transport-Security',
-          value: 'max-age=31536000; includeSubDomains; preload',
-        },
-      ]
-    : []),
+  // HSTS - Force HTTPS for 1 year (compatible with Edge Runtime)
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=31536000; includeSubDomains; preload',
+  },
 ];
+
+export const securityHeaders = baseHeaders;

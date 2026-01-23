@@ -5,11 +5,9 @@ import CatalogProductForm, {
 } from '@/components/admin/products/CatalogProductForm';
 
 const initial: CatalogProductDraft = {
-  id: '',
   slug: '',
   sku: '',
   title: '',
-  shortDescription: '',
   description: '',
   categoryIds: [],
   lineId: '',
@@ -20,12 +18,8 @@ const initial: CatalogProductDraft = {
   currency: 'EUR',
   stock: 0,
   isAvailable: true,
-  promoEligible: true,
-  isEco: false,
-  isNew: false,
+  promoEligible: false,
   isBestSeller: false,
-  isSeasonal: false,
-  relatedProductIds: [],
 };
 
 export default function AdminNewProductPage() {

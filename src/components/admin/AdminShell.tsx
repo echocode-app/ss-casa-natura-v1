@@ -72,9 +72,12 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         min-h-[calc(100vh-var(--header-h))]
         gap-2 lg:gap-6
       "
+      style={{ lineHeight: '1.6' }}
     >
       <AdminSidebar />
-      <main className="flex-1 mx-auto w-full md:max-w-[1100px] px-4 md:px-8 py-6">{children}</main>
+      <main className="flex-1 mx-auto w-full md:max-w-[1100px] px-4 md:px-8 py-8 leading-relaxed">
+        {children}
+      </main>
     </div>
   );
 }

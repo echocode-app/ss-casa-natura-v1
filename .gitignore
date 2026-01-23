@@ -45,3 +45,5 @@ coverage/
 
 # misc
 *.tsbuildinfo
+
+DEPLOYMENT.md

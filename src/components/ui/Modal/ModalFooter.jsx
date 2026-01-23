@@ -28,7 +28,14 @@ export default function ModalFooter({ type = 'register', onSwitch, onForgot, loa
       {type === 'register' && (
         <p className="text-center text-[clamp(12px,3vw,17px)] font-light leading-[100%]">
           {t('footer.register.text1')}{' '}
-          <a href="/privacy-policy" className="font-semibold underline">
+          <a
+            href={`https://www.iubenda.com/privacy-policy/${
+              process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID || '12345678'
+            }`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold underline"
+          >
             {t('footer.register.privacy')}
           </a>
         </p>

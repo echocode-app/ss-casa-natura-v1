@@ -18,6 +18,20 @@ import { normalizeInputValue } from '@/lib/utils/inputHelpers';
 import { useDebounce } from '@/hooks/useDebounce';
 import { IT_PROVINCES } from '@/lib/address/itProvinces';
 
+const IT_PROVINCE_CODES = new Set(IT_PROVINCES.map((p) => p.code));
+const IT_PROVINCE_BY_NORMALIZED_NAME = new Map(
+  IT_PROVINCES.map((p) => [
+    p.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/[^a-z\s-]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim(),
+    p.code,
+  ]),
+);
+
 type MapboxProxyOk = { features: MapboxFeature[] };
 type MapboxProxyErr = { error: { code: string; message: string } };
 
@@ -35,6 +49,41 @@ function pickMapboxContextText(feature: MapboxFeature, prefix: string): string |
   const ctx = feature.context || [];
   const found = ctx.find((c) => c?.id?.startsWith(prefix));
   return found?.text || null;
+}
+
+function pickMapboxProvinceCode(feature: MapboxFeature): string | null {
+  const ctx = feature.context || [];
+
+  // Prefer "district" (often matches Italian province / metro city in Mapbox data).
+  const ordered = [...ctx].sort((a, b) => {
+    const ax = a?.id?.startsWith('district.') ? 0 : a?.id?.startsWith('place.') ? 1 : 2;
+    const bx = b?.id?.startsWith('district.') ? 0 : b?.id?.startsWith('place.') ? 1 : 2;
+    return ax - bx;
+  });
+
+  for (const c of ordered) {
+    const sc = (c?.short_code || '').toString();
+    // e.g. "it-to" => TO
+    const m = sc.match(/(?:^|-)it-([a-z]{2})$/i);
+    const code = m?.[1]?.toUpperCase();
+    if (code && IT_PROVINCE_CODES.has(code)) return code;
+  }
+
+  for (const c of ordered) {
+    const name = (c?.text || '').toString();
+    if (!name) continue;
+    const norm = name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/[^a-z\s-]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const code = IT_PROVINCE_BY_NORMALIZED_NAME.get(norm);
+    if (code) return code;
+  }
+
+  return null;
 }
 
 function getMapboxPostcode(feature: MapboxFeature): string | null {
@@ -165,7 +214,6 @@ function SuggestionsDropdown({
               <li
                 key={it.key}
                 role="option"
-                aria-selected={isActive}
                 onMouseDown={(e) => {
                   // prevent input blur before click
                   e.preventDefault();
@@ -301,16 +349,34 @@ function CheckoutPaymentForm({ orderId }: { orderId: string }) {
 
       <div className="text-xs text-text-muted">
         {t.rich('payment.recurringDisclaimer', {
-          privacy: (chunks) => (
-            <a href="/privacy-policy" className="underline hover:no-underline">
-              {chunks}
-            </a>
-          ),
-          terms: (chunks) => (
-            <a href="/cookie-policy" className="underline hover:no-underline">
-              {chunks}
-            </a>
-          ),
+          privacy: (chunks) => {
+            const policyId = process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID || '12345678';
+            const href = `https://www.iubenda.com/privacy-policy/${policyId}`;
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:no-underline"
+              >
+                {chunks}
+              </a>
+            );
+          },
+          terms: (chunks) => {
+            const policyId = process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID || '12345678';
+            const href = `https://www.iubenda.com/privacy-policy/${policyId}/cookie-policy`;
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:no-underline"
+              >
+                {chunks}
+              </a>
+            );
+          },
         })}
       </div>
     </form>
@@ -347,7 +413,7 @@ export function CheckoutExpressSection({
         </Elements>
       ) : (
         <div className="min-h-[70px] rounded-input-xl border border-dashed border-input flex items-center justify-center text-sm text-text-muted">
-          Express checkout will appear here
+          {t('express.placeholder')}
         </div>
       )}
 
@@ -615,7 +681,7 @@ export function CheckoutDeliverySection({
   function applySelectedAddress(feature: MapboxFeature) {
     const nextAddress1 = buildStreetLine(feature);
     const nextCity = pickMapboxContextText(feature, 'place.') || city;
-    const nextProvince = pickMapboxContextText(feature, 'region.') || province;
+    const nextProvince = pickMapboxProvinceCode(feature) || province;
     const nextPostal = getMapboxPostcode(feature) || postalCode;
 
     setCountry(FIXED_COUNTRY);
@@ -652,6 +718,8 @@ export function CheckoutDeliverySection({
   function applySelectedCity(feature: MapboxFeature) {
     const nextCity = feature.text || feature.place_name;
     setCity(nextCity);
+    const nextProvince = pickMapboxProvinceCode(feature);
+    if (nextProvince) setProvince(nextProvince);
     lastCityCenterRef.current = feature.center || null;
     if (touched.city) validateField('city', nextCity);
     setCityOpen(false);
@@ -980,8 +1048,10 @@ export function CheckoutDeliverySection({
 }
 
 export function CheckoutShippingMethodSection({
-  isAddressValid,
+  isAddressReady,
   isQuoting,
+  quoteError,
+  onRetryQuote,
   shippingMethod,
   setShippingMethod,
   touchField,
@@ -990,8 +1060,10 @@ export function CheckoutShippingMethodSection({
   touched,
   fieldErrors,
 }: {
-  isAddressValid: boolean;
+  isAddressReady: boolean;
   isQuoting: boolean;
+  quoteError: string | null;
+  onRetryQuote: () => void;
   shippingMethod: ShippingMethod;
   setShippingMethod: (value: ShippingMethod) => void;
   touchField: (field: string) => void;
@@ -1002,6 +1074,8 @@ export function CheckoutShippingMethodSection({
 }) {
   const t = useTranslations('checkout');
 
+  const isDisabled = !isAddressReady || isQuoting;
+
   return (
     <section className="bg-background-secondary rounded-[20px] p-4 md:p-6">
       <h2 className="font-semibold text-[clamp(16px,3vw,22px)] mb-2">{t('shipping.title')}</h2>
@@ -1010,58 +1084,83 @@ export function CheckoutShippingMethodSection({
         <div>{t('shipping.choose')}</div>
       </div>
 
-      {!isAddressValid ? (
-        <div className="text-sm text-text-muted">{t('shipping.disabledUntilAddress')}</div>
-      ) : (
-        <div className="space-y-3">
-          <label className="flex items-start gap-3 p-4 rounded-input-xl border border-input bg-white">
-            <input
-              type="radio"
-              name="shippingMethod"
-              value="one_time"
-              checked={shippingMethod === 'one_time'}
-              onChange={() => {
-                setShippingMethod('one_time');
-                touchField('shippingMethod');
-                clearShippingMethodError();
-              }}
-              disabled={isQuoting}
-              className="mt-1"
-            />
-            <div className="flex-1">
-              <div className="flex justify-between gap-4">
-                <span className="font-medium">{t('shipping.optionOneTime')}</span>
-                <span className="font-semibold">€ {shippingPrice.toFixed(2)}</span>
-              </div>
-            </div>
-          </label>
+      <div className="space-y-3">
+        {!isAddressReady ? (
+          <div className="text-sm text-text-muted">{t('shipping.disabledUntilAddress')}</div>
+        ) : isQuoting ? (
+          <div className="flex items-center gap-2 text-sm text-text-muted" aria-live="polite">
+            <Spinner size="sm" />
+            <span>{t('actions.calculateShipping')}</span>
+          </div>
+        ) : quoteError ? (
+          <div className="flex items-center justify-between gap-3 text-sm" role="alert">
+            <span className="text-red-600">{quoteError}</span>
+            <button
+              type="button"
+              onClick={onRetryQuote}
+              disabled={!isAddressReady || isQuoting}
+              className="shrink-0 underline text-text-extrablack disabled:opacity-50"
+            >
+              {t('actions.calculateShipping')}
+            </button>
+          </div>
+        ) : null}
 
-          <label className="flex items-start gap-3 p-4 rounded-input-xl border border-input bg-white">
-            <input
-              type="radio"
-              name="shippingMethod"
-              value="recurring_4w"
-              checked={shippingMethod === 'recurring_4w'}
-              onChange={() => {
-                setShippingMethod('recurring_4w');
-                touchField('shippingMethod');
-                clearShippingMethodError();
-              }}
-              disabled={isQuoting}
-              className="mt-1"
-            />
-            <div className="flex-1">
-              <div className="flex justify-between gap-4">
-                <span className="font-medium">{t('shipping.optionRecurring')}</span>
-                <span className="font-semibold">€ {shippingPrice.toFixed(2)}</span>
-              </div>
-              <div className="text-sm text-text-muted">{t('shipping.optionRecurringDesc')}</div>
+        <label
+          className={`flex items-start gap-3 p-4 rounded-input-xl border border-input bg-white ${
+            isDisabled ? 'opacity-60' : ''
+          }`}
+        >
+          <input
+            type="radio"
+            name="shippingMethod"
+            value="one_time"
+            checked={shippingMethod === 'one_time'}
+            onChange={() => {
+              setShippingMethod('one_time');
+              touchField('shippingMethod');
+              clearShippingMethodError();
+            }}
+            disabled={isDisabled}
+            className="mt-1"
+          />
+          <div className="flex-1">
+            <div className="flex justify-between gap-4">
+              <span className="font-medium">{t('shipping.optionOneTime')}</span>
+              <span className="font-semibold">€ {shippingPrice.toFixed(2)}</span>
             </div>
-          </label>
+          </div>
+        </label>
 
-          <FormError message={touched.shippingMethod ? fieldErrors.shippingMethod : ''} />
-        </div>
-      )}
+        <label
+          className={`flex items-start gap-3 p-4 rounded-input-xl border border-input bg-white ${
+            isDisabled ? 'opacity-60' : ''
+          }`}
+        >
+          <input
+            type="radio"
+            name="shippingMethod"
+            value="recurring_4w"
+            checked={shippingMethod === 'recurring_4w'}
+            onChange={() => {
+              setShippingMethod('recurring_4w');
+              touchField('shippingMethod');
+              clearShippingMethodError();
+            }}
+            disabled={isDisabled}
+            className="mt-1"
+          />
+          <div className="flex-1">
+            <div className="flex justify-between gap-4">
+              <span className="font-medium">{t('shipping.optionRecurring')}</span>
+              <span className="font-semibold">€ {shippingPrice.toFixed(2)}</span>
+            </div>
+            <div className="text-sm text-text-muted">{t('shipping.optionRecurringDesc')}</div>
+          </div>
+        </label>
+
+        <FormError message={touched.shippingMethod ? fieldErrors.shippingMethod : ''} />
+      </div>
     </section>
   );
 }
@@ -1123,13 +1222,17 @@ export function CheckoutSummaryPanel({
   isStripeConfigured,
   subtotal,
   promoDiscount,
-  quote,
+  shippingPrice,
+  isQuoting,
+  quoteError,
   totalForUi,
 }: {
   isStripeConfigured: boolean;
   subtotal: number;
   promoDiscount: number;
-  quote: ShippingQuote | null;
+  shippingPrice: number;
+  isQuoting: boolean;
+  quoteError: string | null;
   totalForUi: number;
 }) {
   const t = useTranslations('checkout');
@@ -1157,12 +1260,24 @@ export function CheckoutSummaryPanel({
         </div>
         <div className="flex justify-between text-text-muted gap-2">
           <span>{t('summary.shipping')}</span>
-          <span>€ {(quote?.shippingPrice ?? 0).toFixed(2)}</span>
+          <span className="flex items-center gap-2">
+            {isQuoting ? <Spinner size="sm" /> : null}
+            <span>€ {shippingPrice.toFixed(2)}</span>
+          </span>
         </div>
+
+        {quoteError ? (
+          <div className="text-xs text-red-600" role="alert">
+            {quoteError}
+          </div>
+        ) : null}
 
         <div className="border-t border-gray-200 gap-2 pt-4 flex justify-between text-lg lg:text-2xl font-semibold">
           <span>{t('summary.total')}</span>
-          <span>€ {totalForUi.toFixed(2)}</span>
+          <span className="flex items-center gap-2">
+            {isQuoting ? <Spinner size="sm" /> : null}
+            <span>€ {totalForUi.toFixed(2)}</span>
+          </span>
         </div>
       </div>
 

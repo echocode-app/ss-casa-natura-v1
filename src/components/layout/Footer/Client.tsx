@@ -18,6 +18,8 @@ export default function Client() {
     setIsClient(true);
   }, []);
 
+  const policyId = process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID || '12345678';
+
   const clientLinks: Array<{
     label: string;
     href: string;
@@ -29,7 +31,8 @@ export default function Client() {
     { label: t('links.account'), href: '/account', isAccount: true },
     {
       label: t('links.legal'),
-      href: '/privacy-policy',
+      href: `https://www.iubenda.com/privacy-policy/${policyId}`,
+      isExternal: true,
     },
   ];
 

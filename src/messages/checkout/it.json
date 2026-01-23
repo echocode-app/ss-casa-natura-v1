@@ -2,6 +2,7 @@
   "title": "Checkout",
   "express": {
     "title": "Metodi di pagamento rapidi",
+    "placeholder": "I metodi di pagamento rapidi verranno mostrati qui.",
     "disclaimer": "Procedendo con il pagamento, accetti gli addebiti futuri indicati in questa pagina e accetti la normativa sull'annullamento."
   },
   "contact": {

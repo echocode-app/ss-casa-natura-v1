@@ -5,7 +5,7 @@ export function sortProducts(products: Product[]): Product[] {
 
   const isVariantAvailableForPurchase = (
     product: Product,
-    variant: Product['variants'][number],
+    variant: NonNullable<Product['variants']>[number],
   ) => {
     if (product.isAvailable === false) return false;
     if (variant?.isAvailable === false) return false;
@@ -78,7 +78,9 @@ export function isProductAvailable(product: Product, variantId?: string): boolea
   return true;
 }
 
-export function getFirstPurchasableVariant(product: Product): Product['variants'][number] | null {
+export function getFirstPurchasableVariant(
+  product: Product,
+): NonNullable<Product['variants']>[number] | null {
   if (!product?.variants?.length) return null;
   return product.variants.find((v) => isProductAvailable(product, v.id)) ?? null;
 }

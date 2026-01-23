@@ -17,7 +17,8 @@ type CatalogVariant = {
   label: string;
   volume: number;
   unit: Unit;
-  priceModifier?: number;
+  weightGrams: number; // Required for shipping
+  priceModifier: number; // Required
   stock?: number;
   isAvailable?: boolean;
 };
@@ -30,11 +31,10 @@ type Discount = {
 };
 
 export type CatalogProductDraft = {
-  id: string;
+  id?: string; // Auto-generated from slug in new mode
   slug: string;
-  sku: string;
+  sku: string; // Auto-generated, read-only
   title: string;
-  shortDescription?: string;
   description: string;
   categoryIds: string[];
   lineId?: string;
@@ -47,11 +47,7 @@ export type CatalogProductDraft = {
   isAvailable?: boolean;
   discount?: Discount;
   promoEligible?: boolean;
-  isEco?: boolean;
-  isNew?: boolean;
   isBestSeller?: boolean;
-  isSeasonal?: boolean;
-  relatedProductIds?: string[];
   archived?: boolean;
 };
 
@@ -62,23 +58,42 @@ function safeNumber(value: string, fallback: number) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function parseCsv(value: string) {
-  return value
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
 function normalizeDraft(draft: CatalogProductDraft): CatalogProductDraft {
   return {
     ...draft,
-    shortDescription: draft.shortDescription?.trim() || undefined,
     lineId: draft.lineId?.trim() || undefined,
     images: (draft.images || [])
       .filter((i) => i.src?.trim())
-      .map((i) => ({ src: i.src.trim(), alt: i.alt, publicId: i.publicId })),
+      .map((i) => ({ src: i.src.trim(), alt: i.alt || '', publicId: i.publicId })),
     variants: (draft.variants || []).filter((v) => v.id?.trim() && v.label?.trim()),
   };
+}
+
+/**
+ * Generate slug from title (max 20 chars, URL-friendly)
+ */
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with dash
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing dashes
+    .slice(0, 20); // Max 20 chars
+}
+
+/**
+ * Fetch next available SKU from server
+ */
+async function fetchNextSku(): Promise<string> {
+  try {
+    const res = await fetch('/api/admin/catalog-products/next-sku', { credentials: 'include' });
+    const data = await res.json();
+    if (data?.sku) return data.sku;
+  } catch {
+    // Fallback
+  }
+  return '0001';
 }
 
 export default function CatalogProductForm({
@@ -95,12 +110,24 @@ export default function CatalogProductForm({
 
   const isArchived = !!draft.archived;
 
-  const categoryCsv = useMemo(() => (draft.categoryIds || []).join(', '), [draft.categoryIds]);
-  const relatedCsv = useMemo(() => {
-    return draft.relatedProductIds && draft.relatedProductIds.length
-      ? draft.relatedProductIds.join(', ')
-      : '';
-  }, [draft.relatedProductIds]);
+  // Auto-generate SKU on mount for new products
+  useState(() => {
+    if (mode === 'new' && !draft.sku) {
+      fetchNextSku().then((sku) => {
+        setDraft((p) => ({ ...p, sku }));
+      });
+    }
+  });
+
+  // Auto-generate slug when title changes
+  const handleTitleChange = (title: string) => {
+    setDraft((p) => ({
+      ...p,
+      title,
+      slug: generateSlug(title),
+      id: mode === 'new' ? generateSlug(title) : p.id,
+    }));
+  };
 
   const selectedCategorySet = useMemo(
     () => new Set((draft.categoryIds || []).map((c) => String(c))),
@@ -109,34 +136,39 @@ export default function CatalogProductForm({
 
   const canSubmit = useMemo(() => {
     return (
-      !!draft.id.trim() &&
       !!draft.title.trim() &&
       !!draft.slug.trim() &&
       !!draft.sku.trim() &&
-      !!draft.description.trim()
+      !!draft.description.trim() &&
+      draft.categoryIds.length > 0 &&
+      draft.price > 0 &&
+      draft.weightGrams > 0
     );
   }, [draft]);
 
   const save = async () => {
     if (!canSubmit) {
-      notify.error('Compila i campi obbligatori (ID, titolo, slug, SKU, descrizione).');
+      notify.error(
+        'Compila i campi obbligatori: titolo, descrizione, almeno 1 categoria, prezzo, peso.',
+      );
       return;
     }
 
     setIsSaving(true);
     try {
       const payload = normalizeDraft(draft);
+      const productId = draft.id || draft.slug;
       const url =
         mode === 'new'
           ? '/api/admin/catalog-products'
-          : `/api/admin/catalog-products/${encodeURIComponent(draft.id)}`;
+          : `/api/admin/catalog-products/${encodeURIComponent(productId)}`;
       const method = mode === 'new' ? 'POST' : 'PUT';
 
       const res = await fetch(url, {
         method,
         headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, id: productId }),
       });
       const data = await res.json();
       if (!res.ok || !data?.success) {
@@ -145,7 +177,7 @@ export default function CatalogProductForm({
 
       notify.success('Salvato');
       if (mode === 'new') {
-        window.location.href = `/admin/products/${encodeURIComponent(draft.id)}`;
+        window.location.href = `/admin/products/${encodeURIComponent(productId)}`;
       }
     } catch (e: any) {
       notify.error(e?.message || 'Salvataggio fallito');
@@ -196,11 +228,14 @@ export default function CatalogProductForm({
 
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/catalog-products/${encodeURIComponent(draft.id)}`, {
-        method: 'DELETE',
-        headers: getCsrfHeaders(),
-        credentials: 'include',
-      });
+      const res = await fetch(
+        `/api/admin/catalog-products/${encodeURIComponent(draft.id || draft.slug)}`,
+        {
+          method: 'DELETE',
+          headers: getCsrfHeaders(),
+          credentials: 'include',
+        },
+      );
       const data = await res.json();
       if (!res.ok || !data?.success) {
         throw new Error(data?.error || 'Operazione fallita');
@@ -218,12 +253,13 @@ export default function CatalogProductForm({
     <div className="flex flex-col gap-6">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">
+          <h1 className="font-semibold text-[clamp(24px,4vw,40px)] leading-tight mb-3">
             {mode === 'new' ? 'Nuovo prodotto' : 'Modifica prodotto'}
           </h1>
-          <p className="text-gray-600 mt-1">
-            Override DB del catalogo (influisce sulla vetrina). Campi obbligatori: ID, titolo, slug,
-            SKU, descrizione.
+          <p className="text-gray-600 leading-relaxed">
+            Campi obbligatori: Titolo, Descrizione, almeno 1 Categoria, Prezzo, Peso.
+            <br />
+            SKU e Slug generati automaticamente.
           </p>
         </div>
 
@@ -243,127 +279,98 @@ export default function CatalogProductForm({
         </div>
       </div>
 
-      <AdminCard className="p-5">
-        <div className="font-semibold">Suggerimenti rapidi</div>
-        <ul className="mt-2 text-sm text-gray-700 list-disc pl-5 space-y-1">
+      <AdminCard className="p-6">
+        <div className="font-semibold text-base leading-tight mb-4">Suggerimenti rapidi</div>
+        <ul className="text-sm text-gray-700 list-disc pl-5 space-y-2 leading-relaxed">
           <li>
-            Se il prodotto ha varianti (es. 500 ml / 1 L), compila le varianti e usa stock a livello
-            variante.
+            <strong>SKU</strong> viene generato automaticamente in formato 0001, 0002, ecc.
           </li>
           <li>
-            Se non ci sono varianti, usa <span className="font-semibold">Stock (prodotto)</span> e
-            <span className="font-semibold"> Disponibile</span>.
+            <strong>Slug</strong> viene generato automaticamente dal titolo (max 20 caratteri).
           </li>
           <li>
-            Seleziona <span className="font-semibold">Linea</span> e
-            <span className="font-semibold"> Categorie</span> dai menu: così restano coerenti con la
-            configurazione del sito.
+            Se il prodotto ha varianti (es. 500 ml / 1 L), compila le varianti. Ogni variante
+            richiede <strong>Price modifier</strong> e <strong>Peso (grammi)</strong>.
+          </li>
+          <li>
+            Se non ci sono varianti, usa <strong>Stock (prodotto)</strong> e{' '}
+            <strong>Disponibile</strong>.
+          </li>
+          <li>
+            Seleziona almeno 1 <strong>Categoria</strong>. La <strong>Linea</strong> è opzionale.
+          </li>
+          <li>
+            Le immagini richiedono <strong>Alt text obbligatorio</strong>. Ottimizza prima
+            dell'upload (max 200KB).
           </li>
         </ul>
       </AdminCard>
 
-      <AdminCard className="p-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="product_id" className="block text-sm font-medium text-gray-700 mb-2">
-              ID *
-            </label>
-            <input
-              id="product_id"
-              value={draft.id}
-              onChange={(e) => setDraft((p) => ({ ...p, id: e.target.value }))}
-              disabled={mode === 'edit'}
-              className={inputBase}
-              placeholder="es. crema-viso-50ml"
-            />
-            {mode === 'edit' && (
-              <div className="text-xs text-gray-500 mt-1">L'ID non è modificabile.</div>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="product_sku" className="block text-sm font-medium text-gray-700 mb-2">
-              SKU *
-            </label>
-            <input
-              id="product_sku"
-              value={draft.sku}
-              onChange={(e) => setDraft((p) => ({ ...p, sku: e.target.value }))}
-              className={inputBase}
-              placeholder="es. CN-000123"
-            />
-          </div>
-
+      <AdminCard className="p-6">
+        <h2 className="text-lg font-semibold text-gray-900 leading-tight mb-5">
+          Informazioni base
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="md:col-span-2">
-            <label htmlFor="product_title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="product_title"
+              className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
+            >
               Titolo *
             </label>
             <input
               id="product_title"
               value={draft.title}
-              onChange={(e) => setDraft((p) => ({ ...p, title: e.target.value }))}
+              onChange={(e) => handleTitleChange(e.target.value)}
               className={inputBase}
-              placeholder="Nome prodotto"
+              placeholder="Nome prodotto completo"
             />
           </div>
 
           <div>
-            <label htmlFor="product_slug" className="block text-sm font-medium text-gray-700 mb-2">
-              Slug *
+            <label
+              htmlFor="product_sku"
+              className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
+            >
+              SKU * (auto-generato)
+            </label>
+            <input
+              id="product_sku"
+              value={draft.sku}
+              readOnly
+              disabled
+              className={`${inputBase} bg-gray-100 cursor-not-allowed`}
+              placeholder="0001"
+            />
+            <div className="text-xs text-gray-500 mt-1 leading-relaxed">
+              Generato automaticamente (formato: 0001, 0002, ...)
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="product_slug"
+              className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
+            >
+              Slug * (auto-generato)
             </label>
             <input
               id="product_slug"
               value={draft.slug}
-              onChange={(e) => setDraft((p) => ({ ...p, slug: e.target.value }))}
-              className={inputBase}
-              placeholder="es. crema-viso"
+              readOnly
+              disabled
+              className={`${inputBase} bg-gray-100 cursor-not-allowed`}
+              placeholder="detersivo-piatti"
             />
-          </div>
-
-          <div>
-            <label htmlFor="product_line" className="block text-sm font-medium text-gray-700 mb-2">
-              Linea (opzionale)
-            </label>
-            <select
-              id="product_line"
-              value={draft.lineId || ''}
-              onChange={(e) => setDraft((p) => ({ ...p, lineId: e.target.value || undefined }))}
-              className={inputBase}
-            >
-              <option value="">—</option>
-              {PRODUCT_LINES.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.title}
-                </option>
-              ))}
-            </select>
-            <div className="text-xs text-gray-500 mt-1">Valori presi da src/config/products.</div>
-          </div>
-
-          <div className="md:col-span-2">
-            <label
-              htmlFor="product_shortDescription"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Descrizione breve (max 300)
-            </label>
-            <textarea
-              id="product_shortDescription"
-              value={draft.shortDescription || ''}
-              onChange={(e) => setDraft((p) => ({ ...p, shortDescription: e.target.value }))}
-              className={inputBase}
-              rows={2}
-              placeholder="(opzionale)"
-            />
-            <div className="text-xs text-gray-500 mt-1">
-              {(draft.shortDescription || '').length}/300
+            <div className="text-xs text-gray-500 mt-1 leading-relaxed">
+              Generato dal titolo (max 20 caratteri, URL-friendly)
             </div>
           </div>
 
           <div className="md:col-span-2">
             <label
               htmlFor="product_description"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
             >
               Descrizione *
             </label>
@@ -373,8 +380,69 @@ export default function CatalogProductForm({
               onChange={(e) => setDraft((p) => ({ ...p, description: e.target.value }))}
               className={inputBase}
               rows={6}
-              placeholder="Testo descrittivo del prodotto…"
+              placeholder="Testo descrittivo del prodotto, ingredienti, modalità d'uso..."
             />
+          </div>
+        </div>
+      </AdminCard>
+
+      <AdminCard className="p-6">
+        <h2 className="text-lg font-semibold text-gray-900 leading-tight mb-5">Categorie</h2>
+        <div className="grid grid-cols-1 gap-5">
+          <div>
+            <label
+              htmlFor="product_line"
+              className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
+            >
+              Linea (opzionale)
+            </label>
+            <select
+              id="product_line"
+              value={draft.lineId || ''}
+              onChange={(e) => setDraft((p) => ({ ...p, lineId: e.target.value || undefined }))}
+              className={inputBase}
+            >
+              <option value="">Nessuna linea</option>
+              {PRODUCT_LINES.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.title}
+                </option>
+              ))}
+            </select>
+            <div className="text-xs text-gray-500 mt-1 leading-relaxed">
+              Linee: Lavanda, Brezza Marina, Agrumi di Sicilia, Fiore di Loto, Marsiglia, Neutro
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3 leading-relaxed">
+              Categorie * (seleziona almeno 1)
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {PRODUCT_CATEGORIES.map((cat) => (
+                <label key={cat.id} className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={draft.categoryIds.includes(cat.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setDraft((p) => ({ ...p, categoryIds: [...p.categoryIds, cat.id] }));
+                      } else {
+                        setDraft((p) => ({
+                          ...p,
+                          categoryIds: p.categoryIds.filter((id) => id !== cat.id),
+                        }));
+                      }
+                    }}
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                  />
+                  <span className="text-sm text-gray-700">{cat.title}</span>
+                </label>
+              ))}
+            </div>
+            <div className="text-xs text-gray-500 mt-2 leading-relaxed">
+              Categorie: Saponi, Detergenti, Profumatori, Accessori, Gift Box
+            </div>
           </div>
         </div>
       </AdminCard>
@@ -477,64 +545,37 @@ export default function CatalogProductForm({
             >
               Categorie
             </label>
-            <select
-              id="product_categories_select"
-              multiple
-              value={(draft.categoryIds || []).map(String)}
-              onChange={(e) => {
-                const selected = Array.from(e.target.selectedOptions).map((o) => o.value);
-                setDraft((p) => ({ ...p, categoryIds: selected }));
-              }}
-              className={inputBase}
-              size={Math.min(8, Math.max(4, PRODUCT_CATEGORIES.length))}
-            >
-              {PRODUCT_CATEGORIES.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.title}
-                </option>
-              ))}
-            </select>
-            <div className="text-xs text-gray-500 mt-1">
-              Selezione multipla: tieni premuto ⌘ (Mac) o Ctrl (Windows).
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {PRODUCT_CATEGORIES.map((c) => {
+                const isSelected = selectedCategorySet.has(String(c.id));
+                return (
+                  <label
+                    key={c.id}
+                    className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition ${
+                      isSelected
+                        ? 'bg-green-50 border-green-500'
+                        : 'bg-white border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={(e) => {
+                        const newIds = e.target.checked
+                          ? [...(draft.categoryIds || []), String(c.id)]
+                          : (draft.categoryIds || []).filter((id) => id !== String(c.id));
+                        setDraft((p) => ({ ...p, categoryIds: newIds }));
+                      }}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm leading-relaxed">{c.title}</span>
+                  </label>
+                );
+              })}
             </div>
-
-            <div className="mt-3">
-              <label
-                htmlFor="product_categoryIds_csv"
-                className="block text-xs font-medium text-gray-600 mb-1"
-              >
-                Categoria IDs (CSV) — opzionale
-              </label>
-              <input
-                id="product_categoryIds_csv"
-                value={categoryCsv}
-                onChange={(e) => setDraft((p) => ({ ...p, categoryIds: parseCsv(e.target.value) }))}
-                className={inputBase}
-                placeholder="es. detersivi-piatti, sgrassatori"
-              />
-              {selectedCategorySet.size > 0 && (
-                <div className="text-xs text-gray-500 mt-1">
-                  Selezionate: {Array.from(selectedCategorySet).join(', ')}
-                </div>
-              )}
+            <div className="text-xs text-gray-500 mt-3 leading-relaxed">
+              Categorie disponibili: Bucato, Detersivi piatti, Cura Lavastoviglie, Cucina, ecc.
             </div>
-          </div>
-          <div>
-            <label
-              htmlFor="product_relatedProductIds"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Related Product IDs (CSV)
-            </label>
-            <input
-              id="product_relatedProductIds"
-              value={relatedCsv}
-              onChange={(e) =>
-                setDraft((p) => ({ ...p, relatedProductIds: parseCsv(e.target.value) }))
-              }
-              className={inputBase}
-              placeholder="es. prodotto-1, prodotto-2"
-            />
           </div>
         </div>
       </AdminCard>
@@ -736,10 +777,36 @@ export default function CatalogProductForm({
 
                 <div className="md:col-span-3">
                   <label
-                    htmlFor={`variant_priceModifier_${idx}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    htmlFor={`variant_weightGrams_${idx}`}
+                    className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
                   >
-                    Price modifier (opz.)
+                    Peso (grammi) *
+                  </label>
+                  <input
+                    id={`variant_weightGrams_${idx}`}
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={v.weightGrams ?? 0}
+                    onChange={(e) =>
+                      setDraft((p) => ({
+                        ...p,
+                        variants: p.variants.map((it, i) =>
+                          i === idx ? { ...it, weightGrams: safeNumber(e.target.value, 0) } : it,
+                        ),
+                      }))
+                    }
+                    className={inputBase}
+                    placeholder="500"
+                  />
+                </div>
+
+                <div className="md:col-span-3">
+                  <label
+                    htmlFor={`variant_priceModifier_${idx}`}
+                    className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
+                  >
+                    Price modifier (EUR) *
                   </label>
                   <input
                     id={`variant_priceModifier_${idx}`}
@@ -755,7 +822,11 @@ export default function CatalogProductForm({
                       }))
                     }
                     className={inputBase}
+                    placeholder="0.00"
                   />
+                  <div className="text-xs text-gray-500 mt-1 leading-relaxed">
+                    +/- rispetto al prezzo base
+                  </div>
                 </div>
 
                 <div className="md:col-span-3">
@@ -830,10 +901,11 @@ export default function CatalogProductForm({
                   variants: [
                     ...p.variants,
                     {
-                      id: '',
+                      id: `v${p.variants.length + 1}`,
                       label: '',
                       volume: 0,
                       unit: 'ml',
+                      weightGrams: 0,
                       priceModifier: 0,
                       stock: 0,
                       isAvailable: true,
@@ -848,27 +920,27 @@ export default function CatalogProductForm({
         </div>
       </AdminCard>
 
-      <AdminCard className="p-5">
-        <h2 className="text-lg font-semibold text-gray-900">Badge e promo</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-          {(
-            [
-              ['promoEligible', 'Promo eleggibile'],
-              ['isEco', 'Eco'],
-              ['isNew', 'Nuovo'],
-              ['isBestSeller', 'Best seller'],
-              ['isSeasonal', 'Stagionale'],
-            ] as const
-          ).map(([key, label]) => (
-            <label key={key} className="flex items-center gap-3 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                checked={(draft as any)[key] ?? false}
-                onChange={(e) => setDraft((p) => ({ ...(p as any), [key]: e.target.checked }))}
-              />
-              {label}
-            </label>
-          ))}
+      <AdminCard className="p-6">
+        <h2 className="text-lg font-semibold text-gray-900 leading-tight mb-5">Badge e promo</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label className="flex items-center gap-3 text-sm text-gray-700 leading-relaxed">
+            <input
+              type="checkbox"
+              checked={draft.promoEligible ?? false}
+              onChange={(e) => setDraft((p) => ({ ...p, promoEligible: e.target.checked }))}
+              className="w-4 h-4"
+            />
+            <span>Promo eleggibile</span>
+          </label>
+          <label className="flex items-center gap-3 text-sm text-gray-700 leading-relaxed">
+            <input
+              type="checkbox"
+              checked={draft.isBestSeller ?? false}
+              onChange={(e) => setDraft((p) => ({ ...p, isBestSeller: e.target.checked }))}
+              className="w-4 h-4"
+            />
+            <span>Best seller</span>
+          </label>
         </div>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
