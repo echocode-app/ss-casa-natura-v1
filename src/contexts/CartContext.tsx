@@ -167,7 +167,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           }
 
           const product = await res.json();
-          const variant = product.variants?.find((v) => v.id === variantId);
+          const variant = product.variants?.find((v: any) => v.id === variantId);
           if (!variant) {
             const msg = tCart('toasts.addFailed');
             setError(msg);
@@ -268,7 +268,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           }
 
           const product = await res.json();
-          const variant = product?.variants?.find((v) => v.id === variantId);
+          const variant = product?.variants?.find((v: any) => v.id === variantId);
           if (!variant) {
             const msg = tCart('toasts.addFailed');
             notify.error(msg);

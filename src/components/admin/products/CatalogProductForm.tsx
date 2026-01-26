@@ -48,11 +48,6 @@ export type CatalogProductDraft = {
 
 const inputBase = 'w-full px-3 py-2 border border-gray-300 rounded-md';
 
-function safeNumber(value: string, fallback: number) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
-}
-
 function normalizeDraft(draft: CatalogProductDraft): CatalogProductDraft {
   return {
     ...draft,
@@ -102,8 +97,6 @@ export default function CatalogProductForm({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState<Record<number, boolean>>({});
-
-  const isArchived = !!draft.archived;
 
   // Auto-generate SKU on mount for new products
   useState(() => {

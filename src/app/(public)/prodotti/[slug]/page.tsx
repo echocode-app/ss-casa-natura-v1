@@ -29,7 +29,7 @@ export default function ProductPageClient() {
       }
 
       try {
-        const prod = await fetchProduct(slug, false);
+        const prod = await fetchProduct(slug);
         if (!prod) {
           setNotFound(true);
           setLoading(false);
@@ -38,7 +38,7 @@ export default function ProductPageClient() {
 
         setProduct(prod);
 
-        const allProducts = await fetchProducts(false);
+        const allProducts = await fetchProducts();
         const categoryId = prod.categoryIds[0];
         const related = allProducts.filter(
           (p) => p.categoryIds.includes(categoryId) && p.id !== prod.id,

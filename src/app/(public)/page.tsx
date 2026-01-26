@@ -26,7 +26,7 @@ export default async function Page() {
     path: '/',
   });
 
-  const products = await fetchProducts(false);
+  const products = await fetchProducts();
 
   return (
     <>

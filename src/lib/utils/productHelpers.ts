@@ -42,8 +42,14 @@ export function getRelatedProducts(
   allProducts: Product[],
   limit: number = 4,
 ): Product[] {
-  // Exclude the current product and unavailable products
-  const candidates = allProducts.filter((p) => p.id !== product.id && p.isAvailable !== false);
+  // Exclude the current product and filter only available products
+  const candidates = allProducts.filter((p) => {
+    if (p.id === product.id) return false;
+    // Check if at least one variant is available
+    return p.variants?.some(
+      (v) => v.isAvailable !== false && (v.stock === undefined || v.stock > 0),
+    );
+  });
 
   if (candidates.length === 0) {
     return [];

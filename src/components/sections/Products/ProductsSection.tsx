@@ -48,7 +48,7 @@ export default function ProductsSection({
     const loadProducts = async () => {
       try {
         setError(null);
-        const data = await fetchProducts(false);
+        const data = await fetchProducts();
         if (!cancelled) {
           setProducts(data);
         }

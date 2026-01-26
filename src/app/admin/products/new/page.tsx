@@ -13,13 +13,7 @@ const initial: CatalogProductDraft = {
   lineId: '',
   images: [],
   variants: [],
-  weightGrams: 0,
-  price: 0,
   currency: 'EUR',
-  stock: 0,
-  isAvailable: true,
-  promoEligible: false,
-  isBestSeller: false,
 };
 
 export default function AdminNewProductPage() {

@@ -3,30 +3,17 @@ import { Product } from '@/config/products/product.types';
 export function sortProducts(products: Product[]): Product[] {
   if (!products || products.length === 0) return [];
 
-  const isVariantAvailableForPurchase = (
-    product: Product,
-    variant: NonNullable<Product['variants']>[number],
-  ) => {
-    if (product.isAvailable === false) return false;
+  const isVariantAvailableForPurchase = (variant: NonNullable<Product['variants']>[number]) => {
     if (variant?.isAvailable === false) return false;
-
-    const stock = variant?.stock ?? product.stock;
+    const stock = variant?.stock;
     if (stock !== undefined && stock <= 0) return false;
-
     return true;
   };
 
   const isAvailableForSort = (product: Product): boolean => {
-    if (product.isAvailable === false) return false;
-
     if (product.variants?.length) {
-      return product.variants.some((v) => isVariantAvailableForPurchase(product, v));
+      return product.variants.some((v) => isVariantAvailableForPurchase(v));
     }
-
-    if (product.stock !== undefined) {
-      return product.stock > 0;
-    }
-
     return true;
   };
 
@@ -35,14 +22,16 @@ export function sortProducts(products: Product[]): Product[] {
     const bIsAvailable = isAvailableForSort(b);
     if (aIsAvailable !== bIsAvailable) return aIsAvailable ? -1 : 1;
 
-    const aIsBestSeller = a.isBestSeller ? 1 : 0;
-    const bIsBestSeller = b.isBestSeller ? 1 : 0;
+    // Check if any variant is a bestseller
+    const aIsBestSeller = a.variants?.some((v) => v.isBestSeller) ? 1 : 0;
+    const bIsBestSeller = b.variants?.some((v) => v.isBestSeller) ? 1 : 0;
     if (aIsBestSeller !== bIsBestSeller) return bIsBestSeller - aIsBestSeller;
 
-    const aPrice = a.variants?.[0]?.priceModifier ?? a.price ?? 0;
-    const bPrice = b.variants?.[0]?.priceModifier ?? b.price ?? 0;
+    // Use price from first available variant
+    const aPrice = a.variants?.[0]?.price ?? 0;
+    const bPrice = b.variants?.[0]?.price ?? 0;
 
-    if (a.isBestSeller || b.isBestSeller) {
+    if (aIsBestSeller || bIsBestSeller) {
       return bPrice - aPrice;
     }
 
@@ -51,15 +40,13 @@ export function sortProducts(products: Product[]): Product[] {
 }
 
 export function isProductAvailable(product: Product, variantId?: string): boolean {
-  if (product.isAvailable === false) return false;
-
   if (product.variants?.length) {
     if (variantId) {
       const variant = product.variants.find((v) => v.id === variantId);
       if (!variant) return false;
       if (variant.isAvailable === false) return false;
 
-      const stock = variant.stock ?? product.stock;
+      const stock = variant.stock;
       if (stock !== undefined && stock <= 0) return false;
 
       return true;
@@ -67,13 +54,11 @@ export function isProductAvailable(product: Product, variantId?: string): boolea
 
     return product.variants.some((v) => {
       if (v.isAvailable === false) return false;
-      const stock = v.stock ?? product.stock;
+      const stock = v.stock;
       if (stock !== undefined && stock <= 0) return false;
       return true;
     });
   }
-
-  if (product.stock !== undefined && product.stock <= 0) return false;
 
   return true;
 }
@@ -93,7 +78,7 @@ export function getStockStatusMessage(
     return 'out-of-stock';
   }
 
-  let stock = product.stock;
+  let stock: number | undefined;
   if (variantId && product.variants) {
     const variant = product.variants.find((v) => v.id === variantId);
     if (variant?.stock !== undefined) {
