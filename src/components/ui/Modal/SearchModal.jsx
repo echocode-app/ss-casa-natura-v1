@@ -8,7 +8,6 @@ import ModalLayout from './ModalLayout';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { Icon } from '@/components/ui';
 import { searchProducts } from '@/helpers/searchProducts';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 
 const MIN_QUERY_LENGTH = 3;
@@ -31,7 +30,9 @@ function ModalProductCard({ product, onClick }) {
       <div className="flex flex-col gap-1">
         <span className="font-medium text-sm line-clamp-2">{product.title}</span>
         {product.sku && <span className="text-xs text-text-gray">{product.sku}</span>}
-        <span className="text-sm font-semibold">€ {product.price.toFixed(2)}</span>
+        <span className="text-sm font-semibold">
+          € {product.variants?.[0]?.price?.toFixed(2) ?? '0.00'}
+        </span>
       </div>
     </Link>
   );
@@ -44,9 +45,30 @@ export default function SearchModal({ isOpen, onClose }) {
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState([]);
   const [showTopProducts, setShowTopProducts] = useState(true);
+  const [allProducts, setAllProducts] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
   const showSpinner = useSmoothLoading(isSearching, 120, 220);
 
   const normalizedQuery = query.trim().toLowerCase();
+
+  // Load products from API on mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const res = await fetch('/api/products');
+        if (res.ok) {
+          const products = await res.json();
+          setAllProducts(products);
+          setTopProducts(products.filter((p) => p.isBestSeller).slice(0, 3));
+        }
+      } catch {
+        // Silently handle product loading error
+      }
+    };
+    if (isOpen) {
+      loadProducts();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (normalizedQuery.length < MIN_QUERY_LENGTH) {
@@ -61,7 +83,10 @@ export default function SearchModal({ isOpen, onClose }) {
 
     const timeout = setTimeout(() => {
       try {
-        const foundResults = searchProducts(normalizedQuery).slice(0, MAX_RESULTS);
+        const foundResults = searchProducts(normalizedQuery, { products: allProducts }).slice(
+          0,
+          MAX_RESULTS,
+        );
         setResults(foundResults);
       } catch {
         // Handle search error silently
@@ -72,12 +97,10 @@ export default function SearchModal({ isOpen, onClose }) {
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(timeout);
-  }, [normalizedQuery]);
+  }, [normalizedQuery, allProducts]);
 
   const isEmpty =
     !isSearching && normalizedQuery.length >= MIN_QUERY_LENGTH && results.length === 0;
-
-  const topProducts = PRODUCTS_MOCK.filter((p) => p.isBestSeller).slice(0, 3);
 
   return (
     <ModalLayout isOpen={isOpen} onClose={onClose}>

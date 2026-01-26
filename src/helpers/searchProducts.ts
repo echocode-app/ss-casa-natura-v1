@@ -1,10 +1,9 @@
 import { Product, ProductCategory, ProductLine } from '@/config/products/product.types';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import { PRODUCT_CATEGORIES } from '@/config/products/product.categories';
 import { PRODUCT_LINES } from '@/config/products/product.lines';
 
 export interface SearchSources {
-  products?: Product[];
+  products: Product[]; // Required now
   categories?: ProductCategory[];
   lines?: ProductLine[];
 }
@@ -25,8 +24,9 @@ const normalizeSku = (value: string) => normalize(value).replace(/[^a-z0-9]/g, '
 
 /**
  * Search products by title, category title, or line title.
+ * Products array is required.
  */
-export function searchProducts(query: string, sources: SearchSources = {}): SearchResult[] {
+export function searchProducts(query: string, sources: SearchSources): SearchResult[] {
   const q = normalize(query);
   if (!q) return [];
 
@@ -34,7 +34,7 @@ export function searchProducts(query: string, sources: SearchSources = {}): Sear
   const qDigits = q.replace(/\D/g, '');
   const queryLooksLikeSku = qSku.startsWith('art') || qDigits.length >= 3;
 
-  const products = sources.products || PRODUCTS_MOCK;
+  const products = sources.products;
   const categories = sources.categories || PRODUCT_CATEGORIES;
   const lines = sources.lines || PRODUCT_LINES;
 

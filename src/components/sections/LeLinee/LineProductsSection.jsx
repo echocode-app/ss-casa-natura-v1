@@ -110,7 +110,7 @@ export default function LineProductsSection({ lineSlug, bgColor }) {
               key={product.id}
               title={product.title}
               volume={product.variants?.[0]?.volume}
-              price={product.variants?.[0]?.priceModifier || product.price}
+              price={product.variants?.[0]?.price ?? 0}
               discountPrice={product.discountPrice}
               imageSrc={product.images?.[0]?.src || product.imageSrc || '/images/home/product.png'}
               slug={product.slug}

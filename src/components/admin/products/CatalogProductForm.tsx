@@ -17,10 +17,11 @@ type CatalogVariant = {
   label: string;
   volume: number;
   unit: Unit;
-  weightGrams: number; // Required for shipping
-  priceModifier: number; // Required
+  weightGrams: number;
+  price: number; // Price for this variant
   stock?: number;
   isAvailable?: boolean;
+  isBestSeller?: boolean;
 };
 
 type Discount = {
@@ -31,23 +32,17 @@ type Discount = {
 };
 
 export type CatalogProductDraft = {
-  id?: string; // Auto-generated from slug in new mode
+  id?: string;
   slug: string;
-  sku: string; // Auto-generated, read-only
+  sku: string;
   title: string;
   description: string;
   categoryIds: string[];
   lineId?: string;
   images: CatalogImage[];
   variants: CatalogVariant[];
-  weightGrams: number;
-  price: number;
   currency: 'EUR';
-  stock?: number;
-  isAvailable?: boolean;
   discount?: Discount;
-  promoEligible?: boolean;
-  isBestSeller?: boolean;
   archived?: boolean;
 };
 
@@ -135,21 +130,39 @@ export default function CatalogProductForm({
   );
 
   const canSubmit = useMemo(() => {
+    // Check if image has alt text
+    const hasValidImage =
+      draft.images.length === 0 || (draft.images[0]?.src && draft.images[0]?.alt?.trim());
+
+    // Check if at least one variant has price and weight
+    const hasValidVariant = draft.variants.some(
+      (v) => v.price > 0 && v.weightGrams > 0 && v.volume > 0,
+    );
+
     return (
       !!draft.title.trim() &&
       !!draft.slug.trim() &&
       !!draft.sku.trim() &&
       !!draft.description.trim() &&
       draft.categoryIds.length > 0 &&
-      draft.price > 0 &&
-      draft.weightGrams > 0
+      hasValidImage &&
+      hasValidVariant
     );
   }, [draft]);
 
   const save = async () => {
     if (!canSubmit) {
+      // More specific error messages
+      if (draft.images.length > 0 && !draft.images[0]?.alt?.trim()) {
+        notify.error("Alt text obbligatorio per l'immagine del prodotto.");
+        return;
+      }
+      if (!draft.variants.some((v) => v.price > 0 && v.weightGrams > 0)) {
+        notify.error('Almeno una variante deve avere prezzo e peso validi.');
+        return;
+      }
       notify.error(
-        'Compila i campi obbligatori: titolo, descrizione, almeno 1 categoria, prezzo, peso.',
+        'Compila i campi obbligatori: titolo, descrizione, almeno 1 categoria, almeno 1 variante valida.',
       );
       return;
     }
@@ -257,7 +270,8 @@ export default function CatalogProductForm({
             {mode === 'new' ? 'Nuovo prodotto' : 'Modifica prodotto'}
           </h1>
           <p className="text-gray-600 leading-relaxed">
-            Campi obbligatori: Titolo, Descrizione, almeno 1 Categoria, Prezzo, Peso.
+            Campi obbligatori: Titolo, Descrizione, almeno 1 Categoria, Immagine con Alt text,
+            almeno 1 Variante con Prezzo e Peso.
             <br />
             SKU e Slug generati automaticamente.
           </p>
@@ -290,7 +304,8 @@ export default function CatalogProductForm({
           </li>
           <li>
             Se il prodotto ha varianti (es. 500 ml / 1 L), compila le varianti. Ogni variante
-            richiede <strong>Price modifier</strong> e <strong>Peso (grammi)</strong>.
+            richiede <strong>Volume</strong>, <strong>Unità</strong>,{' '}
+            <strong>Price modifier</strong> e <strong>Peso (grammi)</strong>.
           </li>
           <li>
             Se non ci sono varianti, usa <strong>Stock (prodotto)</strong> e{' '}
@@ -300,8 +315,8 @@ export default function CatalogProductForm({
             Seleziona almeno 1 <strong>Categoria</strong>. La <strong>Linea</strong> è opzionale.
           </li>
           <li>
-            Le immagini richiedono <strong>Alt text obbligatorio</strong>. Ottimizza prima
-            dell'upload (max 200KB).
+            <strong>Immagine:</strong> Usa una sola immagine ottimizzata (max 200 KB).
+            <strong> Alt text obbligatorio</strong> - descrive l'immagine per accessibilità e SEO.
           </li>
         </ul>
       </AdminCard>
@@ -418,7 +433,7 @@ export default function CatalogProductForm({
             <label className="block text-sm font-medium text-gray-700 mb-3 leading-relaxed">
               Categorie * (seleziona almeno 1)
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {PRODUCT_CATEGORIES.map((cat) => (
                 <label key={cat.id} className="flex items-center space-x-2 cursor-pointer">
                   <input
@@ -448,96 +463,8 @@ export default function CatalogProductForm({
       </AdminCard>
 
       <AdminCard className="p-5">
-        <h2 className="text-lg font-semibold text-gray-900">Prezzo e spedizione</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <div>
-            <label htmlFor="product_price" className="block text-sm font-medium text-gray-700 mb-2">
-              Prezzo (EUR) *
-            </label>
-            <input
-              id="product_price"
-              type="number"
-              min={0}
-              step={0.01}
-              value={draft.price}
-              onChange={(e) => setDraft((p) => ({ ...p, price: safeNumber(e.target.value, 0) }))}
-              className={inputBase}
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="product_weight"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Peso (grammi) *
-            </label>
-            <input
-              id="product_weight"
-              type="number"
-              min={0}
-              step={1}
-              value={draft.weightGrams}
-              onChange={(e) =>
-                setDraft((p) => ({ ...p, weightGrams: safeNumber(e.target.value, 0) }))
-              }
-              className={inputBase}
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="product_currency"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Valuta
-            </label>
-            <input
-              id="product_currency"
-              value={draft.currency}
-              disabled
-              className={inputBase + ' bg-gray-50'}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <label className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={draft.isAvailable ?? true}
-              onChange={(e) => setDraft((p) => ({ ...p, isAvailable: e.target.checked }))}
-              aria-label="Disponibile (prodotto)"
-              title="Disponibile (prodotto)"
-            />
-            <span className="text-sm text-gray-700">Disponibile (prodotto)</span>
-          </label>
-          <div>
-            <label htmlFor="product_stock" className="block text-sm font-medium text-gray-700 mb-2">
-              Stock (prodotto)
-            </label>
-            <input
-              id="product_stock"
-              type="number"
-              min={0}
-              step={1}
-              value={draft.stock ?? 0}
-              onChange={(e) => setDraft((p) => ({ ...p, stock: safeNumber(e.target.value, 0) }))}
-              className={inputBase}
-            />
-          </div>
-        </div>
-
-        {mode === 'edit' && (
-          <div className="mt-4 text-sm">
-            <span className={isArchived ? 'text-red-700' : 'text-gray-600'}>
-              Stato: {isArchived ? 'Archiviato' : 'Attivo'}
-            </span>
-          </div>
-        )}
-      </AdminCard>
-
-      <AdminCard className="p-5">
         <h2 className="text-lg font-semibold text-gray-900">Categorie e relazioni</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 gap-4 mt-4">
           <div>
             <label
               className="block text-sm font-medium text-gray-700 mb-2"
@@ -545,7 +472,7 @@ export default function CatalogProductForm({
             >
               Categorie
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {PRODUCT_CATEGORIES.map((c) => {
                 const isSelected = selectedCategorySet.has(String(c.id));
                 return (
@@ -581,315 +508,412 @@ export default function CatalogProductForm({
       </AdminCard>
 
       <AdminCard className="p-5">
-        <h2 className="text-lg font-semibold text-gray-900">Immagini</h2>
-        <div className="mt-4 space-y-3">
-          {draft.images.map((img, idx) => (
-            <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-              <div className="md:col-span-7">
-                <label
-                  htmlFor={`image_file_${idx}`}
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Immagine (Cloudinary)
-                </label>
-                <input
-                  id={`image_file_${idx}`}
-                  type="file"
-                  accept="image/*"
-                  className={inputBase}
-                  disabled={!!isUploadingImage[idx]}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    void uploadProductImage(file, idx);
-                    e.currentTarget.value = '';
-                  }}
-                />
-                {img.src ? (
-                  <div className="mt-2">
-                    <img
-                      src={img.src}
-                      alt={img.alt || 'Anteprima'}
-                      className="max-h-40 rounded-md border border-black/5"
-                    />
-                    <div className="mt-1 text-xs text-gray-500 break-all">{img.src}</div>
-                  </div>
-                ) : (
-                  <div className="mt-1 text-xs text-gray-500">
-                    Carica un file: non sono accettati URL esterni.
-                  </div>
-                )}
-              </div>
-              <div className="md:col-span-4">
-                <label
-                  htmlFor={`image_alt_${idx}`}
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Alt (opzionale)
-                </label>
-                <input
-                  id={`image_alt_${idx}`}
-                  value={img.alt || ''}
-                  onChange={(e) =>
-                    setDraft((p) => ({
-                      ...p,
-                      images: p.images.map((it, i) =>
-                        i === idx ? { ...it, alt: e.target.value } : it,
-                      ),
-                    }))
-                  }
-                  className={inputBase}
-                  placeholder="(opzionale)"
-                />
-              </div>
-              <div className="md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">&nbsp;</label>
-                <button
-                  type="button"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                  onClick={() =>
-                    setDraft((p) => ({ ...p, images: p.images.filter((_, i) => i !== idx) }))
-                  }
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-          ))}
+        <h2 className="text-lg font-semibold text-gray-900">Immagine prodotto</h2>
 
-          <div>
+        {/* Warning about image requirements */}
+        <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
+          <h3 className="font-semibold text-amber-900 mb-2">⚠️ Requisiti per l'immagine</h3>
+          <ul className="text-sm text-amber-800 space-y-1 leading-relaxed">
+            <li>
+              • <strong>Dimensioni:</strong> Max 200 KB (ottimizza prima dell'upload)
+            </li>
+            <li>
+              • <strong>Formato:</strong> JPG, PNG o WEBP consigliati
+            </li>
+            <li>
+              • <strong>Risoluzione:</strong> Min 800x800px, ottimale 1200x1200px
+            </li>
+            <li>
+              • <strong>Nome file:</strong> Usa nomi descrittivi (es.
+              "detersivo-piatti-lavanda-500ml.jpg")
+            </li>
+            <li>
+              • <strong>Qualità:</strong> Sfondo bianco o trasparente, immagine nitida e ben
+              illuminata
+            </li>
+          </ul>
+        </div>
+
+        <div className="mt-5">
+          {draft.images.length === 0 ? (
+            // No image yet - show upload button
             <button
               type="button"
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="w-full p-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-center"
               onClick={() =>
                 setDraft((p) => ({
                   ...p,
-                  images: [...p.images, { src: '', alt: '', publicId: undefined }],
+                  images: [{ src: '', alt: '', publicId: undefined }],
                 }))
               }
             >
-              + Aggiungi immagine
+              <div className="text-gray-600">
+                <div className="text-4xl mb-2">📷</div>
+                <div className="font-medium">Clicca per aggiungere un'immagine</div>
+                <div className="text-sm mt-1">Carica un'immagine del prodotto</div>
+              </div>
             </button>
-          </div>
+          ) : (
+            // Image exists - show editor
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label
+                    htmlFor="product_image_file"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    {draft.images[0].src ? 'Sostituisci immagine' : 'Carica immagine'}
+                  </label>
+                  <input
+                    id="product_image_file"
+                    type="file"
+                    accept="image/*"
+                    className={inputBase}
+                    disabled={!!isUploadingImage[0]}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      void uploadProductImage(file, 0);
+                      e.currentTarget.value = '';
+                    }}
+                  />
+                  {draft.images[0].src ? (
+                    <div className="mt-3">
+                      <img
+                        src={draft.images[0].src}
+                        alt={draft.images[0].alt || 'Anteprima'}
+                        className="max-h-60 rounded-md border border-black/5"
+                      />
+                      <div className="mt-2 text-xs text-gray-500 break-all">
+                        {draft.images[0].src}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-xs text-gray-500">
+                      Seleziona un file da caricare su Cloudinary
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="product_image_alt"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Alt text * (obbligatorio)
+                  </label>
+                  <textarea
+                    id="product_image_alt"
+                    value={draft.images[0].alt || ''}
+                    onChange={(e) =>
+                      setDraft((p) => ({
+                        ...p,
+                        images: [{ ...p.images[0], alt: e.target.value }],
+                      }))
+                    }
+                    className={inputBase}
+                    rows={4}
+                    placeholder="Es: Detersivo piatti ecologico Lavanda 500ml - bottiglia verde"
+                    required
+                  />
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-xs text-blue-900 font-medium mb-1">
+                      💡 Cos'è l'Alt text e come compilarlo:
+                    </p>
+                    <ul className="text-xs text-blue-800 space-y-1">
+                      <li>• Descrive l'immagine per utenti non vedenti e motori di ricerca</li>
+                      <li>• Includi: nome prodotto, formato/volume, caratteristiche visive</li>
+                      <li>• Esempio: "Sapone liquido Marsiglia 1L bottiglia trasparente"</li>
+                      <li>• Evita: "immagine", "foto", parole generiche</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {draft.images[0].src && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    className="px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50"
+                    onClick={() => setDraft((p) => ({ ...p, images: [] }))}
+                  >
+                    ✕ Rimuovi immagine
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </AdminCard>
 
       <AdminCard className="p-5">
         <h2 className="text-lg font-semibold text-gray-900">Varianti</h2>
+        <p className="text-sm text-gray-600 mt-1 mb-4">
+          ID e Etichetta vengono generati automaticamente dal volume e unità (es. "500ml", "1l")
+        </p>
         <div className="mt-4 space-y-4">
-          {draft.variants.map((v, idx) => (
-            <div key={idx} className="border border-black/5 rounded-lg p-4">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-                <div className="md:col-span-3">
-                  <label
-                    htmlFor={`variant_id_${idx}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    ID variante
-                  </label>
-                  <input
-                    id={`variant_id_${idx}`}
-                    value={v.id}
-                    onChange={(e) =>
-                      setDraft((p) => ({
-                        ...p,
-                        variants: p.variants.map((it, i) =>
-                          i === idx ? { ...it, id: e.target.value } : it,
-                        ),
-                      }))
-                    }
-                    className={inputBase}
-                    placeholder="es. 50ml"
-                  />
-                </div>
-                <div className="md:col-span-5">
-                  <label
-                    htmlFor={`variant_label_${idx}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Etichetta
-                  </label>
-                  <input
-                    id={`variant_label_${idx}`}
-                    value={v.label}
-                    onChange={(e) =>
-                      setDraft((p) => ({
-                        ...p,
-                        variants: p.variants.map((it, i) =>
-                          i === idx ? { ...it, label: e.target.value } : it,
-                        ),
-                      }))
-                    }
-                    className={inputBase}
-                    placeholder="es. 50 ml"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label
-                    htmlFor={`variant_volume_${idx}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Volume
-                  </label>
-                  <input
-                    id={`variant_volume_${idx}`}
-                    type="number"
-                    min={0}
-                    step={0.01}
-                    value={v.volume}
-                    onChange={(e) =>
-                      setDraft((p) => ({
-                        ...p,
-                        variants: p.variants.map((it, i) =>
-                          i === idx ? { ...it, volume: safeNumber(e.target.value, 0) } : it,
-                        ),
-                      }))
-                    }
-                    className={inputBase}
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label
-                    htmlFor={`variant_unit_${idx}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Unità
-                  </label>
-                  <select
-                    id={`variant_unit_${idx}`}
-                    value={v.unit}
-                    onChange={(e) =>
-                      setDraft((p) => ({
-                        ...p,
-                        variants: p.variants.map((it, i) =>
-                          i === idx ? { ...it, unit: e.target.value as Unit } : it,
-                        ),
-                      }))
-                    }
-                    className={inputBase}
-                  >
-                    <option value="ml">ml</option>
-                    <option value="l">l</option>
-                    <option value="g">g</option>
-                    <option value="kg">kg</option>
-                  </select>
-                </div>
+          {draft.variants.map((v, idx) => {
+            // Auto-generate ID and label from volume and unit
+            const autoId = v.volume && v.unit ? `${v.volume}${v.unit}` : `v${idx + 1}`;
+            const autoLabel = v.volume && v.unit ? `${v.volume} ${v.unit}` : '';
 
-                <div className="md:col-span-3">
-                  <label
-                    htmlFor={`variant_weightGrams_${idx}`}
-                    className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
-                  >
-                    Peso (grammi) *
-                  </label>
-                  <input
-                    id={`variant_weightGrams_${idx}`}
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={v.weightGrams ?? 0}
-                    onChange={(e) =>
-                      setDraft((p) => ({
-                        ...p,
-                        variants: p.variants.map((it, i) =>
-                          i === idx ? { ...it, weightGrams: safeNumber(e.target.value, 0) } : it,
-                        ),
-                      }))
-                    }
-                    className={inputBase}
-                    placeholder="500"
-                  />
-                </div>
+            // Update if values changed
+            if (v.id !== autoId || v.label !== autoLabel) {
+              setTimeout(() => {
+                setDraft((p) => ({
+                  ...p,
+                  variants: p.variants.map((it, i) =>
+                    i === idx ? { ...it, id: autoId, label: autoLabel } : it,
+                  ),
+                }));
+              }, 0);
+            }
 
-                <div className="md:col-span-3">
-                  <label
-                    htmlFor={`variant_priceModifier_${idx}`}
-                    className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
-                  >
-                    Price modifier (EUR) *
-                  </label>
-                  <input
-                    id={`variant_priceModifier_${idx}`}
-                    type="number"
-                    step={0.01}
-                    value={v.priceModifier ?? 0}
-                    onChange={(e) =>
-                      setDraft((p) => ({
-                        ...p,
-                        variants: p.variants.map((it, i) =>
-                          i === idx ? { ...it, priceModifier: safeNumber(e.target.value, 0) } : it,
-                        ),
-                      }))
-                    }
-                    className={inputBase}
-                    placeholder="0.00"
-                  />
-                  <div className="text-xs text-gray-500 mt-1 leading-relaxed">
-                    +/- rispetto al prezzo base
+            return (
+              <div key={idx} className="border border-black/5 rounded-lg p-4">
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Display auto-generated values */}
+                  <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">ID variante:</span>{' '}
+                        <span className="font-medium">{autoId || '(auto)'}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Etichetta:</span>{' '}
+                        <span className="font-medium">{autoLabel || '(auto)'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Editable fields */}
+                  <div className="grid grid-cols-1 gap-3">
+                    <div>
+                      <label
+                        htmlFor={`variant_volume_${idx}`}
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Volume *
+                      </label>
+                      <input
+                        id={`variant_volume_${idx}`}
+                        type="text"
+                        value={v.volume ? String(v.volume) : ''}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9]/g, '');
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.map((it, i) =>
+                              i === idx ? { ...it, volume: val ? Number(val) : 0 } : it,
+                            ),
+                          }));
+                        }}
+                        className={inputBase}
+                        placeholder="500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor={`variant_unit_${idx}`}
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Unità *
+                      </label>
+                      <select
+                        id={`variant_unit_${idx}`}
+                        value={v.unit}
+                        onChange={(e) =>
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.map((it, i) =>
+                              i === idx ? { ...it, unit: e.target.value as Unit } : it,
+                            ),
+                          }))
+                        }
+                        className={inputBase}
+                      >
+                        <option value="ml">ml</option>
+                        <option value="l">l</option>
+                        <option value="g">g</option>
+                        <option value="kg">kg</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor={`variant_price_${idx}`}
+                        className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
+                      >
+                        Prezzo (EUR) *
+                      </label>
+                      <input
+                        id={`variant_price_${idx}`}
+                        type="text"
+                        inputMode="decimal"
+                        value={
+                          typeof v.price === 'string' ? v.price : v.price ? String(v.price) : ''
+                        }
+                        onChange={(e) => {
+                          let val = e.target.value;
+                          // Allow numbers and dot only
+                          val = val.replace(/[^0-9.]/g, '');
+                          // Allow only one decimal point
+                          const parts = val.split('.');
+                          if (parts.length > 2) {
+                            val = parts[0] + '.' + parts.slice(1).join('');
+                          }
+                          // Store as string during editing to preserve dots
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.map((it, i) =>
+                              i === idx ? { ...it, price: val as any } : it,
+                            ),
+                          }));
+                        }}
+                        onBlur={(e) => {
+                          // Convert to number on blur
+                          const numVal = parseFloat(e.target.value) || 0;
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.map((it, i) =>
+                              i === idx ? { ...it, price: numVal } : it,
+                            ),
+                          }));
+                        }}
+                        className={inputBase}
+                        placeholder="5.99"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor={`variant_stock_${idx}`}
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Stock
+                      </label>
+                      <input
+                        id={`variant_stock_${idx}`}
+                        type="text"
+                        value={v.stock ? String(v.stock) : ''}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9]/g, '');
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.map((it, i) =>
+                              i === idx ? { ...it, stock: val ? Number(val) : 0 } : it,
+                            ),
+                          }));
+                        }}
+                        className={inputBase}
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor={`variant_weightGrams_${idx}`}
+                        className="block text-sm font-medium text-gray-700 mb-2 leading-relaxed"
+                      >
+                        Peso (grammi) *
+                      </label>
+                      <input
+                        id={`variant_weightGrams_${idx}`}
+                        type="text"
+                        inputMode="decimal"
+                        value={
+                          typeof v.weightGrams === 'string'
+                            ? v.weightGrams
+                            : v.weightGrams
+                              ? String(v.weightGrams)
+                              : ''
+                        }
+                        onChange={(e) => {
+                          let val = e.target.value;
+                          // Allow numbers and dot only
+                          val = val.replace(/[^0-9.]/g, '');
+                          // Allow only one decimal point
+                          const parts = val.split('.');
+                          if (parts.length > 2) {
+                            val = parts[0] + '.' + parts.slice(1).join('');
+                          }
+                          // Store as string during editing to preserve dots
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.map((it, i) =>
+                              i === idx ? { ...it, weightGrams: val as any } : it,
+                            ),
+                          }));
+                        }}
+                        onBlur={(e) => {
+                          // Convert to number on blur
+                          const numVal = parseFloat(e.target.value) || 0;
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.map((it, i) =>
+                              i === idx ? { ...it, weightGrams: numVal } : it,
+                            ),
+                          }));
+                        }}
+                        className={inputBase}
+                        placeholder="500"
+                      />
+                    </div>
+
+                    <label className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={v.isAvailable ?? true}
+                        onChange={(e) =>
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.map((it, i) =>
+                              i === idx ? { ...it, isAvailable: e.target.checked } : it,
+                            ),
+                          }))
+                        }
+                        aria-label="Disponibile (variante)"
+                        title="Disponibile (variante)"
+                      />
+                      <span className="text-sm text-gray-700">Disponibile</span>
+                    </label>
+
+                    <label className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={v.isBestSeller ?? false}
+                        onChange={(e) =>
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.map((it, i) =>
+                              i === idx ? { ...it, isBestSeller: e.target.checked } : it,
+                            ),
+                          }))
+                        }
+                        aria-label="Best Seller"
+                        title="Best Seller"
+                      />
+                      <span className="text-sm text-gray-700">Best Seller</span>
+                    </label>
+
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        className="px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50"
+                        onClick={() =>
+                          setDraft((p) => ({
+                            ...p,
+                            variants: p.variants.filter((_, i) => i !== idx),
+                          }))
+                        }
+                      >
+                        ✕ Rimuovi variante
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="md:col-span-3">
-                  <label
-                    htmlFor={`variant_stock_${idx}`}
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Stock (variante)
-                  </label>
-                  <input
-                    id={`variant_stock_${idx}`}
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={v.stock ?? 0}
-                    onChange={(e) =>
-                      setDraft((p) => ({
-                        ...p,
-                        variants: p.variants.map((it, i) =>
-                          i === idx ? { ...it, stock: safeNumber(e.target.value, 0) } : it,
-                        ),
-                      }))
-                    }
-                    className={inputBase}
-                  />
-                </div>
-
-                <label className="md:col-span-2 flex items-center gap-3 mt-2">
-                  <input
-                    type="checkbox"
-                    checked={v.isAvailable ?? true}
-                    onChange={(e) =>
-                      setDraft((p) => ({
-                        ...p,
-                        variants: p.variants.map((it, i) =>
-                          i === idx ? { ...it, isAvailable: e.target.checked } : it,
-                        ),
-                      }))
-                    }
-                    aria-label="Disponibile (variante)"
-                    title="Disponibile (variante)"
-                  />
-                  <span className="text-sm text-gray-700">Disponibile</span>
-                </label>
-
-                <div className="md:col-span-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">&nbsp;</label>
-                  <button
-                    type="button"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                    onClick={() =>
-                      setDraft((p) => ({
-                        ...p,
-                        variants: p.variants.filter((_, i) => i !== idx),
-                      }))
-                    }
-                  >
-                    ✕
-                  </button>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           <div>
             <button
@@ -906,9 +930,10 @@ export default function CatalogProductForm({
                       volume: 0,
                       unit: 'ml',
                       weightGrams: 0,
-                      priceModifier: 0,
+                      price: 0,
                       stock: 0,
                       isAvailable: true,
+                      isBestSeller: false,
                     },
                   ],
                 }))
@@ -921,118 +946,95 @@ export default function CatalogProductForm({
       </AdminCard>
 
       <AdminCard className="p-6">
-        <h2 className="text-lg font-semibold text-gray-900 leading-tight mb-5">Badge e promo</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label className="flex items-center gap-3 text-sm text-gray-700 leading-relaxed">
-            <input
-              type="checkbox"
-              checked={draft.promoEligible ?? false}
-              onChange={(e) => setDraft((p) => ({ ...p, promoEligible: e.target.checked }))}
-              className="w-4 h-4"
-            />
-            <span>Promo eleggibile</span>
-          </label>
-          <label className="flex items-center gap-3 text-sm text-gray-700 leading-relaxed">
-            <input
-              type="checkbox"
-              checked={draft.isBestSeller ?? false}
-              onChange={(e) => setDraft((p) => ({ ...p, isBestSeller: e.target.checked }))}
-              className="w-4 h-4"
-            />
-            <span>Best seller</span>
-          </label>
-        </div>
+        <h2 className="text-lg font-semibold text-gray-900 leading-tight mb-5">Sconti</h2>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label htmlFor="discount_type" className="block text-sm font-medium text-gray-700 mb-2">
-              Sconto tipo
-            </label>
-            <select
-              id="discount_type"
-              value={draft.discount?.type || ''}
+        <div className="mt-6 grid grid-cols-1 gap-4">
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={!!draft.discount}
               onChange={(e) =>
                 setDraft((p) => ({
                   ...p,
-                  discount: e.target.value
-                    ? { type: e.target.value as Discount['type'], value: p.discount?.value ?? 0 }
+                  discount: e.target.checked
+                    ? { type: 'percentage', value: 0, startAt: undefined, endAt: undefined }
                     : undefined,
                 }))
               }
-              className={inputBase}
-            >
-              <option value="">Nessuno</option>
-              <option value="percentage">Percentuale</option>
-              <option value="fixed">Fisso</option>
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="discount_value"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Sconto valore
-            </label>
-            <input
-              id="discount_value"
-              type="number"
-              min={0}
-              step={0.01}
-              value={draft.discount?.value ?? 0}
-              onChange={(e) =>
-                setDraft((p) => ({
-                  ...p,
-                  discount: p.discount
-                    ? { ...p.discount, value: safeNumber(e.target.value, 0) }
-                    : undefined,
-                }))
-              }
-              className={inputBase}
-              disabled={!draft.discount}
             />
-          </div>
-          <div>
-            <label
-              htmlFor="discount_startAt"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              StartAt (opz.)
-            </label>
-            <input
-              id="discount_startAt"
-              value={draft.discount?.startAt || ''}
-              onChange={(e) =>
-                setDraft((p) => ({
-                  ...p,
-                  discount: p.discount ? { ...p.discount, startAt: e.target.value } : undefined,
-                }))
-              }
-              className={inputBase}
-              disabled={!draft.discount}
-              placeholder="YYYY-MM-DD"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="discount_endAt"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              EndAt (opz.)
-            </label>
-            <input
-              id="discount_endAt"
-              value={draft.discount?.endAt || ''}
-              onChange={(e) =>
-                setDraft((p) => ({
-                  ...p,
-                  discount: p.discount ? { ...p.discount, endAt: e.target.value } : undefined,
-                }))
-              }
-              className={inputBase}
-              disabled={!draft.discount}
-              placeholder="YYYY-MM-DD"
-            />
-          </div>
+            <span className="text-sm font-medium text-gray-700">Attiva sconto percentuale</span>
+          </label>
+
+          {draft.discount && (
+            <>
+              <div>
+                <label
+                  htmlFor="discount_value"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Sconto percentuale (%)
+                </label>
+                <input
+                  id="discount_value"
+                  type="text"
+                  value={draft.discount.value ? String(draft.discount.value) : ''}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    const num = val ? Math.min(Number(val), 100) : 0;
+                    setDraft((p) => ({
+                      ...p,
+                      discount: p.discount ? { ...p.discount, value: num } : undefined,
+                    }));
+                  }}
+                  className={inputBase}
+                  placeholder="10"
+                />
+                <div className="text-xs text-gray-500 mt-1">
+                  Inserisci il valore percentuale (es. 10 per 10%)
+                </div>
+              </div>
+              <div>
+                <label
+                  htmlFor="discount_startAt"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Data inizio (opzionale)
+                </label>
+                <input
+                  id="discount_startAt"
+                  type="date"
+                  value={draft.discount.startAt || ''}
+                  onChange={(e) =>
+                    setDraft((p) => ({
+                      ...p,
+                      discount: p.discount ? { ...p.discount, startAt: e.target.value } : undefined,
+                    }))
+                  }
+                  className={inputBase}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="discount_endAt"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Data fine (opzionale)
+                </label>
+                <input
+                  id="discount_endAt"
+                  type="date"
+                  value={draft.discount.endAt || ''}
+                  onChange={(e) =>
+                    setDraft((p) => ({
+                      ...p,
+                      discount: p.discount ? { ...p.discount, endAt: e.target.value } : undefined,
+                    }))
+                  }
+                  className={inputBase}
+                />
+              </div>
+            </>
+          )}
         </div>
       </AdminCard>
 

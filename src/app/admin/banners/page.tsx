@@ -265,8 +265,18 @@ export default function AdminBannersPage() {
         <div>
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Banner Hero</h1>
           <p className="text-gray-600 mt-1">
-            Slide attive: <span className="font-semibold">{activeCount}</span> (consigliato 3–10)
+            Slide attive: <span className="font-semibold">{activeCount}</span> / 6 massimo
           </p>
+          {activeCount < 3 && (
+            <p className="text-amber-600 mt-1 text-sm">
+              ⚠️ Consigliato almeno 3 banner attivi per una migliore esperienza utente
+            </p>
+          )}
+          {activeCount === 6 && (
+            <p className="text-amber-600 mt-1 text-sm">
+              ℹ️ Hai raggiunto il limite massimo di 6 banner attivi
+            </p>
+          )}
         </div>
 
         <div className="flex gap-2">
@@ -280,10 +290,19 @@ export default function AdminBannersPage() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4">
             <div className="font-semibold">Nuovo banner</div>
-            <PrimaryButton className="px-6 py-3 text-base" onClick={create} disabled={isCreating}>
+            <PrimaryButton
+              className="px-6 py-3 text-base"
+              onClick={create}
+              disabled={isCreating || (activeCount >= 6 && !!newBanner.isActive)}
+            >
               {isCreating ? 'Creazione…' : 'Crea'}
             </PrimaryButton>
           </div>
+          {activeCount >= 6 && !!newBanner.isActive && (
+            <div className="text-amber-600 text-sm">
+              ⚠️ Disattiva un banner esistente per crearne uno nuovo attivo
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
@@ -459,11 +478,12 @@ export default function AdminBannersPage() {
                 htmlFor="new_banner_sort_order"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Ordine
+                Ordine (posizione nello slider)
               </label>
               <input
                 id="new_banner_sort_order"
                 type="number"
+                title="Numeri più bassi appaiono per primi (0, 1, 2...)"
                 min={0}
                 value={Number(newBanner.sortOrder || 0)}
                 onChange={(e) => setNewBanner((p) => ({ ...p, sortOrder: Number(e.target.value) }))}
@@ -643,11 +663,14 @@ export default function AdminBannersPage() {
                 <input
                   type="checkbox"
                   checked={!!b.isActive}
-                  onChange={(e) =>
-                    setItems((prev) =>
-                      prev.map((x) => (x._id === b._id ? { ...x, isActive: e.target.checked } : x)),
-                    )
-                  }
+                  disabled={!!isSaving[b._id]}
+                  onChange={(e) => {
+                    const isActive = e.target.checked;
+                    setItems((prev) => prev.map((x) => (x._id === b._id ? { ...x, isActive } : x)));
+                    // Auto-save quando si cambia Attivo
+                    const updated = { ...b, isActive };
+                    setTimeout(() => save(updated), 100);
+                  }}
                 />
                 Attivo
               </label>
@@ -657,11 +680,12 @@ export default function AdminBannersPage() {
                   htmlFor={`banner_${b._id}_sort_order`}
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Ordine
+                  Ordine (posizione nello slider)
                 </label>
                 <input
                   id={`banner_${b._id}_sort_order`}
                   type="number"
+                  title="Numeri più bassi appaiono per primi (0, 1, 2...)"
                   min={0}
                   value={Number(b.sortOrder || 0)}
                   onChange={(e) =>

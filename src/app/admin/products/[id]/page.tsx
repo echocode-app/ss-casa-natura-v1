@@ -21,13 +21,7 @@ function toDraftFromApi(productId: string, apiProduct: any | null): CatalogProdu
       lineId: '',
       images: [],
       variants: [],
-      weightGrams: 0,
-      price: 0,
       currency: 'EUR',
-      stock: 0,
-      isAvailable: true,
-      promoEligible: false,
-      isBestSeller: false,
       archived: false,
     };
   }
@@ -42,14 +36,8 @@ function toDraftFromApi(productId: string, apiProduct: any | null): CatalogProdu
     lineId: apiProduct.lineId || '',
     images: apiProduct.images || [],
     variants: apiProduct.variants || [],
-    weightGrams: apiProduct.weightGrams || 0,
-    price: apiProduct.price || 0,
     currency: apiProduct.currency || 'EUR',
-    stock: apiProduct.stock ?? 0,
-    isAvailable: apiProduct.isAvailable ?? true,
     discount: apiProduct.discount,
-    promoEligible: apiProduct.promoEligible ?? false,
-    isBestSeller: apiProduct.isBestSeller ?? false,
     archived: apiProduct.archived || false,
   };
 }

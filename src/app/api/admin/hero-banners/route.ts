@@ -60,6 +60,22 @@ export const POST = handleApi(async (req: Request) => {
     );
   }
 
+  // Verifica limite massimo di 6 banner attivi
+  if (parsed.data.isActive !== false) {
+    const activeCount = await HeroBanner.countDocuments({ isActive: true });
+    if (activeCount >= 6) {
+      return NextResponse.json(
+        {
+          success: false,
+          errorCode: 'MAX_ACTIVE_BANNERS_REACHED',
+          error:
+            'Massimo 6 banner attivi consentiti. Disattiva un banner esistente prima di aggiungerne uno nuovo.',
+        },
+        { status: 400 },
+      );
+    }
+  }
+
   const payload: any = { ...parsed.data };
   for (const key of ['titleIt', 'subtitleIt', 'ctaIt', 'titleEn', 'subtitleEn', 'ctaEn'] as const) {
     if (Object.prototype.hasOwnProperty.call(payload, key) && payload[key] === null) {

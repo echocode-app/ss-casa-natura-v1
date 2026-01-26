@@ -57,6 +57,27 @@ export const PUT = handleApi(
       );
     }
 
+    const existing = await HeroBanner.findById(id).lean();
+    if (!existing) {
+      return NextResponse.json({ success: false, error: 'Banner non trovato' }, { status: 404 });
+    }
+
+    // Verifica limite massimo di 6 banner attivi
+    if (parsed.data.isActive === true && !(existing as any).isActive) {
+      const activeCount = await HeroBanner.countDocuments({ isActive: true });
+      if (activeCount >= 6) {
+        return NextResponse.json(
+          {
+            success: false,
+            errorCode: 'MAX_ACTIVE_BANNERS_REACHED',
+            error:
+              'Massimo 6 banner attivi consentiti. Disattiva un altro banner prima di attivare questo.',
+          },
+          { status: 400 },
+        );
+      }
+    }
+
     const update: any = { ...parsed.data };
     for (const key of [
       'title',
@@ -73,11 +94,6 @@ export const PUT = handleApi(
       if (Object.prototype.hasOwnProperty.call(update, key) && update[key] === null) {
         update[key] = undefined;
       }
-    }
-
-    const existing = await HeroBanner.findById(id).lean();
-    if (!existing) {
-      return NextResponse.json({ success: false, error: 'Banner non trovato' }, { status: 404 });
     }
 
     const updated = await HeroBanner.findByIdAndUpdate(id, update, { new: true }).lean();

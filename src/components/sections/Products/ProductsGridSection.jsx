@@ -45,7 +45,7 @@ export default function ProductsGridSection({ products, isLoading, showSkeleton 
             title={product.title}
             volume={variant?.volume}
             unit={variant?.unit}
-            price={product.price + (variant?.priceModifier ?? 0)}
+            price={variant?.price ?? 0}
             discountPrice={product.discountPrice}
             imageSrc={product.images?.[0]?.src || product.imageSrc || '/images/home/product.png'}
             slug={product.slug}

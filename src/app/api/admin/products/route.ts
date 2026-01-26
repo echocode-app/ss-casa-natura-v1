@@ -9,7 +9,7 @@ export const GET = handleApi(async () => {
   if (authError) return authError;
 
   await connectToDB();
-  const products = await applyInventoryToCatalogProducts({ includeArchived: true });
+  const products = await applyInventoryToCatalogProducts({ includeArchived: false });
 
   return NextResponse.json({
     success: true,

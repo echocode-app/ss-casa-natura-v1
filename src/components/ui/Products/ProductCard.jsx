@@ -24,12 +24,17 @@ export default function ProductCard({
 
   const [adding, setAdding] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
   const [visible, setVisible] = useState(false);
   const t = useTranslations('topProductsSection');
 
   const productAvailable = isAvailable && (stock === undefined || stock > 0);
   const isLowStock = stock !== undefined && stock > 0 && stock <= 5;
   const isOutOfStock = !productAvailable;
+
+  // Fallback to default image if error or invalid src
+  const effectiveImageSrc =
+    imageError || !imageSrc || imageSrc === '' ? '/images/home/product.png' : imageSrc;
 
   const DisabledBuy = ({ children, className = '' }) => (
     <div
@@ -120,7 +125,7 @@ export default function ProductCard({
         )}
 
         <Image
-          src={imageSrc}
+          src={effectiveImageSrc}
           alt={title}
           fill
           sizes="
@@ -138,6 +143,11 @@ export default function ProductCard({
             ${isOutOfStock ? 'grayscale' : ''}
           `}
           onLoad={handleImageLoaded}
+          onError={() => {
+            setImageError(true);
+            setImageLoading(false);
+            setVisible(true);
+          }}
           loading="eager"
         />
       </div>

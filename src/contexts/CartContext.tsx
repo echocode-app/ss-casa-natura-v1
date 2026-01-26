@@ -5,12 +5,12 @@ import { useTranslations } from 'next-intl';
 import { ApplyPromoCodeRequest, CartItemUI, cartItemToUI } from '@/types/cart';
 import { ApiError, cartService } from '@/lib/services/cart';
 import { useAuth } from '@/components/layout/AuthContext';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import notify from '@/lib/notify';
 import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 
 const GUEST_CART_KEY = 'guest_cart_v1';
 const GUEST_CART_TTL = 1000 * 60 * 60 * 24 * 7;
+const DEFAULT_IMAGE = '/images/home/product.png';
 
 function parseCompositeCartItemId(id: string): { productId: string; variantId: string } | null {
   const idx = id.lastIndexOf('-');
@@ -157,15 +157,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
           notify.success(tCart('toasts.added'));
         } else {
-          // 📌 Guest cart: read product data from mock
-          const product = PRODUCTS_MOCK.find((p) => p.id === productId);
-          if (!product) {
+          // 📌 Guest cart: fetch product data from API
+          const res = await fetch(`/api/products/${productId}`);
+          if (!res.ok) {
             const msg = tCart('toasts.addFailed');
             setError(msg);
             notify.error(msg);
             return;
           }
 
+          const product = await res.json();
           const variant = product.variants?.find((v) => v.id === variantId);
           if (!variant) {
             const msg = tCart('toasts.addFailed');
@@ -194,10 +195,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
             return;
           }
 
-          const price = variant.priceModifier
-            ? product.price + variant.priceModifier
-            : product.price;
-          const imageSrc = product.images?.[0]?.src || '/images/home/product.png';
+          const price = variant.price;
+          const imageSrc = product.images?.[0]?.src || DEFAULT_IMAGE;
 
           if (existingItemIndex >= 0) {
             setItems((prev) =>
@@ -256,14 +255,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
             return { ok: true } as const;
           }
 
-          // Guest cart stock check (based on PRODUCTS_MOCK)
+          // Guest cart stock check - fetch from API
           const sep = itemId.lastIndexOf('-');
           const productId = sep > 0 ? itemId.slice(0, sep) : '';
           const variantId = sep > 0 ? itemId.slice(sep + 1) : '';
 
-          const product = PRODUCTS_MOCK.find((p) => p.id === productId);
+          const res = await fetch(`/api/products/${productId}`);
+          if (!res.ok) {
+            const msg = tCart('toasts.addFailed');
+            notify.error(msg);
+            return { ok: false, errorCode: 'UPDATE_FAILED' } as const;
+          }
+
+          const product = await res.json();
           const variant = product?.variants?.find((v) => v.id === variantId);
-          if (!product || !variant) {
+          if (!variant) {
             const msg = tCart('toasts.addFailed');
             notify.error(msg);
             return { ok: false, errorCode: 'UPDATE_FAILED' } as const;

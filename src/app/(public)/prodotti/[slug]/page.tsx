@@ -60,7 +60,11 @@ export default function ProductPageClient() {
     <>
       <ProductBreadcrumbs product={product} />
       <ProductMain product={product} />
-      <RelatedProductsSection products={relatedProducts} />
+      {relatedProducts.length > 0 ? (
+        <RelatedProductsSection products={relatedProducts} />
+      ) : (
+        <div className="mb-20" />
+      )}
     </>
   );
 }

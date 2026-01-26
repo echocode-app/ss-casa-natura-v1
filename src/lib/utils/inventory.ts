@@ -1,5 +1,4 @@
 import Inventory from '@/lib/db/models/Inventory';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import CatalogProduct from '@/lib/db/models/CatalogProduct';
 
 export type InventoryCheckItem = {
@@ -18,10 +17,16 @@ export type InventoryIssue = {
   variantLabel?: string;
 };
 
-function getMockProductInfo(productId: string, variantId: string) {
-  const product = PRODUCTS_MOCK.find((p) => p.id === productId);
-  const variant = product?.variants?.find((v) => v.id === variantId);
-  return { product, variant };
+async function getProductInfo(productId: string, variantId: string) {
+  // Get product from DB only
+  const dbProduct = await CatalogProduct.findOne({
+    id: productId,
+    archived: { $ne: true },
+  }).lean();
+
+  const dbVariant = dbProduct?.variants?.find((v: any) => v.id === variantId);
+
+  return { product: dbProduct, variant: dbVariant };
 }
 
 export async function checkItemsInStock(items: InventoryCheckItem[]): Promise<{
@@ -44,11 +49,22 @@ export async function checkItemsInStock(items: InventoryCheckItem[]): Promise<{
 
     const inv = invVariant || invProduct;
 
-    const { product, variant } = getMockProductInfo(item.productId, item.variantId);
+    const { product, variant } = await getProductInfo(item.productId, item.variantId);
+
+    if (!product) {
+      issues.push({
+        productId: item.productId,
+        variantId: item.variantId,
+        requested,
+        available: 0,
+        reason: 'NOT_AVAILABLE',
+      });
+      continue;
+    }
 
     const isAvailable = inv?.isAvailable ?? variant?.isAvailable ?? product?.isAvailable ?? true;
 
-    const stock = inv?.stock ?? variant?.stock ?? product?.stock;
+    const stock = inv?.stock ?? variant?.stock ?? (product as any)?.stock;
 
     const hasEnoughStock = stock === undefined ? true : stock >= requested;
 
@@ -59,17 +75,13 @@ export async function checkItemsInStock(items: InventoryCheckItem[]): Promise<{
         requested,
         available: stock,
         reason: !isAvailable ? 'NOT_AVAILABLE' : 'INSUFFICIENT_STOCK',
-        title: product?.title,
+        title: (product as any)?.title,
         variantLabel: variant?.label,
       });
     }
   }
 
   return { ok: issues.length === 0, issues };
-}
-
-export async function applyInventoryToMockProducts() {
-  return applyInventoryToCatalogProducts();
 }
 
 export async function applyInventoryToCatalogProducts(params?: { includeArchived?: boolean }) {
@@ -80,56 +92,25 @@ export async function applyInventoryToCatalogProducts(params?: { includeArchived
     CatalogProduct.find(includeArchived ? {} : { archived: { $ne: true } }).lean(),
   ]);
 
-  const dbById = new Map<string, any>();
-  for (const doc of catalogDocs) {
-    dbById.set(String(doc.id), doc);
-  }
+  // Convert all DB docs to Product format
+  const base = catalogDocs.map((doc: any) => {
+    const { createdAt, updatedAt, ...rest } = doc;
+    delete rest._id;
+    delete rest.__v;
+    delete rest.archived;
 
-  // Start with mock products and allow DB docs with the same id to override them.
-  const base = PRODUCTS_MOCK.map((p) => {
-    const override = dbById.get(String(p.id));
-    if (!override) return p;
-    // Remove mongoose internals.
-    const { createdAt, updatedAt, ...rest } = override;
-    delete (rest as any)._id;
-    delete (rest as any).__v;
-    delete (rest as any).archived;
-
-    const newBadge = (rest as any).isNewProduct ?? (rest as any).isNew;
-    delete (rest as any).isNewProduct;
-    delete (rest as any).isNew;
+    const newBadge = rest.isNewProduct ?? rest.isNew;
+    delete rest.isNewProduct;
+    delete rest.isNew;
 
     return {
-      ...p,
-      ...rest,
-      id: p.id,
-      ...(newBadge !== undefined ? { isNew: newBadge } : {}),
-      createdAt: createdAt ? new Date(createdAt).toISOString() : p.createdAt,
-      updatedAt: updatedAt ? new Date(updatedAt).toISOString() : p.updatedAt,
-    };
-  });
-
-  // Add DB-only products (not present in mock).
-  const mockIds = new Set(PRODUCTS_MOCK.map((p) => String(p.id)));
-  for (const doc of catalogDocs) {
-    if (mockIds.has(String(doc.id))) continue;
-    const { createdAt, updatedAt, ...rest } = doc as any;
-    delete (rest as any)._id;
-    delete (rest as any).__v;
-    delete (rest as any).archived;
-
-    const newBadge = (rest as any).isNewProduct ?? (rest as any).isNew;
-    delete (rest as any).isNewProduct;
-    delete (rest as any).isNew;
-
-    base.push({
       ...rest,
       id: String(doc.id),
       ...(newBadge !== undefined ? { isNew: newBadge } : {}),
       createdAt: createdAt ? new Date(createdAt).toISOString() : undefined,
       updatedAt: updatedAt ? new Date(updatedAt).toISOString() : undefined,
-    });
-  }
+    };
+  });
 
   const byKey = new Map<string, { stock: number; isAvailable: boolean }>();
   for (const row of inventory) {
@@ -164,7 +145,7 @@ export async function decrementInventoryForOrderProducts(
   for (const p of products) {
     const qty = Math.max(1, Math.floor(p.quantity || 1));
 
-    // Prefer variant-level stock
+    // Try Inventory collection first (variant-level)
     const variantResult = await Inventory.updateOne(
       {
         productId: String(p.productId),
@@ -177,13 +158,38 @@ export async function decrementInventoryForOrderProducts(
 
     if (variantResult.modifiedCount > 0) continue;
 
-    // Fallback to product-level stock
-    await Inventory.updateOne(
+    // Fallback to Inventory product-level stock
+    const productResult = await Inventory.updateOne(
       {
         productId: String(p.productId),
         variantId: null,
         isAvailable: { $ne: false },
         stock: { $gte: qty },
+      },
+      { $inc: { stock: -qty } },
+    );
+
+    if (productResult.modifiedCount > 0) continue;
+
+    // Try CatalogProduct variant stock
+    const catalogVariantResult = await CatalogProduct.updateOne(
+      {
+        id: String(p.productId),
+        'variants.id': String(p.variantId),
+        'variants.stock': { $gte: qty },
+        archived: { $ne: true },
+      },
+      { $inc: { 'variants.$.stock': -qty } },
+    );
+
+    if (catalogVariantResult.modifiedCount > 0) continue;
+
+    // Fallback to CatalogProduct product-level stock
+    await CatalogProduct.updateOne(
+      {
+        id: String(p.productId),
+        stock: { $gte: qty },
+        archived: { $ne: true },
       },
       { $inc: { stock: -qty } },
     );

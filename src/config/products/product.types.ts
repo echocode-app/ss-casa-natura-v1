@@ -16,22 +16,12 @@ export interface Product {
   /** Images from Cloudinary (products folder). Alt text is required. */
   images: ProductImage[];
 
-  /** Optional variants, max 5. Each variant needs weightGrams. */
-  variants?: ProductVariant[];
+  /** Variants are required. Each variant has its own price, weight, stock. */
+  variants: ProductVariant[];
 
-  /** Weight in grams (required for shipping calculation) */
-  weightGrams: number;
-
-  price: number;
   currency: 'EUR';
 
-  stock?: number;
-  isAvailable?: boolean;
-
   discount?: ProductDiscount;
-  promoEligible?: boolean;
-
-  isBestSeller?: boolean;
 
   filters?: ProductFilterValue[];
 
@@ -48,9 +38,10 @@ export interface ProductVariant {
   unit: 'ml' | 'l' | 'kg' | 'g';
   /** Weight in grams for this variant (required for shipping) */
   weightGrams: number;
-  priceModifier?: number; // + / -
+  price: number; // Price in EUR for this variant
   stock?: number;
   isAvailable?: boolean;
+  isBestSeller?: boolean;
 }
 
 /* ================= Discounts ================= */

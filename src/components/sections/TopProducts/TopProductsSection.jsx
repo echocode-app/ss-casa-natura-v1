@@ -4,7 +4,6 @@ import { WaveBackground } from '@/components/ui/Parts';
 import ProductCard from '@/components/ui/Products/ProductCard';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { useState, useEffect } from 'react';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/contexts/CartContext';
 import { getFirstPurchasableVariant, sortProducts } from '@/lib/utils/sortProducts';
@@ -34,9 +33,7 @@ export default function TopProductsSection({ products }) {
   }
 
   const displayProducts = sortProducts(
-    (Array.isArray(products) && products.length > 0 ? products : PRODUCTS_MOCK).filter(
-      (p) => p.isBestSeller,
-    ),
+    (Array.isArray(products) && products.length > 0 ? products : []).filter((p) => p.isBestSeller),
   );
 
   if (displayProducts.length === 0) return null;
@@ -60,7 +57,7 @@ export default function TopProductsSection({ products }) {
                 title={product.title}
                 volume={variant?.volume}
                 unit={variant?.unit}
-                price={product.price + (variant?.priceModifier ?? 0)}
+                price={variant?.price ?? 0}
                 discountPrice={product.discountPrice}
                 imageSrc={product.images?.[0]?.src}
                 slug={product.slug}

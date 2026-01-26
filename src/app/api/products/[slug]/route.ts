@@ -1,25 +1,26 @@
 import { NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
-import { applyInventoryToMockProducts } from '@/lib/utils/inventory';
-import { PRODUCTS_MOCK } from '@/config/products/products.mock';
+import { applyInventoryToCatalogProducts } from '@/lib/utils/inventory';
 import { logError } from '@/lib/utils/logger';
 
 export const GET = handleApi(
   async (_req: Request, { params }: { params: Promise<{ slug: string }> }) => {
     const { slug } = await params;
-    let products;
     try {
       await connectToDB();
-      products = await applyInventoryToMockProducts();
+      const products = await applyInventoryToCatalogProducts();
+
+      // Find product by slug or id
+      const product = products.find((p) => p.slug === slug || p.id === slug);
+
+      if (!product) {
+        return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      }
+      return NextResponse.json(product);
     } catch (err) {
-      logError('[api/products/:slug] db unavailable, falling back to mock products', err);
-      products = PRODUCTS_MOCK;
+      logError('[api/products/:slug] Failed to fetch product', err);
+      return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
     }
-    const product = products.find((p) => p.slug === slug);
-    if (!product) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    }
-    return NextResponse.json(product);
   },
 );

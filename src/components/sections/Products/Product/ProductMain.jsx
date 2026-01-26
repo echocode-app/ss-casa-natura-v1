@@ -36,21 +36,21 @@ export default function ProductMain({ product }) {
     }
   };
 
-  const finalPrice = selectedVariant
-    ? product.price + (selectedVariant.priceModifier ?? 0)
-    : product.price;
+  const finalPrice = selectedVariant ? selectedVariant.price : 0;
 
   return (
-    <div className="max-w-[1570px] mx-auto px-6 md:px-8 lg:px-10 xl:px-12 flex flex-col lg:flex-row gap-6 lg:gap-10 mt-4">
+    <div className="max-w-[1570px] mx-auto px-6 md:px-8 lg:px-10 xl:px-12 flex flex-col lg:flex-row gap-6 lg:gap-10 mt-4 mb-16">
       {/* Image */}
-      <div className="flex-1 flex items-center justify-start mb-auto">
-        <Image
-          src={product.images?.[0]?.src || '/images/home/product.png'}
-          alt={product.title}
-          className="object-contain lg:w-full lg:h-full max-h-[80%] mx-auto"
-          width={587}
-          height={550}
-        />
+      <div className="flex-1 w-full lg:w-auto">
+        <div className="relative w-full h-[50vh] lg:h-[634px]">
+          <Image
+            src={product.images?.[0]?.src || '/images/home/product.png'}
+            alt={product.title}
+            fill
+            className="object-contain"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
+        </div>
       </div>
 
       {/* Info */}

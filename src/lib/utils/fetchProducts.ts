@@ -36,35 +36,8 @@ interface PaginatedResponse<T> {
 
 export async function fetchProductsPaginated(
   options: FetchProductsOptions = {},
-  useMock: boolean = false,
 ): Promise<PaginatedResponse<Product>> {
   const { page = 1, limit = 12, categoryIds = [], sortBy, sortOrder } = options;
-
-  if (useMock) {
-    const { PRODUCTS_MOCK } = await import('@/config/products/products.mock');
-    let filtered = PRODUCTS_MOCK;
-
-    if (categoryIds.length > 0) {
-      filtered = PRODUCTS_MOCK.filter((p) =>
-        p.categoryIds?.some((catId) => categoryIds.includes(catId)),
-      );
-    }
-
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedData = filtered.slice(startIndex, endIndex);
-
-    return {
-      data: paginatedData,
-      pagination: {
-        page,
-        limit,
-        total: filtered.length,
-        totalPages: Math.ceil(filtered.length / limit),
-        hasMore: endIndex < filtered.length,
-      },
-    };
-  }
 
   const params = new URLSearchParams({
     page: page.toString(),
@@ -74,45 +47,20 @@ export async function fetchProductsPaginated(
     ...(sortOrder && { sortOrder }),
   });
 
-  try {
-    const res = await fetch(buildApiUrl(`/api/products?${params}`), { cache: 'no-store' });
-    if (!res.ok) throw new Error('Failed to fetch products');
-    return res.json();
-  } catch {
-    return fetchProductsPaginated(options, true);
-  }
+  const res = await fetch(buildApiUrl(`/api/products?${params}`), { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch products');
+  return res.json();
 }
 
-export async function fetchProducts(useMock: boolean = false): Promise<Product[]> {
-  if (useMock) {
-    const { PRODUCTS_MOCK } = await import('@/config/products/products.mock');
-    return PRODUCTS_MOCK;
-  }
-
-  try {
-    const res = await fetch(buildApiUrl('/api/products'), { cache: 'no-store' });
-    if (!res.ok) throw new Error('Failed to fetch products');
-    return res.json();
-  } catch {
-    return fetchProducts(true);
-  }
+export async function fetchProducts(): Promise<Product[]> {
+  const res = await fetch(buildApiUrl('/api/products'), { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch products');
+  return res.json();
 }
 
-export async function fetchProduct(
-  slug: string,
-  useMock: boolean = false,
-): Promise<Product | null> {
-  if (useMock) {
-    const { PRODUCTS_MOCK } = await import('@/config/products/products.mock');
-    return PRODUCTS_MOCK.find((p) => p.slug === slug) || null;
-  }
-
-  try {
-    const res = await fetch(buildApiUrl(`/api/products/${slug}`), { cache: 'no-store' });
-    if (res.status === 404) return null;
-    if (!res.ok) throw new Error('Failed to fetch product');
-    return res.json();
-  } catch {
-    return fetchProduct(slug, true);
-  }
+export async function fetchProduct(slug: string): Promise<Product | null> {
+  const res = await fetch(buildApiUrl(`/api/products/${slug}`), { cache: 'no-store' });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('Failed to fetch product');
+  return res.json();
 }
