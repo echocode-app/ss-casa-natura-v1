@@ -53,14 +53,37 @@ export async function fetchProductsPaginated(
 }
 
 export async function fetchProducts(): Promise<Product[]> {
-  const res = await fetch(buildApiUrl('/api/products'), { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch products');
-  return res.json();
+  try {
+    const res = await fetch(buildApiUrl('/api/products'), { cache: 'no-store' });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      console.error('[fetchProducts] API error:', errorData);
+      throw new Error(errorData.error || 'Failed to fetch products');
+    }
+    const data = await res.json();
+    if (!Array.isArray(data)) {
+      console.error('[fetchProducts] Invalid response format:', data);
+      return [];
+    }
+    return data;
+  } catch (error) {
+    console.error('[fetchProducts] Error:', error);
+    return [];
+  }
 }
 
 export async function fetchProduct(slug: string): Promise<Product | null> {
-  const res = await fetch(buildApiUrl(`/api/products/${slug}`), { cache: 'no-store' });
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error('Failed to fetch product');
-  return res.json();
+  try {
+    const res = await fetch(buildApiUrl(`/api/products/${slug}`), { cache: 'no-store' });
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      console.error('[fetchProduct] API error:', errorData);
+      return null;
+    }
+    return res.json();
+  } catch (error) {
+    console.error('[fetchProduct] Error:', error);
+    return null;
+  }
 }

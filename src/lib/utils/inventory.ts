@@ -85,58 +85,72 @@ export async function checkItemsInStock(items: InventoryCheckItem[]): Promise<{
 }
 
 export async function applyInventoryToCatalogProducts(params?: { includeArchived?: boolean }) {
-  const includeArchived = params?.includeArchived ?? false;
+  try {
+    const includeArchived = params?.includeArchived ?? false;
 
-  const [inventory, catalogDocs] = await Promise.all([
-    Inventory.find({}).lean(),
-    CatalogProduct.find(includeArchived ? {} : { archived: { $ne: true } }).lean(),
-  ]);
+    const [inventory, catalogDocs] = await Promise.all([
+      Inventory.find({}).lean(),
+      CatalogProduct.find(includeArchived ? {} : { archived: { $ne: true } }).lean(),
+    ]);
 
-  // Convert all DB docs to Product format
-  const base = catalogDocs.map((doc: any) => {
-    const { createdAt, updatedAt, ...rest } = doc;
-    delete rest._id;
-    delete rest.__v;
-    delete rest.archived;
+    console.log(
+      `[applyInventoryToCatalogProducts] Found ${catalogDocs.length} catalog products, ${inventory.length} inventory records`,
+    );
 
-    const newBadge = rest.isNewProduct ?? rest.isNew;
-    delete rest.isNewProduct;
-    delete rest.isNew;
+    // Convert all DB docs to Product format
+    const base = catalogDocs.map((doc: any) => {
+      const { createdAt, updatedAt, ...rest } = doc;
+      delete rest._id;
+      delete rest.__v;
+      delete rest.archived;
 
-    return {
-      ...rest,
-      id: String(doc.id),
-      ...(newBadge !== undefined ? { isNew: newBadge } : {}),
-      createdAt: createdAt ? new Date(createdAt).toISOString() : undefined,
-      updatedAt: updatedAt ? new Date(updatedAt).toISOString() : undefined,
-    };
-  });
+      const newBadge = rest.isNewProduct ?? rest.isNew;
+      delete rest.isNewProduct;
+      delete rest.isNew;
 
-  const byKey = new Map<string, { stock: number; isAvailable: boolean }>();
-  for (const row of inventory) {
-    const key = `${row.productId}::${row.variantId ?? ''}`;
-    byKey.set(key, { stock: row.stock, isAvailable: row.isAvailable });
+      return {
+        ...rest,
+        id: String(doc.id),
+        ...(newBadge !== undefined ? { isNew: newBadge } : {}),
+        createdAt: createdAt ? new Date(createdAt).toISOString() : undefined,
+        updatedAt: updatedAt ? new Date(updatedAt).toISOString() : undefined,
+      };
+    });
+
+    const byKey = new Map<string, { stock: number; isAvailable: boolean }>();
+    for (const row of inventory) {
+      const key = `${row.productId}::${row.variantId ?? ''}`;
+      byKey.set(key, { stock: row.stock, isAvailable: row.isAvailable });
+    }
+
+    const results = base.map((p: any) => {
+      const productKey = `${p.id}::`;
+      const productInv = byKey.get(productKey);
+
+      return {
+        ...p,
+        stock: productInv?.stock ?? p.stock,
+        isAvailable: productInv?.isAvailable ?? p.isAvailable,
+        variants: (p.variants || []).map((v: any) => {
+          const variantKey = `${p.id}::${v.id}`;
+          const variantInv = byKey.get(variantKey);
+          return {
+            ...v,
+            stock: variantInv?.stock ?? v.stock,
+            isAvailable: variantInv?.isAvailable ?? v.isAvailable,
+          };
+        }),
+      };
+    });
+
+    console.log(
+      `[applyInventoryToCatalogProducts] Returning ${results.length} products with inventory applied`,
+    );
+    return results;
+  } catch (error) {
+    console.error('[applyInventoryToCatalogProducts] Error:', error);
+    throw error;
   }
-
-  return base.map((p: any) => {
-    const productKey = `${p.id}::`;
-    const productInv = byKey.get(productKey);
-
-    return {
-      ...p,
-      stock: productInv?.stock ?? p.stock,
-      isAvailable: productInv?.isAvailable ?? p.isAvailable,
-      variants: (p.variants || []).map((v: any) => {
-        const variantKey = `${p.id}::${v.id}`;
-        const variantInv = byKey.get(variantKey);
-        return {
-          ...v,
-          stock: variantInv?.stock ?? v.stock,
-          isAvailable: variantInv?.isAvailable ?? v.isAvailable,
-        };
-      }),
-    };
-  });
 }
 
 export async function decrementInventoryForOrderProducts(
