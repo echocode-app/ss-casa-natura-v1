@@ -33,7 +33,10 @@ export default function TopProductsSection({ products }) {
   }
 
   const displayProducts = sortProducts(
-    (Array.isArray(products) && products.length > 0 ? products : []).filter((p) => p.isBestSeller),
+    (Array.isArray(products) && products.length > 0 ? products : []).filter((p) => {
+      // Check if product has at least one variant with isBestSeller = true
+      return p.variants?.some((v) => v.isBestSeller === true);
+    }),
   );
 
   if (displayProducts.length === 0) return null;
@@ -61,7 +64,7 @@ export default function TopProductsSection({ products }) {
                 discountPrice={product.discountPrice}
                 imageSrc={product.images?.[0]?.src}
                 slug={product.slug}
-                isBestSeller={product.isBestSeller}
+                isBestSeller={variant?.isBestSeller ?? false}
                 isAvailable={variant?.isAvailable ?? product.isAvailable}
                 stock={variant?.stock ?? product.stock}
                 onAddClick={() => handleAddToCart(product)}

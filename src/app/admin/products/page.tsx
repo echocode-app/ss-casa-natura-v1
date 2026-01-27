@@ -81,6 +81,16 @@ export default function AdminProductsPage() {
     }
   };
 
+  const hasLowStock = (product: AdminProduct): boolean => {
+    // Check if any variant has stock < 6
+    const hasLowVariantStock = product.variants.some(
+      (v) => typeof v.stock === 'number' && v.stock < 6,
+    );
+    // Check product-level stock if exists
+    const hasLowProductStock = typeof product.stock === 'number' && product.stock < 6;
+    return hasLowVariantStock || hasLowProductStock;
+  };
+
   if (isLoading) {
     return (
       <div>
@@ -131,7 +141,10 @@ export default function AdminProductsPage() {
 
       <div className="space-y-5">
         {filtered.map((p) => (
-          <AdminCard key={p.productId} className="p-6">
+          <AdminCard
+            key={p.productId}
+            className={`p-6 ${hasLowStock(p) ? 'border-2 border-red-500' : ''}`}
+          >
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div className="min-w-0">
                 <div className="text-lg font-semibold text-gray-900 truncate leading-tight mb-2">
@@ -148,35 +161,6 @@ export default function AdminProductsPage() {
                     Modifica dettagli →
                   </Link>
                 </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <label className="flex items-center gap-2 text-sm text-gray-700 leading-relaxed">
-                  <input
-                    type="checkbox"
-                    defaultChecked={p.isAvailable ?? true}
-                    onChange={(e) => saveRow(p.productId, null, { isAvailable: e.target.checked })}
-                    aria-label="Disponibile (prodotto)"
-                    title="Disponibile (prodotto)"
-                  />
-                  Disponibile
-                </label>
-
-                <label htmlFor={`stock_${p.productId}`} className="text-sm text-gray-700 ml-3">
-                  Stock
-                </label>
-                <input
-                  id={`stock_${p.productId}`}
-                  type="number"
-                  min={0}
-                  defaultValue={p.stock ?? 0}
-                  className="w-24 px-2 py-1 border border-gray-300 rounded"
-                  onBlur={(e) =>
-                    saveRow(p.productId, null, {
-                      stock: Number((e.target as HTMLInputElement).value || 0),
-                    })
-                  }
-                />
               </div>
             </div>
 

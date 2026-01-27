@@ -15,9 +15,11 @@ const productVariantSchema = new Schema(
     label: { type: String, required: true },
     volume: { type: Number, required: true },
     unit: { type: String, enum: ['ml', 'l', 'kg', 'g'], required: true },
-    priceModifier: { type: Number },
-    stock: { type: Number },
-    isAvailable: { type: Boolean },
+    price: { type: Number, required: true },
+    weightGrams: { type: Number, required: true },
+    stock: { type: Number, required: true },
+    isAvailable: { type: Boolean, required: true },
+    isBestSeller: { type: Boolean, default: false },
   },
   { _id: false },
 );
@@ -55,15 +57,13 @@ export interface ICatalogProduct {
     label: string;
     volume: number;
     unit: 'ml' | 'l' | 'kg' | 'g';
-    priceModifier?: number;
-    stock?: number;
-    isAvailable?: boolean;
+    price: number;
+    weightGrams: number;
+    stock: number;
+    isAvailable: boolean;
+    isBestSeller?: boolean;
   }>;
-  weightGrams: number;
-  price: number;
   currency: 'EUR';
-  stock?: number;
-  isAvailable?: boolean;
   discount?: {
     type: 'percentage' | 'fixed';
     value: number;
@@ -73,7 +73,6 @@ export interface ICatalogProduct {
   promoEligible?: boolean;
   isEco?: boolean;
   isNewProduct?: boolean;
-  isBestSeller?: boolean;
   isSeasonal?: boolean;
   relatedProductIds?: string[];
   filters?: Array<{ filterId: string; value: string | number | boolean }>;
@@ -98,19 +97,13 @@ const catalogProductSchema = new Schema<ICatalogProduct>(
     images: { type: [productImageSchema], default: [] },
     variants: { type: [productVariantSchema], default: [] },
 
-    weightGrams: { type: Number, required: true },
-    price: { type: Number, required: true },
     currency: { type: String, enum: ['EUR'], default: 'EUR' },
-
-    stock: { type: Number },
-    isAvailable: { type: Boolean },
 
     discount: { type: productDiscountSchema },
     promoEligible: { type: Boolean },
 
     isEco: { type: Boolean },
     isNewProduct: { type: Boolean },
-    isBestSeller: { type: Boolean },
     isSeasonal: { type: Boolean },
 
     relatedProductIds: { type: [String], default: [] },

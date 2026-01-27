@@ -167,12 +167,8 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
               <Check />
             </div>
 
-            <p className="text-text-muted text-[clamp(16px,2vw,22px)] leading-relaxed mb-6 md:mb-8">
+            <p className="text-text-muted text-[clamp(16px,2vw,22px)] leading-relaxed mb-8 md:mb-10">
               {t('success.description')}
-            </p>
-
-            <p className="text-text-muted text-[clamp(14px,1.6vw,18px)] mb-8 md:mb-10">
-              {t('success.order', { orderId })}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 lg:gap-8 items-center justify-center">

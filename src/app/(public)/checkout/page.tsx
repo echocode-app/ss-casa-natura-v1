@@ -336,7 +336,7 @@ export default function CheckoutPage() {
         delete next.shippingMethod;
         return next;
       });
-      return true;
+      return { valid: true, errors: {} };
     }
 
     const nextErrors: Record<string, string> = {};
@@ -350,7 +350,7 @@ export default function CheckoutPage() {
     }
 
     setFieldErrors(nextErrors);
-    return false;
+    return { valid: false, errors: nextErrors };
   };
 
   const handleQuote = async () => {
@@ -446,7 +446,39 @@ export default function CheckoutPage() {
   }, []);
 
   const handleCreateIntent = async () => {
-    if (!validateAll()) return;
+    const validation = validateAll();
+
+    if (!validation.valid) {
+      // Scroll to first error field
+      setTimeout(() => {
+        const errorFields = Object.keys(validation.errors);
+        const order = [
+          'email',
+          'country',
+          'postalCode',
+          'name',
+          'surname',
+          'company',
+          'addressLine1',
+          'addressLine2',
+          'city',
+          'province',
+          'phone',
+          'shippingMethod',
+        ];
+        const firstErrorField = errorFields.sort((a, b) => order.indexOf(a) - order.indexOf(b))[0];
+
+        if (firstErrorField) {
+          const fieldId = `checkout-${firstErrorField === 'addressLine1' ? 'address1' : firstErrorField === 'addressLine2' ? 'address2' : firstErrorField}`;
+          const element = document.getElementById(fieldId);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => element.focus(), 300);
+          }
+        }
+      }, 100);
+      return;
+    }
 
     setIsCreating(true);
     setError(null);
@@ -615,6 +647,19 @@ export default function CheckoutPage() {
               canProceed={canProceed}
               isCreating={isCreating}
               onCreateIntent={handleCreateIntent}
+              billingDetails={{
+                name: `${name}${surname ? ` ${surname}` : ''}`,
+                email: email,
+                phone: phone || undefined,
+                address: {
+                  line1: address1 || undefined,
+                  line2: address2 || undefined,
+                  city: city || undefined,
+                  state: province || undefined,
+                  postalCode: postalCode || undefined,
+                  country: country || 'IT',
+                },
+              }}
             />
           </div>
 

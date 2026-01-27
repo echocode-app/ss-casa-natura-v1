@@ -5,10 +5,11 @@ export default function Privacy() {
   const t = useTranslations('footer');
   const policyId = process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID || '12345678';
   const href = `https://www.iubenda.com/privacy-policy/${policyId}`;
+  const currentYear = new Date().getFullYear();
 
   return (
     <p className="text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] text-white break-words tabular">
-      {t('copyright')} /{' '}
+      © {currentYear} Casa Natura / {t('copyrightText')} /{' '}
       <a
         href={href}
         target="_blank"

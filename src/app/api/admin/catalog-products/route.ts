@@ -14,13 +14,15 @@ function toApiProduct(doc: any) {
 }
 
 const variantSchema = z.object({
-  id: z.string().min(1),
-  label: z.string().min(1),
-  volume: z.number().finite().nonnegative(),
+  id: z.string().min(1, 'ID variante richiesto'),
+  label: z.string().min(1, 'Etichetta variante richiesta'),
+  volume: z.number().finite().nonnegative('Volume deve essere positivo'),
   unit: z.enum(['ml', 'l', 'kg', 'g']),
-  priceModifier: z.number().finite().optional(),
-  stock: z.number().int().min(0).optional(),
+  weightGrams: z.number().finite().nonnegative('Peso deve essere positivo'),
+  price: z.number().finite().nonnegative('Prezzo deve essere positivo'),
+  stock: z.number().int().min(0, 'Stock deve essere >= 0').optional(),
   isAvailable: z.boolean().optional(),
+  isBestSeller: z.boolean().optional(),
 });
 
 const imageSchema = z.object({
@@ -52,26 +54,21 @@ const filterValueSchema = z.object({
 });
 
 const productSchema = z.object({
-  id: z.string().min(1),
-  slug: z.string().min(1),
-  sku: z.string().min(1),
-  title: z.string().min(1),
-  shortDescription: z.string().max(300).optional(),
-  description: z.string().min(1),
-  categoryIds: z.array(z.string().min(1)).default([]),
+  id: z.string().min(1, 'ID prodotto richiesto'),
+  slug: z.string().min(1, 'Slug richiesto'),
+  sku: z.string().min(1, 'SKU richiesto'),
+  title: z.string().min(1, 'Titolo richiesto'),
+  shortDescription: z.string().max(300, 'Descrizione breve max 300 caratteri').optional(),
+  description: z.string().min(1, 'Descrizione richiesta'),
+  categoryIds: z.array(z.string().min(1)).min(1, 'Seleziona almeno 1 categoria').default([]),
   lineId: z.string().optional(),
-  images: z.array(imageSchema).default([]),
-  variants: z.array(variantSchema).default([]),
-  weightGrams: z.number().finite().nonnegative(),
-  price: z.number().finite().nonnegative(),
+  images: z.array(imageSchema).min(1, 'Aggiungi almeno 1 immagine').default([]),
+  variants: z.array(variantSchema).min(1, 'Aggiungi almeno 1 variante').default([]),
   currency: z.literal('EUR').default('EUR'),
-  stock: z.number().int().min(0).optional(),
-  isAvailable: z.boolean().optional(),
   discount: discountSchema,
   promoEligible: z.boolean().optional(),
   isEco: z.boolean().optional(),
   isNew: z.boolean().optional(),
-  isBestSeller: z.boolean().optional(),
   isSeasonal: z.boolean().optional(),
   relatedProductIds: z.array(z.string().min(1)).optional(),
   filters: z.array(filterValueSchema).optional(),

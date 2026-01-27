@@ -56,18 +56,15 @@ export async function fetchProducts(): Promise<Product[]> {
   try {
     const res = await fetch(buildApiUrl('/api/products'), { cache: 'no-store' });
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      console.error('[fetchProducts] API error:', errorData);
-      throw new Error(errorData.error || 'Failed to fetch products');
+      await res.json().catch(() => ({}));
+      throw new Error('Failed to fetch products');
     }
     const data = await res.json();
     if (!Array.isArray(data)) {
-      console.error('[fetchProducts] Invalid response format:', data);
       return [];
     }
     return data;
-  } catch (error) {
-    console.error('[fetchProducts] Error:', error);
+  } catch {
     return [];
   }
 }
@@ -77,13 +74,11 @@ export async function fetchProduct(slug: string): Promise<Product | null> {
     const res = await fetch(buildApiUrl(`/api/products/${slug}`), { cache: 'no-store' });
     if (res.status === 404) return null;
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      console.error('[fetchProduct] API error:', errorData);
+      await res.json().catch(() => ({}));
       return null;
     }
     return res.json();
-  } catch (error) {
-    console.error('[fetchProduct] Error:', error);
+  } catch {
     return null;
   }
 }

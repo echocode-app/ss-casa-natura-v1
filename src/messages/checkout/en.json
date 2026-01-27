@@ -3,7 +3,8 @@
   "express": {
     "title": "Express checkout",
     "placeholder": "Express checkout options will appear here.",
-    "disclaimer": "By proceeding with payment, you accept the future charges indicated on this page and you accept the cancellation policy."
+    "disclaimer": "By proceeding with payment, you agree to future charges as indicated on this page and accept the cancellation policy.",
+    "or": "or"
   },
   "contact": {
     "title": "Contact",

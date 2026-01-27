@@ -49,6 +49,16 @@ export default function AdminOrderDetailPage() {
   }, [order]);
 
   const saveStatus = async (status: string) => {
+    // Confirmation before status change
+    const confirmMessage =
+      status === 'canceled'
+        ? 'Vuoi annullare questo ordine?'
+        : `Vuoi impostare lo stato "${status}"?`;
+
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
     setSaving(true);
     try {
       const res = await fetch(`/api/admin/orders/${id}`, {
@@ -88,6 +98,16 @@ export default function AdminOrderDetailPage() {
 
   const isGuest = !order.userId;
 
+  // Status progress configuration
+  const statusSteps = [
+    { key: 'pending', label: 'In attesa' },
+    { key: 'paid', label: 'Pagato' },
+    { key: 'shipped', label: 'Spedito' },
+  ];
+
+  const currentStatusIndex = statusSteps.findIndex((s) => s.key === order.status);
+  const isCanceled = order.status === 'canceled';
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -95,20 +115,120 @@ export default function AdminOrderDetailPage() {
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Ordine</h1>
           <p className="text-gray-600">{customerLabel}</p>
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          {['pending', 'paid', 'shipped', 'canceled'].map((s) => (
-            <PrimaryButton
-              key={s}
-              className="px-5 py-2 text-base"
-              disabled={saving}
-              onClick={async () => saveStatus(s)}
-            >
-              Imposta: {s}
-            </PrimaryButton>
-          ))}
-        </div>
       </div>
+
+      {/* Order Status Progress */}
+      <AdminCard className="p-6">
+        <div className="font-semibold mb-4">Stato ordine</div>
+
+        {/* Canceled status alert */}
+        {isCanceled ? (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-2 text-red-700 font-semibold">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              Ordine annullato
+            </div>
+          </div>
+        ) : null}
+
+        {/* Progress bar */}
+        <div className="relative">
+          {/* Status steps */}
+          <div className="flex justify-between items-start relative">
+            {/* Progress line */}
+            <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200">
+              <div
+                className="h-full bg-green-500 transition-all duration-300"
+                style={{
+                  width: isCanceled
+                    ? '0%'
+                    : `${(currentStatusIndex / (statusSteps.length - 1)) * 100}%`,
+                }}
+              />
+            </div>
+
+            {statusSteps.map((step, idx) => {
+              const isCompleted = !isCanceled && idx <= currentStatusIndex;
+              const isCurrent = !isCanceled && idx === currentStatusIndex;
+              const canSelect = !isCanceled && !saving && idx > currentStatusIndex;
+
+              return (
+                <div key={step.key} className="flex flex-col items-center relative z-10 flex-1">
+                  {/* Step circle */}
+                  <button
+                    type="button"
+                    disabled={!canSelect}
+                    onClick={() => canSelect && saveStatus(step.key)}
+                    className={`
+                      w-10 h-10 rounded-full flex items-center justify-center
+                      transition-all duration-200 border-2
+                      ${
+                        isCompleted
+                          ? 'bg-green-500 border-green-500 text-white'
+                          : isCanceled
+                            ? 'bg-gray-100 border-gray-300 text-gray-400'
+                            : canSelect
+                              ? 'bg-white border-gray-300 text-gray-400 hover:border-green-500 hover:text-green-500 cursor-pointer'
+                              : 'bg-white border-gray-300 text-gray-400'
+                      }
+                    `}
+                  >
+                    {isCompleted ? (
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    ) : (
+                      <span className="text-sm font-medium">{idx + 1}</span>
+                    )}
+                  </button>
+
+                  {/* Step label */}
+                  <div className="mt-2 text-center">
+                    <div
+                      className={`text-sm font-medium ${
+                        isCompleted
+                          ? 'text-green-600'
+                          : isCurrent
+                            ? 'text-gray-900'
+                            : 'text-gray-500'
+                      }`}
+                    >
+                      {step.label}
+                    </div>
+                    {isCurrent && !isCanceled ? (
+                      <div className="text-xs text-gray-500 mt-1">In corso</div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Cancel button */}
+        {!isCanceled ? (
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <PrimaryButton
+              className="px-5 py-2 text-base bg-red-500 hover:bg-red-600 text-white"
+              disabled={saving}
+              onClick={() => saveStatus('canceled')}
+            >
+              Annulla ordine
+            </PrimaryButton>
+          </div>
+        ) : null}
+      </AdminCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <AdminCard className="p-5">

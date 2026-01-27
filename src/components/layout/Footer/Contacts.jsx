@@ -21,14 +21,6 @@ export default function Contacts() {
         </li>
         <li>
           <a
-            href="tel:+39000000000"
-            className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline tabular"
-          >
-            Tel. 000000000000
-          </a>
-        </li>
-        <li>
-          <a
             href="mailto:info@casanatura.it"
             className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline"
           >

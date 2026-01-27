@@ -93,10 +93,6 @@ export async function applyInventoryToCatalogProducts(params?: { includeArchived
       CatalogProduct.find(includeArchived ? {} : { archived: { $ne: true } }).lean(),
     ]);
 
-    console.log(
-      `[applyInventoryToCatalogProducts] Found ${catalogDocs.length} catalog products, ${inventory.length} inventory records`,
-    );
-
     // Convert all DB docs to Product format
     const base = catalogDocs.map((doc: any) => {
       const { createdAt, updatedAt, ...rest } = doc;
@@ -143,12 +139,8 @@ export async function applyInventoryToCatalogProducts(params?: { includeArchived
       };
     });
 
-    console.log(
-      `[applyInventoryToCatalogProducts] Returning ${results.length} products with inventory applied`,
-    );
     return results;
   } catch (error) {
-    console.error('[applyInventoryToCatalogProducts] Error:', error);
     throw error;
   }
 }

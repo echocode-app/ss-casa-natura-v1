@@ -194,7 +194,7 @@ function SuggestionsDropdown({
   if (!open) return null;
 
   return (
-    <div className="absolute z-50 mt-2 w-full rounded-input-xl border border-input bg-white shadow-lg overflow-hidden">
+    <div className="absolute z-10 mt-2 w-full rounded-input-xl border border-input bg-white shadow-lg overflow-hidden">
       {isLoading ? (
         <div className="px-4 py-3 text-sm text-text-muted flex items-center gap-2">
           <Spinner size="sm" />
@@ -294,13 +294,62 @@ function CheckoutExpressCheckout({ orderId }: { orderId: string }) {
   );
 }
 
-function CheckoutPaymentForm({ orderId }: { orderId: string }) {
+function CheckoutPaymentForm({
+  orderId,
+  billingDetails,
+}: {
+  orderId: string;
+  billingDetails?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    address?: {
+      line1?: string;
+      line2?: string;
+      city?: string;
+      state?: string;
+      postalCode?: string;
+      country?: string;
+    };
+  };
+}) {
   const t = useTranslations('checkout');
   const stripe = useStripe();
   const elements = useElements();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expressError, setExpressError] = useState<string | null>(null);
+
+  const onExpressConfirm = async (event: any) => {
+    if (!stripe || !elements) return;
+
+    setExpressError(null);
+
+    const { error: stripeError } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/checkout/success?orderId=${encodeURIComponent(orderId)}`,
+      },
+      redirect: 'if_required',
+    });
+
+    if (stripeError) {
+      setExpressError(stripeError.message || t('errors.checkoutFailed'));
+      try {
+        event?.paymentFailed?.({ reason: 'payment_failed' });
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    try {
+      event?.paymentConfirmed?.();
+    } catch {
+      // ignore
+    }
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -327,59 +376,87 @@ function CheckoutPaymentForm({ orderId }: { orderId: string }) {
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <PaymentElement />
-
-      {error && (
-        <div className="text-sm text-red-600" role="alert">
-          {error}
-        </div>
-      )}
-
-      <div className="text-xs text-text-muted">{t('payment.shopPhoneDisclaimer')}</div>
-
-      <PrimaryButton
-        onClick={() => {}}
-        type="submit"
-        disabled={!stripe || isSubmitting}
-        className="w-full py-4"
-      >
-        {isSubmitting ? <Spinner size="sm" colorScheme="light" /> : t('actions.placeOrder')}
-      </PrimaryButton>
-
-      <div className="text-xs text-text-muted">
-        {t.rich('payment.recurringDisclaimer', {
-          privacy: (chunks) => {
-            const policyId = process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID || '12345678';
-            const href = `https://www.iubenda.com/privacy-policy/${policyId}`;
-            return (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:no-underline"
-              >
-                {chunks}
-              </a>
-            );
-          },
-          terms: (chunks) => {
-            const policyId = process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID || '12345678';
-            const href = `https://www.iubenda.com/privacy-policy/${policyId}/cookie-policy`;
-            return (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:no-underline"
-              >
-                {chunks}
-              </a>
-            );
-          },
-        })}
+    <div className="space-y-6">
+      {/* Express Checkout Element */}
+      <div className="space-y-2">
+        <h3 className="font-semibold text-base">{t('express.title')}</h3>
+        <ExpressCheckoutElement onConfirm={onExpressConfirm} />
+        {expressError && (
+          <div className="text-sm text-red-600" role="alert">
+            {expressError}
+          </div>
+        )}
+        <div className="text-xs text-text-muted">{t('express.disclaimer')}</div>
       </div>
-    </form>
+
+      {/* Divider */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1 h-px bg-gray-300" />
+        <span className="text-sm text-text-muted">{t('express.or')}</span>
+        <div className="flex-1 h-px bg-gray-300" />
+      </div>
+
+      {/* Payment Element Form */}
+      <form onSubmit={onSubmit} className="space-y-4">
+        <PaymentElement
+          options={{
+            defaultValues: {
+              billingDetails: billingDetails,
+            },
+          }}
+        />
+
+        {error && (
+          <div className="text-sm text-red-600" role="alert">
+            {error}
+          </div>
+        )}
+
+        <div className="text-xs text-text-muted">{t('payment.shopPhoneDisclaimer')}</div>
+
+        <PrimaryButton
+          onClick={() => {}}
+          type="submit"
+          disabled={!stripe || isSubmitting}
+          className="w-full py-4"
+        >
+          {isSubmitting ? <Spinner size="sm" colorScheme="light" /> : t('actions.placeOrder')}
+        </PrimaryButton>
+
+        <div className="text-xs text-text-muted">
+          {t.rich('payment.recurringDisclaimer', {
+            privacy: (chunks) => {
+              const policyId = process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID || '12345678';
+              const href = `https://www.iubenda.com/privacy-policy/${policyId}`;
+              return (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:no-underline"
+                >
+                  {chunks}
+                </a>
+              );
+            },
+            terms: (chunks) => {
+              const policyId = process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID || '12345678';
+              const href = `https://www.iubenda.com/privacy-policy/${policyId}/cookie-policy`;
+              return (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:no-underline"
+                >
+                  {chunks}
+                </a>
+              );
+            },
+          })}
+        </div>
+      </form>
+    </div>
   );
 }
 
@@ -400,26 +477,9 @@ export function CheckoutExpressSection({
 }) {
   const t = useTranslations('checkout');
 
-  return (
-    <section className="bg-background-secondary rounded-[20px] p-4 md:p-6">
-      <h2 className="font-semibold text-[clamp(16px,3vw,22px)] mb-4">{t('express.title')}</h2>
-
-      {clientSecret && orderId && stripePromise ? (
-        <Elements
-          stripe={stripePromise}
-          options={{ clientSecret, appearance: { theme: 'stripe' } }}
-        >
-          <CheckoutExpressCheckout orderId={orderId} />
-        </Elements>
-      ) : (
-        <div className="min-h-[70px] rounded-input-xl border border-dashed border-input flex items-center justify-center text-sm text-text-muted">
-          {t('express.placeholder')}
-        </div>
-      )}
-
-      <div className="mt-4 text-xs text-text-muted">{t('express.disclaimer')}</div>
-    </section>
-  );
+  // Express Checkout now rendered inside Payment Element's Elements instance
+  // See CheckoutPaymentSection for implementation
+  return null;
 }
 
 export function CheckoutContactSection({
@@ -484,7 +544,7 @@ export function CheckoutContactSection({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
           <label htmlFor="checkout-email" className="text-sm font-medium text-text-muted">
-            {t('contact.email')}
+            {t('contact.email')} <span className="text-red-600">*</span>
           </label>
           <input
             id="checkout-email"
@@ -746,7 +806,7 @@ export function CheckoutDeliverySection({
 
         <div>
           <label htmlFor="checkout-postalCode" className="text-sm font-medium text-text-muted">
-            {t('delivery.postalCode')}
+            {t('delivery.postalCode')} <span className="text-red-600">*</span>
           </label>
           <input
             id="checkout-postalCode"
@@ -769,7 +829,7 @@ export function CheckoutDeliverySection({
 
         <div>
           <label htmlFor="checkout-name" className="text-sm font-medium text-text-muted">
-            {t('delivery.name')}
+            {t('delivery.name')} <span className="text-red-600">*</span>
           </label>
           <input
             id="checkout-name"
@@ -793,7 +853,7 @@ export function CheckoutDeliverySection({
 
         <div>
           <label htmlFor="checkout-surname" className="text-sm font-medium text-text-muted">
-            {t('delivery.surname')}
+            {t('delivery.surname')} <span className="text-red-600">*</span>
           </label>
           <input
             id="checkout-surname"
@@ -841,7 +901,7 @@ export function CheckoutDeliverySection({
 
         <div className="sm:col-span-2 relative">
           <label htmlFor="checkout-address1" className="text-sm font-medium text-text-muted">
-            {t('delivery.address1')}
+            {t('delivery.address1')} <span className="text-red-600">*</span>
           </label>
           <input
             id="checkout-address1"
@@ -931,7 +991,7 @@ export function CheckoutDeliverySection({
 
         <div className="relative">
           <label htmlFor="checkout-city" className="text-sm font-medium text-text-muted">
-            {t('delivery.city')}
+            {t('delivery.city')} <span className="text-red-600">*</span>
           </label>
           <input
             id="checkout-city"
@@ -997,7 +1057,7 @@ export function CheckoutDeliverySection({
 
         <div>
           <label htmlFor="checkout-province" className="text-sm font-medium text-text-muted">
-            {t('delivery.province')}
+            {t('delivery.province')} <span className="text-red-600">*</span>
           </label>
           <select
             id="checkout-province"
@@ -1022,7 +1082,7 @@ export function CheckoutDeliverySection({
 
         <div className="sm:col-span-2">
           <label htmlFor="checkout-phone" className="text-sm font-medium text-text-muted">
-            {t('delivery.phone')}
+            {t('delivery.phone')} <span className="text-red-600">*</span>
           </label>
           <input
             id="checkout-phone"
@@ -1172,6 +1232,7 @@ export function CheckoutPaymentSection({
   canProceed,
   isCreating,
   onCreateIntent,
+  billingDetails,
 }: {
   clientSecret: string | null;
   orderId: string | null;
@@ -1179,6 +1240,19 @@ export function CheckoutPaymentSection({
   canProceed: boolean;
   isCreating: boolean;
   onCreateIntent: () => void;
+  billingDetails?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    address?: {
+      line1?: string;
+      line2?: string;
+      city?: string;
+      state?: string;
+      postalCode?: string;
+      country?: string;
+    };
+  };
 }) {
   const t = useTranslations('checkout');
 
@@ -1209,9 +1283,12 @@ export function CheckoutPaymentSection({
       ) : (
         <Elements
           stripe={stripePromise}
-          options={{ clientSecret, appearance: { theme: 'stripe' } }}
+          options={{
+            clientSecret,
+            appearance: { theme: 'stripe' },
+          }}
         >
-          <CheckoutPaymentForm orderId={orderId} />
+          <CheckoutPaymentForm orderId={orderId} billingDetails={billingDetails} />
         </Elements>
       )}
     </section>

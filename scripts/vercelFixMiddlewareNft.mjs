@@ -31,8 +31,8 @@ async function main() {
   // Если middleware отсутствует (нет ни одного манифеста) — ничего не делаем.
   if (!(await fileExists(manifestPath)) && !(await fileExists(nestedManifestPath))) return;
 
-  // Next.js (особенно с Turbopack) может не генерировать `.next/server/middleware.js`.
-  // Но Vercel ожидает этот файл и/или `.nft.json`. Поэтому гарантируем их наличие.
+  // Next.js (особенно с Turbopack) може не генерувати `.next/server/middleware.js`.
+  // Але Vercel очікує цей файл та/або `.nft.json`. Тому гарантуємо їх наявність.
   const middlewareEntrypoint = path.join(serverDir, 'middleware.js');
   if (!(await fileExists(middlewareEntrypoint))) {
     await fs.writeFile(
@@ -40,14 +40,15 @@ async function main() {
       [
         '// Auto-generated for Vercel build compatibility.',
         '// Next.js may omit this file in some build modes.',
-        "'use strict';",
-        "const { NextResponse } = require('next/server');",
+        "import { NextResponse } from 'next/server';",
         '',
-        'function middleware() {',
+        'export function middleware() {',
         '  return NextResponse.next();',
         '}',
         '',
-        'module.exports = { middleware };',
+        'export const config = {',
+        "  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],",
+        '};',
         '',
       ].join('\n'),
     );

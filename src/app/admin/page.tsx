@@ -12,7 +12,13 @@ type StatsResponse = {
     orders?: { total: number; week: number; month: number };
   };
   topSelling?: Array<{ productId: string; title?: string; quantity: number }>;
-  lowStock?: Array<{ productId: string; title?: string; sku?: string; stock?: number }>;
+  lowStock?: Array<{
+    productId: string;
+    title?: string;
+    sku?: string;
+    stock?: number;
+    variantLabel?: string;
+  }>;
   integrations?: Record<string, { ok: boolean; url: string; details?: string; info?: string }>;
 };
 
@@ -128,13 +134,18 @@ export default function AdminDashboardPage() {
           <div className="font-semibold text-base leading-tight mb-5">Scorte basse</div>
           <div className="space-y-3">
             {(data?.lowStock || []).length ? (
-              data?.lowStock?.map((p) => (
+              data?.lowStock?.map((p, idx) => (
                 <div
-                  key={p.productId}
+                  key={`${p.productId}-${idx}`}
                   className="flex items-center justify-between text-sm leading-relaxed"
                 >
-                  <div className="text-gray-800 truncate pr-3">{p.title || p.productId}</div>
-                  <div className="font-semibold">{p.stock ?? '—'}</div>
+                  <div className="text-gray-800 truncate pr-3">
+                    {p.title || p.productId}
+                    {p.variantLabel && (
+                      <span className="text-gray-500 ml-1">({p.variantLabel})</span>
+                    )}
+                  </div>
+                  <div className="font-semibold text-red-600">{p.stock ?? '—'}</div>
                 </div>
               ))
             ) : (

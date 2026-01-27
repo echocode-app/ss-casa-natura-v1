@@ -71,16 +71,43 @@ export const GET = handleApi(async () => {
     .slice(0, 5);
 
   const products = await applyInventoryToCatalogProducts({ includeArchived: false });
-  const lowStock = products
-    .filter((p: any) => typeof p.stock === 'number' && p.stock <= 5)
-    .sort((a: any, b: any) => (a.stock ?? 0) - (b.stock ?? 0))
-    .slice(0, 5)
-    .map((p: any) => ({
-      productId: p.id,
-      title: p.title,
-      sku: p.sku,
-      stock: p.stock,
-    }));
+
+  // Collect products with low stock (< 6) from variants
+  const lowStockItems: Array<{
+    productId: string;
+    title: string;
+    sku: string;
+    stock: number;
+    variantLabel?: string;
+  }> = [];
+
+  for (const p of products) {
+    // Check variants for low stock
+    if (p.variants && Array.isArray(p.variants)) {
+      for (const v of p.variants) {
+        if (typeof v.stock === 'number' && v.stock < 6) {
+          lowStockItems.push({
+            productId: p.id,
+            title: p.title,
+            sku: p.sku,
+            stock: v.stock,
+            variantLabel: v.label,
+          });
+        }
+      }
+    }
+    // Also check product-level stock if exists
+    if (typeof p.stock === 'number' && p.stock < 6) {
+      lowStockItems.push({
+        productId: p.id,
+        title: p.title,
+        sku: p.sku,
+        stock: p.stock,
+      });
+    }
+  }
+
+  const lowStock = lowStockItems.sort((a, b) => a.stock - b.stock).slice(0, 10);
 
   const integrations = {
     MongoDB: {

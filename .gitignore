@@ -47,3 +47,4 @@ coverage/
 *.tsbuildinfo
 
 DEPLOYMENT.md
+.docs/

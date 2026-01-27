@@ -97,6 +97,21 @@ export default function CatalogProductForm({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState<Record<number, boolean>>({});
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
+
+  // Helper to get field error
+  const getFieldError = (fieldName: string) => {
+    return validationErrors[fieldName]?.[0];
+  };
+
+  // Helper to get field style
+  const getFieldStyle = (fieldName: string, baseClass: string = inputBase) => {
+    const hasError = validationErrors[fieldName];
+    if (hasError) {
+      return `${baseClass} border-red-500 focus:border-red-500 focus:ring-red-500`;
+    }
+    return baseClass;
+  };
 
   // Auto-generate SKU on mount for new products
   useState(() => {
@@ -161,6 +176,7 @@ export default function CatalogProductForm({
     }
 
     setIsSaving(true);
+    setValidationErrors({});
     try {
       const payload = normalizeDraft(draft);
       const productId = draft.id || draft.slug;
@@ -178,6 +194,11 @@ export default function CatalogProductForm({
       });
       const data = await res.json();
       if (!res.ok || !data?.success) {
+        if (data?.errorCode === 'VALIDATION_FAILED' && data?.details) {
+          setValidationErrors(data.details);
+          notify.error('Errori di validazione. Controlla i campi evidenziati.');
+          return;
+        }
         throw new Error(data?.error || 'Salvataggio fallito');
       }
 
@@ -296,13 +317,9 @@ export default function CatalogProductForm({
             <strong>Slug</strong> viene generato automaticamente dal titolo (max 20 caratteri).
           </li>
           <li>
-            Se il prodotto ha varianti (es. 500 ml / 1 L), compila le varianti. Ogni variante
-            richiede <strong>Volume</strong>, <strong>Unità</strong>,{' '}
-            <strong>Price modifier</strong> e <strong>Peso (grammi)</strong>.
-          </li>
-          <li>
-            Se non ci sono varianti, usa <strong>Stock (prodotto)</strong> e{' '}
-            <strong>Disponibile</strong>.
+            Ogni prodotto deve avere almeno una variante. Ogni variante richiede{' '}
+            <strong>Volume</strong>, <strong>Unità</strong>, <strong>Prezzo</strong>,{' '}
+            <strong>Peso (grammi)</strong>, <strong>Stock</strong> e <strong>Disponibile</strong>.
           </li>
           <li>
             Seleziona almeno 1 <strong>Categoria</strong>. La <strong>Linea</strong> è opzionale.
@@ -330,9 +347,12 @@ export default function CatalogProductForm({
               id="product_title"
               value={draft.title}
               onChange={(e) => handleTitleChange(e.target.value)}
-              className={inputBase}
+              className={getFieldStyle('title')}
               placeholder="Nome prodotto completo"
             />
+            {getFieldError('title') && (
+              <div className="text-xs text-red-600 mt-1">{getFieldError('title')}</div>
+            )}
           </div>
 
           <div>
@@ -386,10 +406,13 @@ export default function CatalogProductForm({
               id="product_description"
               value={draft.description}
               onChange={(e) => setDraft((p) => ({ ...p, description: e.target.value }))}
-              className={inputBase}
+              className={getFieldStyle('description')}
               rows={6}
               placeholder="Testo descrittivo del prodotto, ingredienti, modalità d'uso..."
             />
+            {getFieldError('description') && (
+              <div className="text-xs text-red-600 mt-1">{getFieldError('description')}</div>
+            )}
           </div>
         </div>
       </AdminCard>
@@ -448,6 +471,9 @@ export default function CatalogProductForm({
                 </label>
               ))}
             </div>
+            {getFieldError('categoryIds') && (
+              <div className="text-xs text-red-600 mt-2">{getFieldError('categoryIds')}</div>
+            )}
             <div className="text-xs text-gray-500 mt-2 leading-relaxed">
               Categorie: Saponi, Detergenti, Profumatori, Accessori, Gift Box
             </div>
@@ -502,6 +528,12 @@ export default function CatalogProductForm({
 
       <AdminCard className="p-5">
         <h2 className="text-lg font-semibold text-gray-900">Immagine prodotto</h2>
+
+        {getFieldError('images') && (
+          <div className="text-sm text-red-600 mt-3 p-3 bg-red-50 rounded-md border border-red-200">
+            {getFieldError('images')}
+          </div>
+        )}
 
         {/* Warning about image requirements */}
         <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
@@ -644,6 +676,11 @@ export default function CatalogProductForm({
         <p className="text-sm text-gray-600 mt-1 mb-4">
           ID e Etichetta vengono generati automaticamente dal volume e unità (es. "500ml", "1l")
         </p>
+        {getFieldError('variants') && (
+          <div className="text-sm text-red-600 mb-3 p-3 bg-red-50 rounded-md border border-red-200">
+            {getFieldError('variants')}
+          </div>
+        )}
         <div className="mt-4 space-y-4">
           {draft.variants.map((v, idx) => {
             // Auto-generate ID and label from volume and unit

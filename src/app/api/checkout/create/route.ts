@@ -260,7 +260,22 @@ export const POST = handleApi(async (req: NextRequest) => {
       amount: amountCents,
       currency: 'eur',
       receipt_email: normalizedEmail,
-      automatic_payment_methods: { enabled: true },
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: 'always',
+      },
+      shipping: {
+        name: `${parsed.data.customer.name}${parsed.data.customer.surname ? ` ${parsed.data.customer.surname}` : ''}`,
+        phone: parsed.data.customer.phone || undefined,
+        address: {
+          line1: parsed.data.address.addressLine1,
+          line2: parsed.data.address.addressLine2 || undefined,
+          city: parsed.data.address.city,
+          state: parsed.data.address.province || undefined,
+          postal_code: parsed.data.address.postalCode,
+          country: parsed.data.address.country.toUpperCase(),
+        },
+      },
       metadata: {
         orderId: String(draft.orderId),
         sessionId: sessionId || '',
