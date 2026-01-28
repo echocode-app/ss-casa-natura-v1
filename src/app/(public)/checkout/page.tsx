@@ -17,7 +17,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 import {
   CheckoutContactSection,
   CheckoutDeliverySection,
-  CheckoutExpressSection,
   CheckoutPaymentSection,
   CheckoutShippingMethodSection,
   CheckoutSummaryPanel,
@@ -573,15 +572,6 @@ export default function CheckoutPage() {
 
         <div className="flex flex-col-reverse gap-4 items-center justify-center lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-6 lg:items-start">
           <div className="w-full space-y-6 overflow-x-hidden lg:overflow-x-visible">
-            <CheckoutExpressSection
-              clientSecret={clientSecret}
-              orderId={orderId}
-              stripePromise={stripePromise}
-              canProceed={canProceed}
-              isCreating={isCreating}
-              onCreateIntent={handleCreateIntent}
-            />
-
             <CheckoutContactSection
               isAuthenticated={isAuthenticated}
               onOpenAuthModal={() => setShowAuthModal(true)}

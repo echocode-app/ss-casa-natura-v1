@@ -35,7 +35,9 @@ export default function TopProductsSection({ products }) {
   const displayProducts = sortProducts(
     (Array.isArray(products) && products.length > 0 ? products : []).filter((p) => {
       // Check if product has at least one variant with isBestSeller = true
-      return p.variants?.some((v) => v.isBestSeller === true);
+      const hasBestSellerVariant = p.variants?.some((v) => v.isBestSeller === true);
+
+      return hasBestSellerVariant;
     }),
   );
 

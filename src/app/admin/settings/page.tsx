@@ -14,8 +14,7 @@ export default function AdminSettingsPage() {
 
       <AdminCard className="p-5">
         <div className="text-gray-700">
-          Per ora, le impostazioni della PromoBar sono disponibili in{' '}
-          <span className="font-semibold">Promozioni</span>.
+          Questa sezione sarà disponibile in una delle prossime versioni.
         </div>
       </AdminCard>
     </div>

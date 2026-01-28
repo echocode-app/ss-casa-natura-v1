@@ -32,13 +32,10 @@ export const GET = handleApi(async (_req: NextRequest) => {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
   await connectToDB();
-
   const dbUser = await User.findById(user.id).select(
     'name surname email phone deliveryAddress role createdAt',
   );
-
   if (!dbUser) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }

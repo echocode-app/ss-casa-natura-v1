@@ -19,8 +19,10 @@ export default function CheckoutSuccessClient({ translations }: CheckoutSuccessC
   const router = useRouter();
 
   useEffect(() => {
-    // Clear cart from localStorage
+    // Clear cart from localStorage - use the correct key from CartContext
     if (typeof window !== 'undefined') {
+      localStorage.removeItem('guest_cart_v1');
+      // Also clear the old key for backward compatibility
       localStorage.removeItem('cart');
       // Trigger storage event to update cart context
       window.dispatchEvent(new Event('storage'));

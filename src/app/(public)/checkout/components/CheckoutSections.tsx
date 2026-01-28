@@ -1,139 +1,5 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
-import {
-  Elements,
-  ExpressCheckoutElement,
-  PaymentElement,
-  useElements,
-  useStripe,
-} from '@stripe/react-stripe-js';
-import type { Stripe } from '@stripe/stripe-js';
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
-import Spinner from '@/components/ui/Spinner/Spinner';
-import FormError from '@/components/ui/Form/FormError';
-import { normalizeInputValue } from '@/lib/utils/inputHelpers';
-import { useDebounce } from '@/hooks/useDebounce';
-import { IT_PROVINCES } from '@/lib/address/itProvinces';
-
-const IT_PROVINCE_CODES = new Set(IT_PROVINCES.map((p) => p.code));
-const IT_PROVINCE_BY_NORMALIZED_NAME = new Map(
-  IT_PROVINCES.map((p) => [
-    p.name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '')
-      .replace(/[^a-z\s-]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim(),
-    p.code,
-  ]),
-);
-
-type MapboxProxyOk = { features: MapboxFeature[] };
-type MapboxProxyErr = { error: { code: string; message: string } };
-
-type MapboxFeature = {
-  id: string;
-  place_name: string;
-  text: string;
-  address?: string;
-  center?: [number, number];
-  context?: Array<{ id: string; text: string; short_code?: string } | undefined>;
-  properties?: { postcode?: string };
-};
-
-function pickMapboxContextText(feature: MapboxFeature, prefix: string): string | null {
-  const ctx = feature.context || [];
-  const found = ctx.find((c) => c?.id?.startsWith(prefix));
-  return found?.text || null;
-}
-
-function pickMapboxProvinceCode(feature: MapboxFeature): string | null {
-  const ctx = feature.context || [];
-
-  // Prefer "district" (often matches Italian province / metro city in Mapbox data).
-  const ordered = [...ctx].sort((a, b) => {
-    const ax = a?.id?.startsWith('district.') ? 0 : a?.id?.startsWith('place.') ? 1 : 2;
-    const bx = b?.id?.startsWith('district.') ? 0 : b?.id?.startsWith('place.') ? 1 : 2;
-    return ax - bx;
-  });
-
-  for (const c of ordered) {
-    const sc = (c?.short_code || '').toString();
-    // e.g. "it-to" => TO
-    const m = sc.match(/(?:^|-)it-([a-z]{2})$/i);
-    const code = m?.[1]?.toUpperCase();
-    if (code && IT_PROVINCE_CODES.has(code)) return code;
-  }
-
-  for (const c of ordered) {
-    const name = (c?.text || '').toString();
-    if (!name) continue;
-    const norm = name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '')
-      .replace(/[^a-z\s-]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    const code = IT_PROVINCE_BY_NORMALIZED_NAME.get(norm);
-    if (code) return code;
-  }
-
-  return null;
-}
-
-function getMapboxPostcode(feature: MapboxFeature): string | null {
-  const direct = feature.properties?.postcode;
-  if (direct) return direct;
-  return pickMapboxContextText(feature, 'postcode.');
-}
-
-async function fetchMapbox(
-  query: string,
-  {
-    types,
-    country,
-    language,
-    limit,
-    proximity,
-  }: {
-    types: string;
-    country?: string;
-    language?: string;
-    limit?: number;
-    proximity?: [number, number];
-  },
-): Promise<{ features: MapboxFeature[]; error: MapboxProxyErr['error'] | null }> {
-  const trimmed = query.trim();
-  if (!trimmed) return { features: [], error: null };
-
-  const url = new URL('/api/mapbox/geocode', window.location.origin);
-  url.searchParams.set('q', trimmed);
-  url.searchParams.set('types', types);
-  url.searchParams.set('limit', String(limit ?? 6));
-  if (language) url.searchParams.set('language', language);
-  if (country && /^[A-Z]{2}$/.test(country.toUpperCase())) {
-    url.searchParams.set('country', country.toUpperCase());
-  }
-  if (proximity) {
-    url.searchParams.set('proximity', `${proximity[0]},${proximity[1]}`);
-  }
-
-  const res = await fetch(url.toString());
-  const data = (await res.json()) as MapboxProxyOk | MapboxProxyErr;
-  if (!res.ok || 'error' in data) {
-    return {
-      features: [],
-      error: 'error' in data ? data.error : { code: 'UNKNOWN', message: 'Unknown error' },
-    };
-  }
-  return { features: (data.features || []).filter(Boolean), error: null };
-}
-
 async function fetchMapboxReverse(
   center: [number, number],
   {
@@ -173,6 +39,101 @@ function buildStreetLine(feature: MapboxFeature): string {
   const parts = [feature.text, feature.address].filter(Boolean);
   return parts.join(' ').trim();
 }
+
+function getMapboxPostcode(feature: any): string | null {
+  if (feature?.properties?.postcode) return feature.properties.postcode;
+  if (feature?.context) {
+    const ctx = feature.context.find((c: any) => c.id && c.id.startsWith('postcode.'));
+    if (ctx && ctx.text) return ctx.text;
+  }
+  return null;
+}
+
+function pickMapboxContextText(feature: any, prefix: string): string | null {
+  if (!feature?.context) return null;
+  const ctx = feature.context.find((c: any) => c.id && c.id.startsWith(prefix));
+  return ctx?.text || null;
+}
+
+function pickMapboxProvinceCode(feature: any): string | null {
+  if (!feature?.context) return null;
+  const ctx = feature.context.find(
+    (c: any) =>
+      c.id && c.id.startsWith('region.') && c.short_code && c.short_code.startsWith('IT-'),
+  );
+  return ctx?.short_code?.slice(3) || null;
+}
+
+async function fetchMapbox(
+  q: string,
+  {
+    types,
+    country,
+    language,
+    limit,
+    proximity,
+  }: {
+    types: string;
+    country?: string;
+    language?: string;
+    limit?: number;
+    proximity?: [number, number];
+  },
+): Promise<{ features: MapboxFeature[]; error: MapboxProxyErr['error'] | null }> {
+  const url = new URL('/api/mapbox/geocode', window.location.origin);
+  url.searchParams.set('q', q);
+  url.searchParams.set('types', types);
+  url.searchParams.set('limit', String(limit ?? 6));
+  if (language) url.searchParams.set('language', language);
+  if (country && /^[A-Z]{2}$/.test(country.toUpperCase())) {
+    url.searchParams.set('country', country.toUpperCase());
+  }
+  if (proximity) {
+    url.searchParams.set('proximity', `${proximity[0]},${proximity[1]}`);
+  }
+  const res = await fetch(url.toString());
+  const data = (await res.json()) as MapboxProxyOk | MapboxProxyErr;
+  if (!res.ok || 'error' in data) {
+    return {
+      features: [],
+      error: 'error' in data ? data.error : { code: 'UNKNOWN', message: 'Unknown error' },
+    };
+  }
+  return { features: (data.features || []).filter(Boolean), error: null };
+}
+
+// ...existing code...
+
+// ...existing code...
+
+import { useLocale, useTranslations } from 'next-intl';
+import {
+  Elements,
+  ExpressCheckoutElement,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from '@stripe/react-stripe-js';
+import type { Stripe } from '@stripe/stripe-js';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
+import Spinner from '@/components/ui/Spinner/Spinner';
+import FormError from '@/components/ui/Form/FormError';
+import { normalizeInputValue } from '@/lib/utils/inputHelpers';
+import { useDebounce } from '@/hooks/useDebounce';
+import { IT_PROVINCES } from '@/lib/address/itProvinces';
+
+type MapboxProxyOk = { features: MapboxFeature[] };
+type MapboxProxyErr = { error: { code: string; message: string } };
+
+type MapboxFeature = {
+  id: string;
+  place_name: string;
+  text: string;
+  address?: string;
+  center?: [number, number];
+};
 
 function SuggestionsDropdown({
   open,
@@ -244,55 +205,6 @@ export type ShippingQuote = {
 };
 
 export type ShippingMethod = 'one_time' | 'recurring_4w' | '';
-
-function CheckoutExpressCheckout({ orderId }: { orderId: string }) {
-  const t = useTranslations('checkout');
-  const stripe = useStripe();
-  const elements = useElements();
-
-  const [error, setError] = useState<string | null>(null);
-
-  const onConfirm = async (event: any) => {
-    if (!stripe || !elements) return;
-
-    setError(null);
-
-    const { error: stripeError } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/checkout/success?orderId=${encodeURIComponent(orderId)}`,
-      },
-      redirect: 'if_required',
-    });
-
-    if (stripeError) {
-      setError(stripeError.message || t('errors.checkoutFailed'));
-      try {
-        event?.paymentFailed?.({ reason: 'payment_failed' });
-      } catch {
-        // ignore
-      }
-      return;
-    }
-
-    try {
-      event?.paymentConfirmed?.();
-    } catch {
-      // ignore
-    }
-  };
-
-  return (
-    <div className="space-y-2">
-      <ExpressCheckoutElement onConfirm={onConfirm} />
-      {error && (
-        <div className="text-sm text-red-600" role="alert">
-          {error}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function CheckoutPaymentForm({
   orderId,
@@ -458,28 +370,6 @@ function CheckoutPaymentForm({
       </form>
     </div>
   );
-}
-
-export function CheckoutExpressSection({
-  clientSecret,
-  orderId,
-  stripePromise,
-  canProceed: _canProceed,
-  isCreating: _isCreating,
-  onCreateIntent: _onCreateIntent,
-}: {
-  clientSecret: string | null;
-  orderId: string | null;
-  stripePromise: Promise<Stripe | null> | null;
-  canProceed: boolean;
-  isCreating: boolean;
-  onCreateIntent: () => void;
-}) {
-  const t = useTranslations('checkout');
-
-  // Express Checkout now rendered inside Payment Element's Elements instance
-  // See CheckoutPaymentSection for implementation
-  return null;
 }
 
 export function CheckoutContactSection({

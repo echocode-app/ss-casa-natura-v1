@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyToken } from '@/lib/auth/jwt';
 
 /**
  * Proxy (formerly middleware)
@@ -31,29 +32,44 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  // Admin routes - check auth
-  if (pathname.startsWith('/admin')) {
+  // Admin routes (/admin/*) and Admin API routes (/api/admin/*, /api/mailchimp/*) - check JWT cookie and role
+  if (
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/api/admin') ||
+    pathname.startsWith('/api/mailchimp')
+  ) {
     const authCookie = request.cookies.get('token');
-
     if (!authCookie) {
-      const loginUrl = new URL('/auth/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      // Для UI-адмінки — редірект на логін, для API — 401
+      if (pathname.startsWith('/admin')) {
+        const loginUrl = new URL('/auth/login', request.url);
+        loginUrl.searchParams.set('redirect', pathname);
+        return NextResponse.redirect(loginUrl);
+      } else {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
     }
-
-    return response;
-  }
-
-  // Admin API routes - check API secret
-  if (pathname.startsWith('/api/admin') || pathname.startsWith('/api/mailchimp')) {
-    const apiSecret = request.headers.get('authorization');
-
-    // API_SECRET_KEY token Bearer
-    if (!apiSecret) {
-      return NextResponse.json({ error: 'Accesso non autorizzato' }, { status: 401 });
+    try {
+      const payload = await verifyToken(authCookie.value);
+      const allowedRoles = ['developer', 'superadmin', 'admin'];
+      if (!payload.role || !allowedRoles.includes(payload.role)) {
+        return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+      }
+      // Додаємо user info у заголовки для SSR/API (якщо потрібно)
+      response.headers.set('x-user-id', payload.id);
+      response.headers.set('x-user-email', payload.email);
+      response.headers.set('x-user-role', payload.role);
+      return response;
+    } catch {
+      // Токен невалідний або прострочений
+      if (pathname.startsWith('/admin')) {
+        const loginUrl = new URL('/auth/login', request.url);
+        loginUrl.searchParams.set('redirect', pathname);
+        return NextResponse.redirect(loginUrl);
+      } else {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
     }
-
-    return response;
   }
 
   return response;

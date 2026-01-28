@@ -227,6 +227,7 @@ export const POST = handleApi(async (req: NextRequest) => {
             variantId: String(p.variantId),
             slug: p.slug,
             title: p.title,
+            imageSrc: p.imageSrc,
             price: p.price,
             quantity: p.quantity,
             volume: p.volume,

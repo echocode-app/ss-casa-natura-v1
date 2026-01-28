@@ -6,6 +6,7 @@ export type PricedLineItem = {
   variantId: string;
   slug: string;
   title: string;
+  imageSrc?: string;
   price: number;
   quantity: number;
   volume?: number;
@@ -50,6 +51,7 @@ export async function priceItems(items: CheckoutItemInput[]): Promise<{
       variantId: item.variantId,
       slug: lookup.slug,
       title: lookup.title,
+      imageSrc: lookup.imageSrc,
       price: lookup.price,
       quantity,
       volume: lookup.variant?.volume,

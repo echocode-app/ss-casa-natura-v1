@@ -9,6 +9,7 @@ export async function requireAdmin() {
   }
 
   const allowedRoles = ['developer', 'superadmin', 'admin'];
+
   if (!user.role || !allowedRoles.includes(user.role)) {
     return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
   }

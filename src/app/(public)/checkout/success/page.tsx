@@ -88,6 +88,7 @@ async function assertPaidOrderOrNotFound(
         variantId: p.variantId,
         slug: p.slug,
         title: p.title,
+        imageSrc: p.imageSrc,
         price: p.price,
         quantity: p.quantity,
         volume: p.volume,
