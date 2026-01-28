@@ -25,61 +25,99 @@ async function main() {
 
   if (!(await fileExists(serverDir))) return;
 
-  // Create package.json in server dir to mark as ES module
+  // Remove package.json from server dir if it exists (causes ES module conflicts)
   const serverPkgPath = path.join(serverDir, 'package.json');
-  if (!(await fileExists(serverPkgPath))) {
-    await fs.writeFile(serverPkgPath, JSON.stringify({ type: 'module' }, null, 2));
+  if (await fileExists(serverPkgPath)) {
+    await fs.unlink(serverPkgPath);
   }
 
   const manifestPath = path.join(serverDir, 'middleware-manifest.json');
   const nestedManifestPath = path.join(serverDir, 'middleware', 'middleware-manifest.json');
+  const proxyManifestPath = path.join(serverDir, 'proxy-manifest.json');
 
-  // Если middleware отсутствует (нет ни одного манифеста) — ничего не делаем.
-  if (!(await fileExists(manifestPath)) && !(await fileExists(nestedManifestPath))) return;
+  // Check if middleware/proxy manifest exists
+  if (
+    !(await fileExists(manifestPath)) &&
+    !(await fileExists(nestedManifestPath)) &&
+    !(await fileExists(proxyManifestPath))
+  )
+    return;
 
-  // Next.js (особенно с Turbopack) може не генерувати `.next/server/middleware.js`.
-  // Але Vercel очікує цей файл та/або `.nft.json`. Тому гарантуємо їх наявність.
+  // Next.js 16 може генерувати proxy.js замість middleware.js
   const middlewareEntrypoint = path.join(serverDir, 'middleware.js');
-  const middlewareMjsEntrypoint = path.join(serverDir, 'middleware.mjs');
+  const proxyEntrypoint = path.join(serverDir, 'proxy.js');
   
-  if (!(await fileExists(middlewareEntrypoint)) && !(await fileExists(middlewareMjsEntrypoint))) {
-    // Create as .mjs to explicitly mark as ES module
-    await fs.writeFile(
-      middlewareMjsEntrypoint,
-      [
-        '// Auto-generated for Vercel build compatibility.',
-        '// Next.js may omit this file in some build modes.',
-        "import { NextResponse } from 'next/server';",
-        '',
-        'export function middleware() {',
-        '  return NextResponse.next();',
-        '}',
-        '',
-        'export const config = {',
-        "  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],",
-        '};',
-        '',
-      ].join('\n'),
-    );
-    
-    // Also create symlink or copy to .js
+  // Check what exists
+  const hasMiddlewareJs = await fileExists(middlewareEntrypoint);
+  const hasProxyJs = await fileExists(proxyEntrypoint);
+  
+  // If proxy exists but middleware doesn't, create middleware as wrapper
+  if (hasProxyJs && !hasMiddlewareJs) {
     await fs.writeFile(
       middlewareEntrypoint,
       [
-        '// Auto-generated for Vercel build compatibility.',
-        '// Next.js may omit this file in some build modes.',
-        "import { NextResponse } from 'next/server';",
-        '',
-        'export function middleware() {',
-        '  return NextResponse.next();',
-        '}',
-        '',
-        'export const config = {',
-        "  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],",
-        '};',
+        '// Auto-generated wrapper for Vercel compatibility',
+        '// Next.js 16 uses proxy.js but Vercel expects middleware.js',
+        "const proxy = require('./proxy.js');",
+        'module.exports = proxy;',
         '',
       ].join('\n'),
     );
+  }
+  
+  // If neither exists, check for nested structure
+  if (!hasMiddlewareJs && !hasProxyJs) {
+    // Check if there's a nested middleware or proxy
+    const nestedMiddlewareDir = path.join(serverDir, 'middleware');
+    const nestedProxyDir = path.join(serverDir, 'proxy');
+    const nestedMiddlewareJs = path.join(nestedMiddlewareDir, 'middleware.js');
+    const nestedProxyJs = path.join(nestedProxyDir, 'proxy.js');
+    
+    if (await fileExists(nestedProxyJs)) {
+      // Create a re-export wrapper for proxy as CommonJS
+      await fs.writeFile(
+        middlewareEntrypoint,
+        [
+          '// Auto-generated wrapper for Vercel compatibility',
+          '// This file re-exports the actual proxy from the nested directory',
+          "const proxy = require('./proxy/proxy.js');",
+          'module.exports = proxy;',
+          '',
+        ].join('\n'),
+      );
+    } else if (await fileExists(nestedMiddlewareJs)) {
+      // Create a re-export wrapper as CommonJS
+      await fs.writeFile(
+        middlewareEntrypoint,
+        [
+          '// Auto-generated wrapper for Vercel compatibility',
+          '// This file re-exports the actual middleware from the nested directory',
+          "const middleware = require('./middleware/middleware.js');",
+          'module.exports = middleware;',
+          '',
+        ].join('\n'),
+      );
+    } else {
+      // Create minimal middleware as CommonJS
+      await fs.writeFile(
+        middlewareEntrypoint,
+        [
+          '// Auto-generated for Vercel build compatibility.',
+          "const { NextResponse } = require('next/server');",
+          '',
+          'function middleware(request) {',
+          '  return NextResponse.next();',
+          '}',
+          '',
+          'const config = {',
+          "  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],",
+          '};',
+          '',
+          'module.exports = { middleware, config };',
+          '',
+        ].join('\n'),
+      );
+    }
   }
 
   const target = path.join(serverDir, 'middleware.js.nft.json');
@@ -113,7 +151,7 @@ async function main() {
 
   const payload = {
     version: 1,
-    files: uniq(['middleware.js', 'middleware.mjs', 'package.json', ...files]).filter(Boolean),
+    files: uniq(['middleware.js', ...files]).filter(Boolean),
   };
 
   await fs.writeFile(target, JSON.stringify(payload));
