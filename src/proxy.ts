@@ -33,7 +33,7 @@ export async function proxy(request: NextRequest) {
 
   // Admin routes - check auth
   if (pathname.startsWith('/admin')) {
-    const authCookie = request.cookies.get('auth-token');
+    const authCookie = request.cookies.get('token');
 
     if (!authCookie) {
       const loginUrl = new URL('/auth/login', request.url);
