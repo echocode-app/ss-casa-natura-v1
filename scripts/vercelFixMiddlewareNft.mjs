@@ -25,6 +25,12 @@ async function main() {
 
   if (!(await fileExists(serverDir))) return;
 
+  // Create package.json in server dir to mark as ES module
+  const serverPkgPath = path.join(serverDir, 'package.json');
+  if (!(await fileExists(serverPkgPath))) {
+    await fs.writeFile(serverPkgPath, JSON.stringify({ type: 'module' }, null, 2));
+  }
+
   const manifestPath = path.join(serverDir, 'middleware-manifest.json');
   const nestedManifestPath = path.join(serverDir, 'middleware', 'middleware-manifest.json');
 
@@ -34,7 +40,29 @@ async function main() {
   // Next.js (особенно с Turbopack) може не генерувати `.next/server/middleware.js`.
   // Але Vercel очікує цей файл та/або `.nft.json`. Тому гарантуємо їх наявність.
   const middlewareEntrypoint = path.join(serverDir, 'middleware.js');
-  if (!(await fileExists(middlewareEntrypoint))) {
+  const middlewareMjsEntrypoint = path.join(serverDir, 'middleware.mjs');
+  
+  if (!(await fileExists(middlewareEntrypoint)) && !(await fileExists(middlewareMjsEntrypoint))) {
+    // Create as .mjs to explicitly mark as ES module
+    await fs.writeFile(
+      middlewareMjsEntrypoint,
+      [
+        '// Auto-generated for Vercel build compatibility.',
+        '// Next.js may omit this file in some build modes.',
+        "import { NextResponse } from 'next/server';",
+        '',
+        'export function middleware() {',
+        '  return NextResponse.next();',
+        '}',
+        '',
+        'export const config = {',
+        "  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],",
+        '};',
+        '',
+      ].join('\n'),
+    );
+    
+    // Also create symlink or copy to .js
     await fs.writeFile(
       middlewareEntrypoint,
       [
@@ -85,7 +113,7 @@ async function main() {
 
   const payload = {
     version: 1,
-    files: uniq(['middleware.js', ...files]).filter(Boolean),
+    files: uniq(['middleware.js', 'middleware.mjs', 'package.json', ...files]).filter(Boolean),
   };
 
   await fs.writeFile(target, JSON.stringify(payload));
