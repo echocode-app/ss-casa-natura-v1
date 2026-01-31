@@ -107,7 +107,7 @@ export default function AdminSubmissionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Richieste contatto</h1>
           <p className="text-gray-600 mt-1">Gestisci richieste e stato (nuova/risolta/rifiutata)</p>
@@ -120,8 +120,8 @@ export default function AdminSubmissionsPage() {
       </div>
 
       <AdminCard className="p-5">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 gap-4">
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Cerca</label>
             <input
               value={query}
@@ -150,6 +150,9 @@ export default function AdminSubmissionsPage() {
             Applica
           </PrimaryButton>
         </div>
+        <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+          Filtri lato server. Se la lista è vuota, prova a rimuovere il filtro stato.
+        </p>
       </AdminCard>
 
       <AdminCard className="p-0 overflow-hidden">
@@ -215,6 +218,9 @@ export default function AdminSubmissionsPage() {
             </tbody>
           </table>
         </div>
+        <p className="px-5 py-3 text-xs text-gray-500 leading-relaxed">
+          Cambiare stato salva immediatamente. Se il salvataggio fallisce, riprova dopo un refresh.
+        </p>
       </AdminCard>
     </div>
   );

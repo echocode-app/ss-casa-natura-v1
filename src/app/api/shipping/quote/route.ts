@@ -25,6 +25,8 @@ const schema = z.object({
     province: z.string().optional(),
   }),
   items: z.array(itemSchema).optional(),
+  promoCode: z.string().min(1).max(50).optional(),
+  promoDiscount: z.number().finite().min(0).max(1_000_000).optional(),
 });
 
 export const POST = handleApi(async (req: NextRequest) => {
@@ -65,7 +67,9 @@ export const POST = handleApi(async (req: NextRequest) => {
     })),
   );
 
-  const promoDiscount = cart?.promoDiscount ? Math.max(0, cart.promoDiscount) : 0;
+  const promoDiscount = cart?.promoDiscount
+    ? Math.max(0, cart.promoDiscount)
+    : Math.min(subtotal, Math.max(0, Number(parsed.data.promoDiscount || 0)));
 
   const shipping = calculateShippingQuote({
     subtotal: Math.max(0, subtotal - promoDiscount),

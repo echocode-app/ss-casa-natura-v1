@@ -8,9 +8,13 @@ interface SendEmailParams {
   html?: string;
 }
 
-const client = mailchimp(process.env.MAILCHIMP_API_KEY!);
+const transactionalKey = process.env.MAILCHIMP_TRANSACTIONAL_API_KEY;
+const client = transactionalKey ? mailchimp(transactionalKey) : null;
 
 export const sendEmail = async ({ to, subject, text, html }: SendEmailParams) => {
+  if (!client) {
+    throw new Error('Mailchimp Transactional API key missing');
+  }
   try {
     const message = {
       message: {

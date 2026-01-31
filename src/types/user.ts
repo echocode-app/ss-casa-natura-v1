@@ -8,6 +8,7 @@ export interface User {
   phone?: string;
   deliveryAddress?: string;
   role?: 'user' | 'admin' | 'superadmin' | 'developer';
+  adminSections?: string[];
 }
 
 export interface OrderProduct {

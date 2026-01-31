@@ -1,5 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 /**
  * Admin Mailchimp Export Page Route
  *
@@ -18,15 +21,11 @@
  * with role: developer, superadmin, or admin
  */
 export default function MailchimpExportPage() {
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Mailchimp Export</h1>
-        <p className="text-gray-600 mt-1">
-          Questa sezione è in fase di sviluppo. La logica di esportazione è già implementata, ma
-          l'interfaccia sarà disponibile prossimamente.
-        </p>
-      </div>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/admin');
+  }, [router]);
+
+  return <div className="p-6 text-gray-600">Reindirizzamento alla dashboard…</div>;
 }

@@ -16,6 +16,7 @@ interface UserResponse {
   phone?: string;
   deliveryAddress?: string;
   role?: 'user' | 'admin' | 'superadmin' | 'developer';
+  adminSections?: string[];
   createdAt?: Date | string;
 }
 
@@ -34,7 +35,7 @@ export const GET = handleApi(async (_req: NextRequest) => {
   }
   await connectToDB();
   const dbUser = await User.findById(user.id).select(
-    'name surname email phone deliveryAddress role createdAt',
+    'name surname email phone deliveryAddress role adminSections createdAt',
   );
   if (!dbUser) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -50,6 +51,7 @@ export const GET = handleApi(async (_req: NextRequest) => {
     phone: dbUser.phone,
     deliveryAddress: dbUser.deliveryAddress || (dbUser as any).address?.street || undefined,
     role: normalizeRole(dbUser.role),
+    adminSections: Array.isArray(dbUser.adminSections) ? dbUser.adminSections : undefined,
     createdAt: dbUser.createdAt,
   };
 
@@ -98,7 +100,7 @@ export const PUT = handleApi(async (_req: NextRequest) => {
       updatedAt: new Date(),
     },
     { new: true },
-  ).select('name surname email phone deliveryAddress role createdAt');
+  ).select('name surname email phone deliveryAddress role adminSections createdAt');
 
   if (!updated) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -114,6 +116,7 @@ export const PUT = handleApi(async (_req: NextRequest) => {
     phone: updated.phone,
     deliveryAddress: updated.deliveryAddress,
     role: updated.role,
+    adminSections: Array.isArray(updated.adminSections) ? updated.adminSections : undefined,
     createdAt: updated.createdAt,
   });
 });

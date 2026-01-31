@@ -12,23 +12,24 @@ import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 
 interface AccountLayoutProps {
   children: React.ReactNode;
+  allowUnauthed?: boolean;
 }
 
-export default function AccountLayout({ children }: AccountLayoutProps) {
+export default function AccountLayout({ children, allowUnauthed = false }: AccountLayoutProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!allowUnauthed && !isLoading && !isAuthenticated) {
       router.push('/');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [allowUnauthed, isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return <FullscreenSpinner />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !allowUnauthed) {
     return null;
   }
 
@@ -45,7 +46,7 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
         gap-2 lg:gap-6
       "
       >
-        <AccountSidebar />
+        {isAuthenticated ? <AccountSidebar /> : null}
 
         <main className="flex-1 mx-auto w-full md:max-w-[1000px]">{children}</main>
       </div>

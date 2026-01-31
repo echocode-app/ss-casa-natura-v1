@@ -5,6 +5,9 @@ import connectToDB from '@/lib/db/mongo';
 import MarketingEmail from '@/lib/db/models/MarketingEmail';
 import PromoCode from '@/lib/db/models/PromoCode';
 import { subscribeToMailchimp } from '@/lib/mailchimp/subscribe';
+import { sendEmail } from '@/lib/utils/sendEmail';
+import { promoCodeEmailTemplate } from '@/lib/emailTemplates/promoCodeEmail';
+import { getEmailTemplateOverrides } from '@/lib/emailTemplates/getEmailTemplateOverrides';
 
 const schema = z.object({
   email: z.string().email().max(320),
@@ -58,10 +61,25 @@ export const POST = handleApi(async (req: NextRequest) => {
   }
 
   const email = parsed.data.email.trim().toLowerCase();
+  const overrides = await getEmailTemplateOverrides();
 
   // If a promo already exists for this email, return it (idempotent UX).
   const existingPromo = await PromoCode.findOne({ issuedToEmail: email }).lean();
   if (existingPromo?.code) {
+    try {
+      await sendEmail({
+        to: email,
+        subject: 'Il tuo codice promozionale / Your promo code',
+        text: promoCodeEmailTemplate({
+          name: '',
+          code: existingPromo.code,
+          expiresAt: existingPromo.activeUntil,
+          overrideText: overrides.promoCodeText,
+        }),
+      });
+    } catch {
+      // ignore email errors
+    }
     return NextResponse.json({ success: true, promoCode: existingPromo.code });
   }
 
@@ -117,6 +135,21 @@ export const POST = handleApi(async (req: NextRequest) => {
         activeUntil: addDays(now, 30),
         usageLimit: 1,
       });
+
+      try {
+        await sendEmail({
+          to: email,
+          subject: 'Il tuo codice promozionale / Your promo code',
+          text: promoCodeEmailTemplate({
+            name: '',
+            code: created.code,
+            expiresAt: created.activeUntil,
+            overrideText: overrides.promoCodeText,
+          }),
+        });
+      } catch {
+        // ignore email errors
+      }
 
       return NextResponse.json({ success: true, promoCode: created.code });
     } catch (err: any) {

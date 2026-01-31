@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AdminCard from '@/components/admin/AdminCard';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import notify from '@/lib/notify';
@@ -48,6 +48,8 @@ export type CatalogProductDraft = {
 
 const inputBase = 'w-full px-3 py-2 border border-gray-300 rounded-md';
 
+type ValidationErrors = Record<string, string[]>;
+
 function normalizeDraft(draft: CatalogProductDraft): CatalogProductDraft {
   return {
     ...draft,
@@ -86,6 +88,42 @@ async function fetchNextSku(): Promise<string> {
   return '0001';
 }
 
+function validateDraft(draft: CatalogProductDraft): ValidationErrors {
+  const errors: ValidationErrors = {};
+
+  const push = (key: string, message: string) => {
+    if (!errors[key]) errors[key] = [];
+    errors[key].push(message);
+  };
+
+  if (!draft.title.trim()) push('title', 'Titolo obbligatorio.');
+  if (!draft.slug.trim()) push('slug', 'Slug obbligatorio.');
+  if (!draft.sku.trim()) push('sku', 'SKU obbligatorio.');
+  if (!draft.description.trim()) push('description', 'Descrizione obbligatoria.');
+  if (!draft.categoryIds.length) push('categoryIds', 'Seleziona almeno una categoria.');
+
+  if (!draft.images.length || !draft.images[0]?.src?.trim()) {
+    push('images', "Immagine obbligatoria (carica un'immagine).");
+  } else if (!draft.images[0]?.alt?.trim()) {
+    push('images', "Alt text obbligatorio per l'immagine.");
+  }
+
+  if (!draft.variants.length) {
+    push('variants', 'Aggiungi almeno una variante.');
+  } else {
+    draft.variants.forEach((v, idx) => {
+      if (!v.volume || v.volume <= 0) push(`variants.${idx}.volume`, 'Volume obbligatorio.');
+      if (!v.unit) push(`variants.${idx}.unit`, 'Unità obbligatoria.');
+      if (!v.price || Number(v.price) <= 0) push(`variants.${idx}.price`, 'Prezzo obbligatorio.');
+      if (!v.weightGrams || Number(v.weightGrams) <= 0) {
+        push(`variants.${idx}.weightGrams`, 'Peso obbligatorio.');
+      }
+    });
+  }
+
+  return errors;
+}
+
 export default function CatalogProductForm({
   mode,
   initial,
@@ -97,16 +135,24 @@ export default function CatalogProductForm({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState<Record<number, boolean>>({});
-  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [serverErrors, setServerErrors] = useState<ValidationErrors>({});
 
   // Helper to get field error
   const getFieldError = (fieldName: string) => {
-    return validationErrors[fieldName]?.[0];
+    return serverErrors[fieldName]?.[0] || validationErrors[fieldName]?.[0];
+  };
+
+  const getVariantError = (idx: number, field: 'volume' | 'price' | 'weightGrams' | 'unit') => {
+    return (
+      serverErrors[`variants.${idx}.${field}`]?.[0] ||
+      validationErrors[`variants.${idx}.${field}`]?.[0]
+    );
   };
 
   // Helper to get field style
   const getFieldStyle = (fieldName: string, baseClass: string = inputBase) => {
-    const hasError = validationErrors[fieldName];
+    const hasError = serverErrors[fieldName] || validationErrors[fieldName];
     if (hasError) {
       return `${baseClass} border-red-500 focus:border-red-500 focus:ring-red-500`;
     }
@@ -121,6 +167,11 @@ export default function CatalogProductForm({
       });
     }
   });
+
+  // Live validation
+  useEffect(() => {
+    setValidationErrors(validateDraft(draft));
+  }, [draft]);
 
   // Auto-generate slug when title changes
   const handleTitleChange = (title: string) => {
@@ -138,27 +189,18 @@ export default function CatalogProductForm({
   );
 
   const canSubmit = useMemo(() => {
-    // Check if image has alt text
-    const hasValidImage =
-      draft.images.length === 0 || (draft.images[0]?.src && draft.images[0]?.alt?.trim());
-
-    // Check if at least one variant has price and weight
-    const hasValidVariant = draft.variants.some(
-      (v) => v.price > 0 && v.weightGrams > 0 && v.volume > 0,
-    );
-
-    return (
-      !!draft.title.trim() &&
-      !!draft.slug.trim() &&
-      !!draft.sku.trim() &&
-      !!draft.description.trim() &&
-      draft.categoryIds.length > 0 &&
-      hasValidImage &&
-      hasValidVariant
-    );
+    return Object.keys(validateDraft(draft)).length === 0;
   }, [draft]);
 
   const save = async () => {
+    const clientErrors = validateDraft(draft);
+    setValidationErrors(clientErrors);
+    setServerErrors({});
+    if (Object.keys(clientErrors).length > 0) {
+      notify.error('Correggi i campi evidenziati prima di salvare.');
+      return;
+    }
+
     if (!canSubmit) {
       // More specific error messages
       if (draft.images.length > 0 && !draft.images[0]?.alt?.trim()) {
@@ -176,7 +218,7 @@ export default function CatalogProductForm({
     }
 
     setIsSaving(true);
-    setValidationErrors({});
+    setServerErrors({});
     try {
       const payload = normalizeDraft(draft);
       const productId = draft.id || draft.slug;
@@ -195,7 +237,7 @@ export default function CatalogProductForm({
       const data = await res.json();
       if (!res.ok || !data?.success) {
         if (data?.errorCode === 'VALIDATION_FAILED' && data?.details) {
-          setValidationErrors(data.details);
+          setServerErrors(data.details);
           notify.error('Errori di validazione. Controlla i campi evidenziati.');
           return;
         }
@@ -278,7 +320,7 @@ export default function CatalogProductForm({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)] leading-tight mb-3">
             {mode === 'new' ? 'Nuovo prodotto' : 'Modifica prodotto'}
@@ -291,11 +333,8 @@ export default function CatalogProductForm({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <PrimaryButton className="px-6 py-3 text-base" onClick={save} disabled={isSaving}>
-            {isSaving ? 'Salvataggio…' : 'Salva'}
-          </PrimaryButton>
-          {mode === 'edit' && (
+        {mode === 'edit' && (
+          <div className="flex flex-wrap gap-2">
             <PrimaryButton
               className="px-6 py-3 text-base bg-red-600 hover:bg-red-700"
               onClick={archive}
@@ -303,8 +342,8 @@ export default function CatalogProductForm({
             >
               {isDeleting ? 'Operazione…' : 'Archivia'}
             </PrimaryButton>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <AdminCard className="p-6">
@@ -329,13 +368,16 @@ export default function CatalogProductForm({
             <strong> Alt text obbligatorio</strong> - descrive l'immagine per accessibilità e SEO.
           </li>
         </ul>
+        <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+          Errori comuni: immagine senza alt, varianti incomplete o SKU/slug vuoti.
+        </p>
       </AdminCard>
 
       <AdminCard className="p-6">
         <h2 className="text-lg font-semibold text-gray-900 leading-tight mb-5">
           Informazioni base
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 gap-5">
           <div className="md:col-span-2">
             <label
               htmlFor="product_title"
@@ -370,6 +412,9 @@ export default function CatalogProductForm({
               className={`${inputBase} bg-gray-100 cursor-not-allowed`}
               placeholder="0001"
             />
+            {getFieldError('sku') && (
+              <div className="text-xs text-red-600 mt-1">{getFieldError('sku')}</div>
+            )}
             <div className="text-xs text-gray-500 mt-1 leading-relaxed">
               Generato automaticamente (formato: 0001, 0002, ...)
             </div>
@@ -390,6 +435,9 @@ export default function CatalogProductForm({
               className={`${inputBase} bg-gray-100 cursor-not-allowed`}
               placeholder="detersivo-piatti"
             />
+            {getFieldError('slug') && (
+              <div className="text-xs text-red-600 mt-1">{getFieldError('slug')}</div>
+            )}
             <div className="text-xs text-gray-500 mt-1 leading-relaxed">
               Generato dal titolo (max 20 caratteri, URL-friendly)
             </div>
@@ -415,6 +463,9 @@ export default function CatalogProductForm({
             )}
           </div>
         </div>
+        <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+          Campi obbligatori mancanti bloccano il salvataggio.
+        </p>
       </AdminCard>
 
       <AdminCard className="p-6">
@@ -479,6 +530,9 @@ export default function CatalogProductForm({
             </div>
           </div>
         </div>
+        <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+          Se non selezioni almeno una categoria, il prodotto non può essere salvato.
+        </p>
       </AdminCard>
 
       <AdminCard className="p-5">
@@ -524,6 +578,9 @@ export default function CatalogProductForm({
             </div>
           </div>
         </div>
+        <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+          Le categorie influenzano filtri e navigazione sul sito.
+        </p>
       </AdminCard>
 
       <AdminCard className="p-5">
@@ -641,6 +698,9 @@ export default function CatalogProductForm({
                     placeholder="Es: Detersivo piatti ecologico Lavanda 500ml - bottiglia verde"
                     required
                   />
+                  {getFieldError('images') && (
+                    <div className="text-xs text-red-600 mt-1">{getFieldError('images')}</div>
+                  )}
                   <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
                     <p className="text-xs text-blue-900 font-medium mb-1">
                       💡 Cos'è l'Alt text e come compilarlo:
@@ -669,6 +729,9 @@ export default function CatalogProductForm({
             </div>
           )}
         </div>
+        <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+          Upload fallito o alt mancante impediranno il salvataggio.
+        </p>
       </AdminCard>
 
       <AdminCard className="p-5">
@@ -704,7 +767,7 @@ export default function CatalogProductForm({
                 <div className="grid grid-cols-1 gap-4">
                   {/* Display auto-generated values */}
                   <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
-                    <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="grid grid-cols-1 gap-3 text-sm">
                       <div>
                         <span className="text-gray-600">ID variante:</span>{' '}
                         <span className="font-medium">{autoId || '(auto)'}</span>
@@ -741,6 +804,11 @@ export default function CatalogProductForm({
                         className={inputBase}
                         placeholder="500"
                       />
+                      {getVariantError(idx, 'volume') && (
+                        <div className="text-xs text-red-600 mt-1">
+                          {getVariantError(idx, 'volume')}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label
@@ -767,6 +835,11 @@ export default function CatalogProductForm({
                         <option value="g">g</option>
                         <option value="kg">kg</option>
                       </select>
+                      {getVariantError(idx, 'unit') && (
+                        <div className="text-xs text-red-600 mt-1">
+                          {getVariantError(idx, 'unit')}
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -813,6 +886,11 @@ export default function CatalogProductForm({
                         className={inputBase}
                         placeholder="5.99"
                       />
+                      {getVariantError(idx, 'price') && (
+                        <div className="text-xs text-red-600 mt-1">
+                          {getVariantError(idx, 'price')}
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -887,6 +965,11 @@ export default function CatalogProductForm({
                         className={inputBase}
                         placeholder="500"
                       />
+                      {getVariantError(idx, 'weightGrams') && (
+                        <div className="text-xs text-red-600 mt-1">
+                          {getVariantError(idx, 'weightGrams')}
+                        </div>
+                      )}
                     </div>
 
                     <label className="flex items-center gap-3">
@@ -973,6 +1056,9 @@ export default function CatalogProductForm({
             </button>
           </div>
         </div>
+        <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+          Ogni variante richiede volume, unità, prezzo e peso. Stock opzionale ma consigliato.
+        </p>
       </AdminCard>
 
       <AdminCard className="p-6">
@@ -1066,13 +1152,14 @@ export default function CatalogProductForm({
             </>
           )}
         </div>
+        <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+          Verifica le date: se errate, lo sconto non sarà applicato.
+        </p>
       </AdminCard>
 
-      <div className="flex justify-end">
-        <PrimaryButton className="px-6 py-3 text-base" onClick={save} disabled={isSaving}>
-          {isSaving ? 'Salvataggio…' : 'Salva'}
-        </PrimaryButton>
-      </div>
+      <PrimaryButton className="w-full px-6 py-4 text-base" onClick={save} disabled={isSaving}>
+        {isSaving ? 'Salvataggio…' : 'Salva'}
+      </PrimaryButton>
     </div>
   );
 }

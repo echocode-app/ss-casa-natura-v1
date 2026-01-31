@@ -1,24 +1,35 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 export default function ContattiBanner() {
   const t = useTranslations('contatti');
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    setImageLoaded(false);
+  }, []);
 
   return (
     <section className="relative w-screen h-[300px] md:h-[472px] overflow-hidden">
       {/* Background Image */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
       <img
         src="/images/pages/contatti-baner.jpg"
         alt="Contatti Banner"
+        loading="eager"
+        decoding="async"
+        onLoad={() => setImageLoaded(true)}
         className="
           absolute
           top-0 left-0
           w-full h-full
           object-cover
           object-top
+          transition-opacity duration-700 ease-out
         "
+        style={{ opacity: imageLoaded ? 1 : 0 }}
       />
 
       {/* Overlay */}

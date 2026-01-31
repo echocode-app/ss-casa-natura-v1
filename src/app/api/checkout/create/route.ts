@@ -13,6 +13,8 @@ import { getStripe } from '@/lib/stripe/server';
 import { buildCartQuery } from '@/lib/utils/cartQuery';
 import { computePromoDiscount } from '@/lib/utils/promo';
 import { checkItemsInStock } from '@/lib/utils/inventory';
+import { computeGlobalPromotionDiscount } from '@/lib/utils/globalPromotion';
+import { getCartExpirationDate, extendCartExpiration } from '@/lib/constants/cart';
 
 const itemSchema = z.object({
   productId: z.string().min(1),
@@ -39,10 +41,46 @@ const schema = z.object({
   marketingOptIn: z.boolean().optional(),
   shippingMethod: z.enum(['one_time', 'recurring_4w']).optional(),
   items: z.array(itemSchema).max(50).optional(),
+  promoCode: z.string().min(1).max(50).optional(),
+  promoDiscount: z.number().finite().min(0).max(1_000_000).optional(),
 });
 
 function toCents(amount: number): number {
   return Math.max(0, Math.round(amount * 100));
+}
+
+function promoError(reason: string): { status: number; errorCode: string; error: string } {
+  switch (reason) {
+    case 'email_mismatch':
+      return {
+        status: 400,
+        errorCode: 'PROMO_EMAIL_MISMATCH',
+        error: "Questo codice e' valido solo per questa email",
+      };
+    case 'used':
+      return {
+        status: 400,
+        errorCode: 'PROMO_ALREADY_USED_BY_EMAIL',
+        error: 'Hai già utilizzato questo codice promozionale',
+      };
+    case 'not_active':
+      return {
+        status: 400,
+        errorCode: 'PROMO_NOT_ACTIVE_YET',
+        error: 'Questo codice non è ancora attivo',
+      };
+    case 'expired':
+      return { status: 400, errorCode: 'PROMO_EXPIRED', error: 'Questo codice è scaduto' };
+    case 'usage_limit':
+      return {
+        status: 400,
+        errorCode: 'PROMO_USAGE_LIMIT_REACHED',
+        error: 'Questo codice ha raggiunto il limite di utilizzi',
+      };
+    case 'invalid':
+    default:
+      return { status: 404, errorCode: 'PROMO_NOT_FOUND', error: 'Codice promozionale non valido' };
+  }
 }
 
 export const POST = handleApi(async (req: NextRequest) => {
@@ -132,22 +170,31 @@ export const POST = handleApi(async (req: NextRequest) => {
 
   const promoCodeFromCart = cart?.promoCode || undefined;
   const promoEmailFromCart = (cart as any)?.promoEmail || undefined;
+  const promoCodeFromRequest = cart ? undefined : parsed.data.promoCode || undefined;
 
-  let promoCode: string | undefined = promoCodeFromCart;
+  let promoCode: string | undefined = promoCodeFromCart || promoCodeFromRequest;
   let promoDiscount = 0;
 
-  if (promoCodeFromCart) {
+  if (promoCode) {
     const promoResult = await computePromoDiscount({
-      promoCode: promoCodeFromCart,
+      promoCode,
       subtotal,
       email: normalizedEmail,
       expectedEmail: promoEmailFromCart,
+      ignoreIssuedToEmail: !userId,
     });
 
     if (promoResult.ok) {
       promoCode = promoResult.promoCode;
       promoDiscount = promoResult.promoDiscount;
     } else {
+      if (!promoCodeFromCart) {
+        const mapped = promoError(promoResult.reason);
+        return NextResponse.json(
+          { success: false, errorCode: mapped.errorCode, error: mapped.error },
+          { status: mapped.status },
+        );
+      }
       promoCode = undefined;
       promoDiscount = 0;
 
@@ -193,6 +240,52 @@ export const POST = handleApi(async (req: NextRequest) => {
   }
 
   const orderId = new mongoose.Types.ObjectId().toString();
+
+  if (!cart && sessionId) {
+    const isAuthenticated = !!userId;
+    const draftItems = pricedItems.map((p) => ({
+      productId: String(p.productId),
+      variantId: String(p.variantId),
+      slug: p.slug,
+      title: p.title,
+      imageSrc: p.imageSrc,
+      price: p.price,
+      quantity: p.quantity,
+      volume: p.volume,
+      unit: p.unit,
+      totalPrice: p.price * p.quantity,
+    }));
+
+    const discount = await computeGlobalPromotionDiscount({
+      items: draftItems.map((i) => ({
+        productId: String(i.productId),
+        totalPrice: i.totalPrice,
+      })),
+      subtotal,
+    });
+
+    await Cart.findOneAndUpdate(
+      { sessionId, userId: userId || { $exists: false } },
+      {
+        $set: {
+          userId: userId || undefined,
+          sessionId,
+          items: draftItems,
+          subtotal,
+          discount,
+          promoCode,
+          promoDiscount,
+          total: subtotal - discount - promoDiscount,
+          expiresAt: getCartExpirationDate(isAuthenticated),
+        },
+      },
+      { upsert: true, new: true },
+    );
+  } else if (cart) {
+    const isAuthenticated = !!cart.userId;
+    cart.expiresAt = extendCartExpiration(isAuthenticated);
+    await cart.save();
+  }
 
   let draft: any;
   try {

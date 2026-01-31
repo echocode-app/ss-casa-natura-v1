@@ -59,16 +59,19 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     : null;
 
   const promoFromPromoBar = settings?.promoBar?.enabled
-    ? {
-        isVisible: true,
-        text:
-          locale === 'en'
-            ? settings?.promoBar?.textEn || settings?.promoBar?.text
-            : settings?.promoBar?.textIt || settings?.promoBar?.text,
-        href: settings?.promoBar?.href || '/prodotti',
-        bgColor: settings?.promoBar?.bgColor,
-        textColor: settings?.promoBar?.textColor,
-      }
+    ? (() => {
+        const textIt = settings?.promoBar?.textIt || '';
+        const textEn = settings?.promoBar?.textEn || '';
+        const text = locale === 'en' ? textEn || textIt : textIt;
+        if (!text) return null;
+        return {
+          isVisible: true,
+          text,
+          href: settings?.promoBar?.href || '/prodotti',
+          bgColor: settings?.promoBar?.bgColor,
+          textColor: settings?.promoBar?.textColor,
+        };
+      })()
     : null;
 
   return (

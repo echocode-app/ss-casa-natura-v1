@@ -53,7 +53,7 @@ export default function CheckoutPage() {
   const tValidation = useTranslations('validation');
   const tHeaderActions = useTranslations('header.actions');
   const tCart = useTranslations('user.cart');
-  const { items, getSubtotal, promoDiscount } = useCart();
+  const { items, getSubtotal, promoCode, promoDiscount } = useCart();
   const { user, isAuthenticated } = useAuth();
 
   const isCartEmpty = items.length === 0;
@@ -126,6 +126,8 @@ export default function CheckoutPage() {
         variantId: i.variantId,
         quantity: i.quantity,
       })),
+      promoCode: promoCode || null,
+      promoDiscount: promoDiscount || 0,
       address: {
         country,
         city,
@@ -139,6 +141,8 @@ export default function CheckoutPage() {
     });
   }, [
     checkoutItems,
+    promoCode,
+    promoDiscount,
     address1,
     address2,
     city,
@@ -381,6 +385,8 @@ export default function CheckoutPage() {
             province: province || undefined,
           },
           items: checkoutItems,
+          promoCode: promoCode || undefined,
+          promoDiscount: promoDiscount || 0,
         }),
       });
 
@@ -436,6 +442,8 @@ export default function CheckoutPage() {
     address2,
     province,
     subtotal,
+    promoCode,
+    promoDiscount,
   ]);
 
   useEffect(() => {
@@ -509,6 +517,8 @@ export default function CheckoutPage() {
           marketingOptIn,
           shippingMethod,
           items: checkoutItems,
+          promoCode: promoCode || undefined,
+          promoDiscount: promoDiscount || 0,
         }),
       });
 

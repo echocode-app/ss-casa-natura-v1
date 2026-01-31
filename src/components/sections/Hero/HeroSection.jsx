@@ -10,21 +10,16 @@ import HeroSlide from './HeroSlide';
 import HeroNavigation from './HeroNavigation';
 import HeroProgress from './HeroProgress';
 
-const defaultSlides = [
-  { id: 1, image: '/images/pages/lavanda-baner.jpg', lineKey: 'lavanda' },
-  { id: 2, image: '/images/home/banner.jpg', lineKey: 'brezza-marina' },
-  { id: 3, image: '/images/pages/agrumi-di-sicilia-baner.jpg', lineKey: 'agrumi-di-sicilia' },
-  { id: 4, image: '/images/pages/fiore-di-loto-baner.jpg', lineKey: 'fiore-di-loto' },
-  { id: 5, image: '/images/pages/marsiglia-baner.jpg', lineKey: 'marsiglia' },
-  { id: 6, image: '/images/pages/neutro-baner.jpg', lineKey: 'neutro' },
-];
+const fallbackSlide = { id: 'fallback', useFallback: true };
+const loadingSlide = { id: 'loading', hideContent: true, useFallback: false };
 
 export default function HeroSection() {
   const locale = useLocale();
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const [swiper, setSwiper] = useState(null);
-  const [slides, setSlides] = useState(defaultSlides);
+  const [slides, setSlides] = useState([]);
+  const [status, setStatus] = useState('loading');
 
   useEffect(() => {
     let mounted = true;
@@ -33,7 +28,11 @@ export default function HeroSection() {
       .then((data) => {
         if (!mounted) return;
         const banners = Array.isArray(data?.banners) ? data.banners : [];
-        if (!banners.length) return;
+        if (!banners.length) {
+          setSlides([fallbackSlide]);
+          setStatus('fallback');
+          return;
+        }
 
         setSlides(
           banners.map((b) => ({
@@ -54,15 +53,21 @@ export default function HeroSection() {
                 : b.ctaIt || b.cta || 'Scopri di più',
           })),
         );
+        setStatus('ready');
       })
       .catch(() => {
-        // keep fallback
+        if (!mounted) return;
+        setSlides([fallbackSlide]);
+        setStatus('fallback');
       });
 
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [locale]);
+
+  const renderSlides =
+    status === 'ready' ? slides : status === 'fallback' ? [fallbackSlide] : [loadingSlide];
 
   return (
     <section className="relative w-full bg-brand-light overflow-x-hidden">
@@ -79,14 +84,14 @@ export default function HeroSection() {
         onSwiper={(swiperInstance) => setSwiper(swiperInstance)}
         className="relative"
       >
-        {slides.map((slide) => (
+        {renderSlides.map((slide) => (
           <SwiperSlide key={slide.id}>
             <HeroSlide {...slide} />
           </SwiperSlide>
         ))}
 
         <HeroNavigation prevRef={prevRef} nextRef={nextRef} />
-        {swiper && <HeroProgress swiper={swiper} total={slides.length} />}
+        {swiper && <HeroProgress swiper={swiper} total={renderSlides.length} />}
       </Swiper>
     </section>
   );

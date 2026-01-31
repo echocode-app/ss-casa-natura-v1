@@ -102,7 +102,7 @@ export default function AdminProductsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)] leading-tight mb-3">Prodotti</h1>
           <p className="text-gray-600 leading-relaxed">
@@ -137,6 +137,9 @@ export default function AdminProductsPage() {
           placeholder="Cerca per titolo, SKU o slug…"
           className="w-full max-w-xl px-3 py-2 border border-gray-300 rounded-md leading-relaxed"
         />
+        <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+          Filtra la lista in tempo reale. Se non trovi un prodotto, verifica che non sia archiviato.
+        </p>
       </AdminCard>
 
       <div className="space-y-5">
@@ -145,7 +148,7 @@ export default function AdminProductsPage() {
             key={p.productId}
             className={`p-6 ${hasLowStock(p) ? 'border-2 border-red-500' : ''}`}
           >
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div className="flex flex-col gap-4">
               <div className="min-w-0">
                 <div className="text-lg font-semibold text-gray-900 truncate leading-tight mb-2">
                   {p.title}
@@ -213,6 +216,10 @@ export default function AdminProductsPage() {
                 </tbody>
               </table>
             </div>
+            <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+              Modifiche a stock/disponibilità salvano su blur o toggle. Errori di rete impediscono
+              il salvataggio.
+            </p>
           </AdminCard>
         ))}
 

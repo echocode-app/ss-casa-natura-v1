@@ -142,6 +142,16 @@ export const authSchemas = {
     email: emailSchema,
   }),
 
+  resetPassword: z
+    .object({
+      newPassword: passwordSchema,
+      confermaPassword: z.string().min(1, 'passwordConfirmRequired'),
+    })
+    .refine((data) => data.newPassword === data.confermaPassword, {
+      path: ['confermaPassword'],
+      message: 'passwordsNotMatch',
+    }),
+
   changePassword: z
     .object({
       currentPassword: z.string().min(1, 'currentPasswordRequired'),

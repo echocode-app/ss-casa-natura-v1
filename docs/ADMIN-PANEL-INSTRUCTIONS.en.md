@@ -1,32 +1,62 @@
-# Admin Panel — quick guide
+# Admin Panel Guide (EN)
 
-## Access
-- Login page: `/auth/login` (supports `?redirect=/admin/...`).
-- Admin area: `/admin`.
+## Overview
+The admin panel allows authorized roles (developer, superadmin, admin) to manage content, orders, products, promotions, and system settings. Access to each section is role-based and can be restricted per admin.
 
 ## Roles
-- **developer**, **superadmin** — full access.
-- **admin** — limited access (depends on the section).
+- **Developer**: Full access to all admin sections.
+- **Superadmin**: Full access to all admin sections and can manage admin access rights.
+- **Admin**: Access is limited to the sections assigned by the superadmin.
 
-## Navigation
-- **Dashboard** — high-level stats.
-- **Ordini** — orders list and order details.
-- **Prodotti** — catalog management.
+## Sections
 
-## Typical flow
-- Open `/admin` → if not logged in you’ll be redirected to `/auth/login?redirect=/admin`.
-- After login, use the sidebar to navigate.
+### Dashboard
+- Quick statistics: users, orders, top products, low stock, newsletter emails.
+- Links to orders and products (visible only if access is granted).
 
-## Prodotti (catalog)
-- **List**: search + (optional) include archived.
-- **Create**: `/admin/products/new`.
-- **Edit**: `/admin/products/[id]`.
-- Required fields to save: **ID**, **Titolo**, **Slug**, **SKU**, **Descrizione**.
-- **Archive**: soft delete (record stays in DB).
+### Emails
+- Preview and edit **text only** for transactional emails.
+- Each template is saved separately.
+- Use placeholders like `{{name}}`, `{{orderId}}`, `{{products}}` in the text.
+- Admin order notification template is also editable here.
 
-## Orders
-- List + details (items, totals, statuses).
+### Orders
+- View and manage orders.
+- Search by email, name, checkout ID, or payment intent.
+- Open a specific order to see full details.
+
+### Products
+- Create and edit products.
+- Manage variants, prices, and stock.
+- Validation is applied in real-time and on save.
+
+### Hero Banners
+- Manage main hero banners for the website.
+- Upload images and set text/CTA.
+
+### Promotions
+- Configure the PromoBar (text, colors, link).
+- Italian text is mandatory to enable the PromoBar.
+
+### Contact Submissions
+- Review contact form messages.
+
+### Access Management
+- Only **superadmin** can add or remove admin access.
+- Maximum 3 admins.
+- Developer and superadmin roles cannot be changed.
+- Admin access is assigned by selecting allowed sections.
+
+## Email Notifications
+- Customers receive emails for registration, promo code, password reset, and order confirmation.
+- Admin order notification email is sent to superadmin and admins with access to **Orders**.
+
+## Email Template Editing
+- Open **Admin → Email** to edit templates.
+- Click the preview to start editing.
+- Leave a field empty to use the default text from code.
+- Placeholders must be kept exactly as shown (e.g. `{{name}}`).
 
 ## Notes
-- Storefront catalog: base = mock products, admin saves a **DB override** (DB overrides mock by the same `id`).
-- If a product doesn’t show: check `archived`, `isAvailable` and `stock` (product and/or variants).
+- If an admin sees “Access not available”, contact superadmin to assign sections.
+- Changes to access permissions require the admin to refresh or re-login.

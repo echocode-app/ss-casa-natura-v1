@@ -96,8 +96,10 @@
       "title": "Cambia password",
       "currentPassword": "Password attuale",
       "newPassword": "Nuova password",
+      "confirmPassword": "Conferma password",
       "currentPasswordLabel": "Password attuale",
       "newPasswordLabel": "Nuova password",
+      "confirmPasswordLabel": "Conferma password",
       "currentPasswordHelp": "Inserisci la tua password attuale",
       "newPasswordHelp": "Scegli una password sicura con almeno 8 caratteri",
       "updatePassword": "Aggiorna password",
@@ -107,7 +109,12 @@
       "genericError": "Si è verificato un errore",
       "logoutMessage": "Verrai disconnesso tra 2 secondi",
       "unauthorized": "Non autorizzato. Effettua il login.",
-      "passwordsMustBeDifferent": "La nuova password deve essere diversa da quella attuale"
+      "passwordsMustBeDifferent": "La nuova password deve essere diversa da quella attuale",
+      "resetTitle": "Imposta una nuova password",
+      "resetSubtitle": "Inserisci una nuova password per rientrare nel tuo account.",
+      "resetPassword": "Salva nuova password",
+      "resetSuccess": "Password reimpostata con successo. Ora puoi accedere.",
+      "resetInvalidToken": "Link di reset non valido o scaduto."
     },
     "actions": {
       "logout": "Esci",

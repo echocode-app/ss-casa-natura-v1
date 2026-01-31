@@ -261,7 +261,7 @@ export default function AdminBannersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Banner Hero</h1>
           <p className="text-gray-600 mt-1">
@@ -304,7 +304,7 @@ export default function AdminBannersPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label
                 htmlFor="new_banner_image"
@@ -349,7 +349,7 @@ export default function AdminBannersPage() {
                 placeholder="/linee/lavanda o /prodotti?category=..."
                 className={inputBase}
               />
-              <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div className="mt-2 grid grid-cols-1 gap-2">
                 <select
                   className={inputBase}
                   defaultValue=""
@@ -413,7 +413,7 @@ export default function AdminBannersPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <AdminCard className="p-4">
               <div className="font-semibold">Italiano</div>
               <div className="mt-3 grid grid-cols-1 gap-3">
@@ -463,7 +463,7 @@ export default function AdminBannersPage() {
             </AdminCard>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input
                 type="checkbox"
@@ -491,6 +491,9 @@ export default function AdminBannersPage() {
               />
             </div>
           </div>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            Campi mancanti o upload fallito impediscono il salvataggio. Il limite è 6 banner attivi.
+          </p>
         </div>
       </AdminCard>
 
@@ -580,7 +583,7 @@ export default function AdminBannersPage() {
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="mt-4 grid grid-cols-1 gap-4">
               <AdminCard className="p-4">
                 <div className="font-semibold">Italiano</div>
                 <div className="mt-3 grid grid-cols-1 gap-3">
@@ -658,7 +661,7 @@ export default function AdminBannersPage() {
               </AdminCard>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="mt-4 grid grid-cols-1 gap-4">
               <label className="flex items-center gap-2 text-sm text-gray-700">
                 <input
                   type="checkbox"
@@ -703,6 +706,10 @@ export default function AdminBannersPage() {
                 {b.updatedAt ? `Aggiornato: ${new Date(b.updatedAt).toLocaleString('it-IT')}` : ''}
               </div>
             </div>
+            <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+              Usa “Salva” dopo le modifiche. Errori di rete o validazione impediscono
+              l’aggiornamento.
+            </p>
           </AdminCard>
         ))}
       </div>

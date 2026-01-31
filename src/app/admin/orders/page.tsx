@@ -80,7 +80,7 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Ordini</h1>
           <p className="text-gray-600">Lista completa con filtri e paginazione</p>
@@ -88,7 +88,7 @@ export default function AdminOrdersPage() {
       </div>
 
       <AdminCard className="p-5">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Stato</label>
             <select
@@ -107,7 +107,7 @@ export default function AdminOrdersPage() {
             </select>
           </div>
 
-          <div className="md:col-span-2">
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Cerca</label>
             <input
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -140,6 +140,9 @@ export default function AdminOrdersPage() {
             </PrimaryButton>
           </div>
         </div>
+        <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+          Filtri per stato o ricerca. Se non compaiono ordini, verifica che siano pagati o spediti.
+        </p>
       </AdminCard>
 
       <AdminCard className="p-0 overflow-hidden">
@@ -194,6 +197,9 @@ export default function AdminOrdersPage() {
             </tbody>
           </table>
         </div>
+        <p className="px-5 py-3 text-xs text-gray-500 leading-relaxed">
+          Clicca “Apri” per vedere i dettagli e cambiare lo stato ordine.
+        </p>
       </AdminCard>
     </div>
   );

@@ -7,6 +7,9 @@ import { sendEmail } from '@/lib/utils/sendEmail';
 import { orderConfirmationTemplate } from '@/lib/emailTemplates/orderConfirmation';
 import { logError } from '@/lib/utils/logger';
 import { decrementInventoryForOrderProducts } from '@/lib/utils/inventory';
+import { getEmailTemplateOverrides } from '@/lib/emailTemplates/getEmailTemplateOverrides';
+import User from '@/lib/db/models/User';
+import { newOrderAdminTemplate } from '@/lib/emailTemplates/newOrderAdmin';
 
 export async function finalizePaidOrderOnce({
   orderId,
@@ -72,6 +75,8 @@ export async function finalizePaidOrderOnce({
     logError('[finalizePaidOrderOnce] cart reset failed', e);
   }
 
+  const overrides = await getEmailTemplateOverrides();
+
   const to = claimed.customerEmail;
   if (to) {
     const products = (claimed.products || []).map((p: any) => ({
@@ -87,6 +92,7 @@ export async function finalizePaidOrderOnce({
       deliveryPrice: claimed.shippingPrice || 0,
       status: claimed.status,
       products,
+      overrideText: overrides.orderConfirmationText,
     });
 
     try {
@@ -98,6 +104,54 @@ export async function finalizePaidOrderOnce({
     } catch {
       // ignore
     }
+  }
+
+  try {
+    const adminUsers = await User.find({
+      $or: [{ role: 'superadmin' }, { role: 'admin', adminSections: 'orders' }],
+    })
+      .select('email')
+      .lean();
+
+    const adminEmails = Array.from(
+      new Set(
+        adminUsers
+          .map((u: any) =>
+            String(u.email || '')
+              .trim()
+              .toLowerCase(),
+          )
+          .filter(Boolean),
+      ),
+    );
+
+    if (adminEmails.length > 0) {
+      const products = (claimed.products || []).map((p: any) => ({
+        name: p.title || String(p.productId),
+        quantity: p.quantity,
+        price: p.price || 0,
+      }));
+
+      const adminText = newOrderAdminTemplate({
+        orderId: claimed._id.toString(),
+        userEmail: claimed.customerEmail || '—',
+        totalAmount: claimed.totalPrice || 0,
+        products,
+        overrideText: overrides.newOrderAdminText,
+      });
+
+      await Promise.all(
+        adminEmails.map((email) =>
+          sendEmail({
+            to: email,
+            subject: `Nuovo ordine ${claimed._id.toString()}`,
+            text: adminText,
+          }).catch(() => null),
+        ),
+      );
+    }
+  } catch {
+    // ignore
   }
 
   if (claimed.marketingOptIn && claimed.customerEmail) {

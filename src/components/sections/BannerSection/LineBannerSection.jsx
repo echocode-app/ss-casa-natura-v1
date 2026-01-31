@@ -1,27 +1,38 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 export default function LineBannerSection({ slug, backgroundSrc }) {
   const t = useTranslations('linesSection');
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const title = slug ? t(`lines.${slug}.title`) : '';
   const alt = slug ? t(`lines.${slug}.imageAlt`) : '';
 
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [backgroundSrc]);
+
   return (
     <section className="relative w-screen h-[300px] md:h-[472px] overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
       <img
         src={backgroundSrc}
         alt={alt}
-        className="
+        loading="eager"
+        decoding="async"
+        onLoad={() => setImageLoaded(true)}
+        className={`
           absolute
           top-1/2 lg:top-[70%] left-1/2
           -translate-x-1/2 -translate-y-1/2
           w-[150%] md:w-[130%] lg:w-[120%] xl:w-[100%]
           h-auto
           object-cover
-        "
+          transition-opacity duration-700 ease-out
+          ${imageLoaded ? 'opacity-100' : 'opacity-0'}
+        `}
       />
 
       {/* Overlay */}

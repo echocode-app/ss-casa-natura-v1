@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/components/layout/AuthContext';
 import AdminCard from '@/components/admin/AdminCard';
+import Link from 'next/link';
+import { canAccessAdminSection } from '@/lib/admin/access';
+import notify from '@/lib/notify';
 
 type StatsResponse = {
   success?: boolean;
@@ -11,6 +14,7 @@ type StatsResponse = {
     promoRequests?: { total: number; week: number; month: number };
     orders?: { total: number; week: number; month: number };
   };
+  promoEmails?: Array<{ email: string; createdAt?: string }>;
   topSelling?: Array<{ productId: string; title?: string; quantity: number }>;
   lowStock?: Array<{
     productId: string;
@@ -18,6 +22,7 @@ type StatsResponse = {
     sku?: string;
     stock?: number;
     variantLabel?: string;
+    variantId?: string;
   }>;
   integrations?: Record<string, { ok: boolean; url: string; details?: string; info?: string }>;
 };
@@ -51,10 +56,16 @@ export default function AdminDashboardPage() {
   }, []);
 
   const widgets = data?.widgets;
+  const canOrders = canAccessAdminSection(user?.role, 'orders', user?.adminSections);
+  const canProducts = canAccessAdminSection(user?.role, 'products', user?.adminSections);
+
+  const warnRestricted = (label: string) => {
+    notify.error(`Accesso non consentito: ${label}.`);
+  };
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)] leading-tight mb-3">
             Dashboard
@@ -71,7 +82,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <AdminCard className="p-6">
           <div className="text-sm text-gray-600 leading-relaxed mb-3">Utenti registrati</div>
           <div className="text-3xl font-semibold leading-tight">
@@ -81,23 +92,28 @@ export default function AdminDashboardPage() {
             Settimana: {loading ? '—' : (widgets?.users?.week ?? '—')} · Mese:{' '}
             {loading ? '—' : (widgets?.users?.month ?? '—')}
           </div>
+          <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+            Mostra il totale utenti registrati e nuovi utenti negli ultimi 7/30 giorni. Se il DB è
+            offline, i valori restano vuoti.
+          </p>
         </AdminCard>
 
         <AdminCard className="p-6">
           <div className="text-sm text-gray-600 leading-relaxed mb-3">
-            Richieste promo (newsletter)
+            {canOrders ? (
+              <Link href="/admin/orders" className="text-blue-700 hover:underline">
+                Ordini creati
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => warnRestricted('Ordini')}
+                className="text-blue-700 underline-offset-2 hover:underline"
+              >
+                Ordini creati
+              </button>
+            )}
           </div>
-          <div className="text-3xl font-semibold leading-tight">
-            {loading ? '—' : (widgets?.promoRequests?.total ?? '—')}
-          </div>
-          <div className="mt-3 text-sm text-gray-600 leading-relaxed">
-            Settimana: {loading ? '—' : (widgets?.promoRequests?.week ?? '—')} · Mese:{' '}
-            {loading ? '—' : (widgets?.promoRequests?.month ?? '—')}
-          </div>
-        </AdminCard>
-
-        <AdminCard className="p-6">
-          <div className="text-sm text-gray-600 leading-relaxed mb-3">Ordini creati</div>
           <div className="text-3xl font-semibold leading-tight">
             {loading ? '—' : (widgets?.orders?.total ?? '—')}
           </div>
@@ -105,55 +121,140 @@ export default function AdminDashboardPage() {
             Settimana: {loading ? '—' : (widgets?.orders?.week ?? '—')} · Mese:{' '}
             {loading ? '—' : (widgets?.orders?.month ?? '—')}
           </div>
+          <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+            Conteggio ordini pagati/spediti. Se un ordine è in pending, non viene conteggiato.
+          </p>
         </AdminCard>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <AdminCard className="p-6">
           <div className="font-semibold text-base leading-tight mb-5">
             Top prodotti (ultimi 30 giorni)
           </div>
           <div className="space-y-3">
             {(data?.topSelling || []).length ? (
-              data?.topSelling?.map((p) => (
-                <div
-                  key={p.productId}
-                  className="flex items-center justify-between text-sm leading-relaxed"
-                >
-                  <div className="text-gray-800 truncate pr-3">{p.title || p.productId}</div>
-                  <div className="font-semibold">{p.quantity}</div>
-                </div>
-              ))
+              data?.topSelling?.map((p) =>
+                canProducts ? (
+                  <Link
+                    key={p.productId}
+                    href={`/admin/products/${p.productId}`}
+                    className="flex items-center justify-between text-sm leading-relaxed hover:underline"
+                  >
+                    <div className="text-gray-800 truncate pr-3">{p.title || p.productId}</div>
+                    <div className="font-semibold">{p.quantity}</div>
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    key={p.productId}
+                    onClick={() => warnRestricted('Prodotti')}
+                    className="flex w-full items-center justify-between text-sm leading-relaxed text-left hover:underline"
+                  >
+                    <div className="text-gray-800 truncate pr-3">{p.title || p.productId}</div>
+                    <div className="font-semibold">{p.quantity}</div>
+                  </button>
+                ),
+              )
             ) : (
               <div className="text-sm text-gray-600 leading-relaxed">Nessun dato disponibile.</div>
             )}
           </div>
+          <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+            Basato sugli ordini pagati degli ultimi 30 giorni. Se non ci sono ordini, la lista è
+            vuota.
+          </p>
         </AdminCard>
 
         <AdminCard className="p-6">
           <div className="font-semibold text-base leading-tight mb-5">Scorte basse</div>
           <div className="space-y-3">
             {(data?.lowStock || []).length ? (
-              data?.lowStock?.map((p, idx) => (
-                <div
-                  key={`${p.productId}-${idx}`}
-                  className="flex items-center justify-between text-sm leading-relaxed"
-                >
-                  <div className="text-gray-800 truncate pr-3">
-                    {p.title || p.productId}
-                    {p.variantLabel && (
-                      <span className="text-gray-500 ml-1">({p.variantLabel})</span>
-                    )}
-                  </div>
-                  <div className="font-semibold text-red-600">{p.stock ?? '—'}</div>
-                </div>
-              ))
+              data?.lowStock?.map((p, idx) =>
+                canProducts ? (
+                  <Link
+                    key={`${p.productId}-${idx}`}
+                    href={`/admin/products/${p.productId}`}
+                    className="flex items-center justify-between text-sm leading-relaxed hover:underline"
+                  >
+                    <div className="text-gray-800 truncate pr-3">
+                      {p.title || p.productId}
+                      {(p.variantLabel || p.variantId) && (
+                        <span className="text-gray-500 ml-1">
+                          ({p.variantLabel || p.variantId})
+                        </span>
+                      )}
+                    </div>
+                    <div className="font-semibold text-red-600">{p.stock ?? '—'}</div>
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    key={`${p.productId}-${idx}`}
+                    onClick={() => warnRestricted('Prodotti')}
+                    className="flex w-full items-center justify-between text-sm leading-relaxed text-left hover:underline"
+                  >
+                    <div className="text-gray-800 truncate pr-3">
+                      {p.title || p.productId}
+                      {(p.variantLabel || p.variantId) && (
+                        <span className="text-gray-500 ml-1">
+                          ({p.variantLabel || p.variantId})
+                        </span>
+                      )}
+                    </div>
+                    <div className="font-semibold text-red-600">{p.stock ?? '—'}</div>
+                  </button>
+                ),
+              )
             ) : (
               <div className="text-sm text-gray-600 leading-relaxed">Nessun dato disponibile.</div>
             )}
           </div>
+          <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+            Mostra varianti/prodotti disponibili con stock &lt; 6. Se lo stock non è impostato, non
+            viene segnalato.
+          </p>
         </AdminCard>
       </div>
+
+      <AdminCard className="p-6">
+        <div className="text-sm text-gray-600 leading-relaxed mb-3">
+          Richieste promo (newsletter)
+        </div>
+        <div className="text-3xl font-semibold leading-tight">
+          {loading ? '—' : (widgets?.promoRequests?.total ?? '—')}
+        </div>
+        <div className="mt-3 text-sm text-gray-600 leading-relaxed">
+          Settimana: {loading ? '—' : (widgets?.promoRequests?.week ?? '—')} · Mese:{' '}
+          {loading ? '—' : (widgets?.promoRequests?.month ?? '—')}
+        </div>
+        <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+          Richieste newsletter raccolte. Errori di rete o DB possono azzerare la risposta.
+        </p>
+        <details className="mt-4">
+          <summary className="cursor-pointer text-sm text-blue-700 hover:underline">
+            Mostra email iscritti
+          </summary>
+          <div className="mt-3 max-h-56 overflow-auto rounded-lg border border-black/5 bg-white/70 p-3 text-sm text-gray-700">
+            {(data?.promoEmails || []).length ? (
+              <ul className="space-y-1">
+                {data?.promoEmails?.map((e, idx) => (
+                  <li key={`${e.email}-${idx}`} className="flex justify-between gap-3">
+                    <span className="truncate">{e.email}</span>
+                    {e.createdAt ? (
+                      <span className="text-xs text-gray-500">
+                        {new Date(e.createdAt).toLocaleDateString('it-IT')}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-gray-500">Nessuna email trovata.</div>
+            )}
+          </div>
+        </details>
+      </AdminCard>
 
       <AdminCard className="p-6">
         <div className="font-semibold text-base leading-tight mb-5">
@@ -192,6 +293,9 @@ export default function AdminDashboardPage() {
             <div className="text-sm text-gray-600 leading-relaxed">Nessun dato disponibile.</div>
           )}
         </div>
+        <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+          Stato configurazioni servizi. “Non configurato” indica variabili d’ambiente mancanti.
+        </p>
       </AdminCard>
     </div>
   );

@@ -7,17 +7,42 @@ export type AdminSection =
   | 'hero-banners'
   | 'promotions'
   | 'submissions'
-  | 'mailchimp'
-  | 'settings';
+  | 'emails'
+  | 'docs'
+  | 'access';
 
-export function canAccessAdminSection(role: string | undefined, section: AdminSection): boolean {
+export const ADMIN_ASSIGNABLE_SECTIONS = [
+  'dashboard',
+  'orders',
+  'products',
+  'hero-banners',
+  'promotions',
+  'submissions',
+  'emails',
+] as const;
+
+export const DEFAULT_ADMIN_SECTIONS: AdminSection[] = [
+  'dashboard',
+  'products',
+  'hero-banners',
+  'promotions',
+];
+
+export function canAccessAdminSection(
+  role: string | undefined,
+  section: AdminSection,
+  adminSections?: string[] | null,
+): boolean {
   if (!role) return false;
 
   if (role === 'developer' || role === 'superadmin') return true;
 
-  // admin ограничен: продукты/баннеры/промо
+  // admin ограничен: только назначенные вкладки (fallback to defaults)
   if (role === 'admin') {
-    return ['dashboard', 'products', 'hero-banners', 'promotions', 'mailchimp'].includes(section);
+    if (section === 'access') return false;
+    if (section === 'docs') return false;
+    if (!Array.isArray(adminSections)) return false;
+    return adminSections.includes(section);
   }
 
   return false;

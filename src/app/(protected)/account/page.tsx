@@ -1,34 +1,49 @@
 'use client';
 
 import { useAuth } from '@/components/layout/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import AccountLayout from '@/components/layout/User/AccountLayout';
 import ProfileSection from '@/components/account/ProfileSection';
 import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
+import ResetPasswordForm from '@/components/account/ResetPasswordForm';
 
 import { User } from '@/types/user';
 
 export default function AccountPage() {
   const { isAuthenticated, isLoading, logout, user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const resetToken = searchParams?.get('reset') || '';
 
-  const showSpinner = useSmoothLoading(isLoading || !isAuthenticated, 120, 220);
+  const showSpinner = useSmoothLoading(isLoading || (!isAuthenticated && !resetToken), 120, 220);
 
   useEffect(() => {
     if (isLoading) return;
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !resetToken) {
       router.replace('/');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, resetToken, router]);
 
   const handleLogout = async () => {
     await logout();
     router.push('/');
   };
 
-  if (showSpinner || !user) {
+  if (showSpinner || (!user && !resetToken)) {
+    return <FullscreenSpinner />;
+  }
+
+  if (resetToken) {
+    return (
+      <AccountLayout allowUnauthed>
+        <ResetPasswordForm token={resetToken} />
+      </AccountLayout>
+    );
+  }
+
+  if (!user) {
     return <FullscreenSpinner />;
   }
 

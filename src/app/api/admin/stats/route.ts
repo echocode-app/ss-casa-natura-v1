@@ -19,6 +19,22 @@ export const GET = handleApi(async () => {
   const monthAgo = new Date(now);
   monthAgo.setDate(now.getDate() - 30);
 
+  const orderStatusFilter = { status: { $in: ['paid', 'shipped'] } };
+  const paidWeekQuery = {
+    ...orderStatusFilter,
+    $or: [
+      { paidAt: { $gte: weekAgo } },
+      { paidAt: { $exists: false }, createdAt: { $gte: weekAgo } },
+    ],
+  };
+  const paidMonthQuery = {
+    ...orderStatusFilter,
+    $or: [
+      { paidAt: { $gte: monthAgo } },
+      { paidAt: { $exists: false }, createdAt: { $gte: monthAgo } },
+    ],
+  };
+
   const [
     totalUsers,
     usersWeek,
@@ -36,12 +52,18 @@ export const GET = handleApi(async () => {
     MarketingEmail.countDocuments({}),
     MarketingEmail.countDocuments({ createdAt: { $gte: weekAgo } }),
     MarketingEmail.countDocuments({ createdAt: { $gte: monthAgo } }),
-    Order.countDocuments({}),
-    Order.countDocuments({ createdAt: { $gte: weekAgo } }),
-    Order.countDocuments({ createdAt: { $gte: monthAgo } }),
+    Order.countDocuments(orderStatusFilter),
+    Order.countDocuments(paidWeekQuery),
+    Order.countDocuments(paidMonthQuery),
   ]);
 
-  const recentOrders = await Order.find({ createdAt: { $gte: monthAgo } })
+  const promoEmails = await MarketingEmail.find({})
+    .sort({ createdAt: -1 })
+    .select({ email: 1, createdAt: 1 })
+    .limit(200)
+    .lean();
+
+  const recentOrders = await Order.find(paidMonthQuery)
     .select({ products: 1, createdAt: 1 })
     .limit(400)
     .lean();
@@ -79,25 +101,29 @@ export const GET = handleApi(async () => {
     sku: string;
     stock: number;
     variantLabel?: string;
+    variantId?: string;
   }> = [];
 
   for (const p of products) {
     // Check variants for low stock
     if (p.variants && Array.isArray(p.variants)) {
       for (const v of p.variants) {
-        if (typeof v.stock === 'number' && v.stock < 6) {
+        const isAvailable = v.isAvailable !== false;
+        if (isAvailable && typeof v.stock === 'number' && v.stock < 6) {
           lowStockItems.push({
             productId: p.id,
             title: p.title,
             sku: p.sku,
             stock: v.stock,
             variantLabel: v.label,
+            variantId: v.id,
           });
         }
       }
     }
     // Also check product-level stock if exists
-    if (typeof p.stock === 'number' && p.stock < 6) {
+    const productAvailable = p.isAvailable !== false;
+    if (productAvailable && typeof p.stock === 'number' && p.stock < 6) {
       lowStockItems.push({
         productId: p.id,
         title: p.title,
@@ -173,6 +199,10 @@ export const GET = handleApi(async () => {
       promoRequests: { total: promoReqTotal, week: promoReqWeek, month: promoReqMonth },
       orders: { total: ordersTotal, week: ordersWeek, month: ordersMonth },
     },
+    promoEmails: promoEmails.map((e: any) => ({
+      email: e.email,
+      createdAt: e.createdAt,
+    })),
     topSelling,
     lowStock,
     integrations,

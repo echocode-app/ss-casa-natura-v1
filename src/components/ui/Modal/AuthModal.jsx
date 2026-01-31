@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { authSchemas } from '@/lib/validation/schemas';
 import { validateField as validateSingleField } from '@/lib/validation/helpers';
 import { getCsrfHeaders } from '@/lib/utils/csrfClient';
+import { getGuestCartPayload } from '@/lib/utils/guestCartClient';
 import notify from '@/lib/notify';
 import ModalLayout from './ModalLayout';
 import ModalHeader from './ModalHeader';
@@ -137,6 +138,7 @@ export default function AuthModal({
             cognome: formData.cognome,
             email: formData.email,
             password: formData.password,
+            guestCart: getGuestCartPayload() || undefined,
           }),
         });
 
@@ -189,6 +191,7 @@ export default function AuthModal({
           body: JSON.stringify({
             email: formData.email,
             password: formData.password,
+            guestCart: getGuestCartPayload() || undefined,
           }),
         });
 
@@ -233,7 +236,19 @@ export default function AuthModal({
           notify.error(tErrors('genericError'));
         }
       } else if (type === 'forgot') {
-        notify.info(tErrors('forgotNotAvailable'));
+        const res = await fetch('/api/auth/forgot', {
+          method: 'POST',
+          headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
+          credentials: 'include',
+          body: JSON.stringify({ email: formData.email }),
+        });
+
+        if (!res.ok) {
+          notify.error(tErrors('forgotFailed'));
+          return;
+        }
+
+        notify.success(tSuccess('messageSent'));
         setTimeout(() => {
           handleSwitch('login');
         }, 2000);

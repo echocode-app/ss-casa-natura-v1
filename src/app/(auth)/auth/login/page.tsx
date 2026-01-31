@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useMemo, useState } from 'react';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/components/layout/AuthContext';
+import { getGuestCartPayload } from '@/lib/utils/guestCartClient';
 
 const ALLOWED_ROLES = ['developer', 'superadmin', 'admin'];
 
@@ -37,7 +38,7 @@ export default function LoginPage() {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, guestCart: getGuestCartPayload() || undefined }),
       });
 
       if (!response.ok) {

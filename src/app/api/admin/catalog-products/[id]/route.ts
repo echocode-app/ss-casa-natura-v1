@@ -47,9 +47,11 @@ const patchSchema = z
           label: z.string().min(1),
           volume: z.number().finite().nonnegative(),
           unit: z.enum(['ml', 'l', 'kg', 'g']),
-          priceModifier: z.number().finite().optional(),
+          weightGrams: z.number().finite().nonnegative().optional(),
+          price: z.number().finite().nonnegative().optional(),
           stock: z.number().int().min(0).optional(),
           isAvailable: z.boolean().optional(),
+          isBestSeller: z.boolean().optional(),
         }),
       )
       .optional(),

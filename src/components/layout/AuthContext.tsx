@@ -7,6 +7,7 @@ interface ExtendedAuthUser extends AuthUser {
   surname?: string;
   phone?: string;
   deliveryAddress?: string;
+  adminSections?: string[];
 }
 
 interface AuthContextProps {
@@ -51,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           surname: userData.surname || userData.cognome,
           phone: userData.phone,
           deliveryAddress: userData.deliveryAddress,
+          adminSections: Array.isArray(userData.adminSections) ? userData.adminSections : undefined,
         });
         setIsAuthenticated(true);
         return true;

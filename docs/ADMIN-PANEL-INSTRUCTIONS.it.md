@@ -1,32 +1,62 @@
-# Pannello Admin — guida rapida
+# Guida Pannello Admin (IT)
 
-## Accesso
-- Pagina di login: `/auth/login` (supporta `?redirect=/admin/...`).
-- Area admin: `/admin`.
+## Panoramica
+Il pannello admin permette ai ruoli autorizzati (developer, superadmin, admin) di gestire contenuti, ordini, prodotti, promozioni e impostazioni di sistema. L’accesso alle sezioni è basato sui ruoli ed è limitabile per ogni admin.
 
 ## Ruoli
-- **developer**, **superadmin** — accesso completo.
-- **admin** — accesso limitato (dipende dalla sezione).
+- **Developer**: Accesso completo a tutte le sezioni.
+- **Superadmin**: Accesso completo e gestione dei permessi admin.
+- **Admin**: Accesso solo alle sezioni assegnate dal superadmin.
 
-## Navigazione
-- **Dashboard** — statistiche generali.
-- **Ordini** — elenco ordini e dettaglio ordine.
-- **Prodotti** — gestione catalogo.
+## Sezioni
 
-## Flusso tipico
-- Apri `/admin` → se non sei loggato, verrai reindirizzato a `/auth/login?redirect=/admin`.
-- Dopo l’accesso, usa la sidebar per navigare.
+### Dashboard
+- Statistiche rapide: utenti, ordini, top prodotti, scorte basse, email newsletter.
+- Link a ordini e prodotti visibili solo se l’accesso è consentito.
 
-## Prodotti (catalogo)
-- **Elenco**: ricerca + (opzionale) includi archiviati.
-- **Crea**: `/admin/products/new`.
-- **Modifica**: `/admin/products/[id]`.
-- Campi obbligatori per salvare: **ID**, **Titolo**, **Slug**, **SKU**, **Descrizione**.
-- **Archiviazione**: soft delete (il record resta in DB).
+### Email
+- Anteprima e modifica **solo testo** delle email transazionali.
+- Ogni template viene salvato separatamente.
+- Usa placeholder come `{{name}}`, `{{orderId}}`, `{{products}}` nel testo.
+- È editabile anche il template della notifica ordine admin.
 
-## Ordini
-- Elenco + dettagli (articoli, totali, stati).
+### Ordini
+- Visualizzazione e gestione ordini.
+- Ricerca per email, nome, checkout ID o payment intent.
+- Dettaglio completo dell’ordine.
+
+### Prodotti
+- Creazione e modifica prodotti.
+- Gestione varianti, prezzi e stock.
+- Validazione in tempo reale e al salvataggio.
+
+### Banner Hero
+- Gestione dei banner principali del sito.
+- Upload immagini e testo/CTA.
+
+### Promozioni
+- Configurazione PromoBar (testo, colori, link).
+- Il testo italiano è obbligatorio per l’attivazione.
+
+### Richieste contatto
+- Lettura dei messaggi inviati dal form contatto.
+
+### Gestione accessi
+- Solo **superadmin** può assegnare o revocare accessi admin.
+- Massimo 3 admin.
+- I ruoli developer e superadmin non sono modificabili.
+- I permessi admin sono assegnati selezionando le sezioni consentite.
+
+## Notifiche email
+- I clienti ricevono email per registrazione, promo code, reset password e conferma ordine.
+- L’email di notifica ordine admin viene inviata al superadmin e agli admin con accesso alla sezione **Ordini**.
+
+## Modifica template email
+- Apri **Admin → Email** per modificare i template.
+- Clicca sull’anteprima per iniziare a modificare.
+- Se un campo è vuoto viene usato il testo di default.
+- I placeholder devono restare uguali (es. `{{name}}`).
 
 ## Note
-- Catalogo vetrina: base = prodotti mock, l’admin salva un **DB override** (DB sovrascrive i mock sullo stesso `id`).
-- Se un prodotto non appare: verifica `archived`, `isAvailable` e `stock` (prodotto e/o varianti).
+- Se un admin vede “Accesso non disponibile”, deve chiedere al superadmin di assegnare le sezioni.
+- Dopo la modifica dei permessi, è necessario ricaricare o rifare login.

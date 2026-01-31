@@ -5,10 +5,12 @@ import AdminCard from '@/components/admin/AdminCard';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import notify from '@/lib/notify';
 import { getCsrfHeaders } from '@/lib/utils/csrfClient';
+import { PRODUCT_CATEGORIES } from '@/config/products/product.categories';
+import { PRODUCT_FILTERS } from '@/config/products/product.filters';
+import { PRODUCT_LINES } from '@/config/products/product.lines';
 
 type PromoBarDraft = {
   enabled: boolean;
-  text?: string;
   textIt?: string;
   textEn?: string;
   href?: string;
@@ -30,6 +32,29 @@ function clampText(value: string, max: number) {
   if (value.length <= max) return value;
   return value.slice(0, max);
 }
+
+const LINK_OPTIONS = [
+  {
+    value: '/prodotti',
+    label: 'Tutti i prodotti',
+    description: 'Pagina con l’elenco completo dei prodotti.',
+  },
+  ...PRODUCT_CATEGORIES.map((cat) => ({
+    value: `/prodotti?subcategory=${cat.id}`,
+    label: `Sottocategoria: ${cat.title}`,
+    description: `Pagina filtrata per sottocategoria "${cat.title}".`,
+  })),
+  ...PRODUCT_FILTERS.map((cat) => ({
+    value: `/prodotti?category=${cat.id}`,
+    label: `Categoria: ${cat.title}`,
+    description: `Pagina filtrata per categoria "${cat.title}".`,
+  })),
+  ...PRODUCT_LINES.map((line) => ({
+    value: `/linee/${line.id}`,
+    label: `Linea: ${line.title}`,
+    description: `Pagina della linea "${line.title}".`,
+  })),
+];
 
 export default function AdminPromotionsPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +86,6 @@ export default function AdminPromotionsPage() {
         href: promo.href || '/prodotti',
         bgColor: promo.bgColor || '#C3FF8A',
         textColor: promo.textColor || '#000000',
-        text: promo.text,
         textIt: promo.textIt || '',
         textEn: promo.textEn || '',
       });
@@ -79,9 +103,17 @@ export default function AdminPromotionsPage() {
   const save = async () => {
     setIsSaving(true);
     try {
+      const hasItalianText = Boolean((draft.textIt || '').trim());
+      const shouldEnable = !!draft.enabled && hasItalianText;
+
+      if (draft.enabled && !hasItalianText) {
+        notify.error('Inserisci almeno il Testo (Italiano) per abilitare la PromoBar.');
+        setDraft((p) => ({ ...p, enabled: false }));
+      }
+
       const payload = {
         promoBar: {
-          enabled: !!draft.enabled,
+          enabled: shouldEnable,
           href: (draft.href || '').trim() || '/prodotti',
           bgColor: (draft.bgColor || '').trim() || '#C3FF8A',
           textColor: (draft.textColor || '').trim() || '#000000',
@@ -120,7 +152,7 @@ export default function AdminPromotionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Promozioni</h1>
           <p className="text-gray-600 mt-1">Gestione PromoBar (testo EN/IT, colori, link)</p>
@@ -128,9 +160,6 @@ export default function AdminPromotionsPage() {
         <div className="flex gap-2">
           <PrimaryButton className="px-6 py-3 text-base" onClick={load}>
             Aggiorna
-          </PrimaryButton>
-          <PrimaryButton className="px-6 py-3 text-base" onClick={save} disabled={isSaving}>
-            {isSaving ? 'Salvataggio…' : 'Salva'}
           </PrimaryButton>
         </div>
       </div>
@@ -144,16 +173,32 @@ export default function AdminPromotionsPage() {
           />
           Abilita PromoBar
         </label>
+        <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+          Attiva/disattiva la barra promozionale sul sito. Se manca il testo italiano, la PromoBar
+          non viene abilitata.
+        </p>
 
-        <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="mt-4 grid grid-cols-1 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Link</label>
-            <input
-              value={draft.href || ''}
+            <select
+              value={draft.href || '/prodotti'}
               onChange={(e) => setDraft((p) => ({ ...p, href: e.target.value }))}
-              placeholder="/prodotti"
               className={inputBase}
-            />
+            >
+              {LINK_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <div className="mt-2 text-xs text-gray-500 leading-relaxed">
+              {LINK_OPTIONS.find((opt) => opt.value === (draft.href || '/prodotti'))?.description ||
+                'Seleziona il link per la PromoBar.'}
+            </div>
+            <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+              Seleziona una sola destinazione dalla lista. Link non presenti vengono rifiutati.
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Colore sfondo</label>
@@ -174,9 +219,13 @@ export default function AdminPromotionsPage() {
             />
           </div>
         </div>
+        <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+          Colori in formato esadecimale (es. #C3FF8A). Se invalidi, verranno salvati come valore
+          testo ma potrebbero non rendere correttamente.
+        </p>
       </AdminCard>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <AdminCard className="p-5">
           <div className="flex items-center justify-between">
             <div className="font-semibold">Testo (Italiano)</div>
@@ -188,6 +237,9 @@ export default function AdminPromotionsPage() {
             className={`${inputBase} mt-3 min-h-[120px]`}
             placeholder="Testo PromoBar in italiano (max 300 caratteri)"
           />
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            Campo obbligatorio per attivare la PromoBar.
+          </p>
         </AdminCard>
 
         <AdminCard className="p-5">
@@ -201,8 +253,15 @@ export default function AdminPromotionsPage() {
             className={`${inputBase} mt-3 min-h-[120px]`}
             placeholder="PromoBar text in English (max 300 characters)"
           />
+          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+            Testo opzionale. Se mancante, per EN verrà mostrato il testo italiano.
+          </p>
         </AdminCard>
       </div>
+
+      <PrimaryButton className="w-full px-6 py-4 text-base" onClick={save} disabled={isSaving}>
+        {isSaving ? 'Salvataggio…' : 'Salva'}
+      </PrimaryButton>
     </div>
   );
 }

@@ -3,10 +3,8 @@ import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import connectToDB from '@/lib/db/mongo';
 import Order from '@/lib/db/models/Order';
-import CheckoutDraft from '@/lib/db/models/CheckoutDraft';
 import mongoose from 'mongoose';
 import { getStripe } from '@/lib/stripe/server';
-import { finalizePaidOrderOnce } from '@/lib/checkout/finalizePaidOrder';
 import CheckoutSuccessClient from './CheckoutSuccessClient';
 
 export const dynamic = 'force-dynamic';
@@ -60,60 +58,21 @@ async function assertPaidOrderOrNotFound(
   if (pi.status !== 'succeeded') notFound();
 
   if (!order) {
-    const draft: any = await CheckoutDraft.findOne({ orderId }).lean();
-    if (!draft) notFound();
-
-    await Order.create({
-      _id: new mongoose.Types.ObjectId(orderId),
-      userId: draft.userId,
-      status: 'paid',
-      currency: draft.currency || 'EUR',
-      subtotal: draft.subtotal,
-      shippingPrice: draft.shippingPrice,
-      totalPrice: draft.totalPrice,
-      promoCode: draft.promoCode,
-      promoDiscount: draft.promoDiscount,
-      checkoutId: draft.checkoutId,
-      customerEmail: draft.customerEmail,
-      customerName: draft.customerName,
-      customerSurname: draft.customerSurname,
-      customerPhone: draft.customerPhone,
-      shippingAddress: draft.shippingAddress,
-      shippingMethod: draft.shippingMethod,
-      marketingOptIn: draft.marketingOptIn,
-      stripePaymentIntentId: pi.id,
-      paidAt: new Date(),
-      products: (draft.products || []).map((p: any) => ({
-        productId: p.productId,
-        variantId: p.variantId,
-        slug: p.slug,
-        title: p.title,
-        imageSrc: p.imageSrc,
-        price: p.price,
-        quantity: p.quantity,
-        volume: p.volume,
-        unit: p.unit,
-      })),
-    });
-
-    await finalizePaidOrderOnce({ orderId, paymentIntent: pi });
-    await CheckoutDraft.deleteOne({ orderId });
     return;
   }
 
-  await Order.updateOne(
-    { _id: order._id },
-    {
-      $set: {
-        status: 'paid',
-        paidAt: new Date(),
-        stripePaymentIntentId: pi.id,
+  if (order.status !== 'paid') {
+    await Order.updateOne(
+      { _id: order._id },
+      {
+        $set: {
+          status: 'paid',
+          paidAt: new Date(),
+          stripePaymentIntentId: pi.id,
+        },
       },
-    },
-  );
-
-  await finalizePaidOrderOnce({ orderId, paymentIntent: pi });
-  await CheckoutDraft.deleteOne({ orderId });
+    );
+  }
 }
 
 export default async function CheckoutSuccessPage({ searchParams }: PageProps) {

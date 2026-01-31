@@ -24,6 +24,13 @@ export interface ISiteSettings {
   promoSubscription: {
     enabled: boolean;
   };
+  emailTemplates?: {
+    welcomeText?: string;
+    promoCodeText?: string;
+    passwordResetText?: string;
+    orderConfirmationText?: string;
+    newOrderAdminText?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,6 +59,13 @@ const siteSettingsSchema = new Schema<ISiteSettings>(
     },
     promoSubscription: {
       enabled: { type: Boolean, default: true },
+    },
+    emailTemplates: {
+      welcomeText: { type: String },
+      promoCodeText: { type: String },
+      passwordResetText: { type: String },
+      orderConfirmationText: { type: String },
+      newOrderAdminText: { type: String },
     },
   },
   { timestamps: true },

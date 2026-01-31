@@ -110,7 +110,7 @@ export default function AdminOrderDetailPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="font-semibold text-[clamp(24px,4vw,40px)]">Ordine</h1>
           <p className="text-gray-600">{customerLabel}</p>
@@ -228,9 +228,12 @@ export default function AdminOrderDetailPage() {
             </PrimaryButton>
           </div>
         ) : null}
+        <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+          Cambia stato in sequenza. L’annullamento è definitivo e blocca avanzamenti.
+        </p>
       </AdminCard>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <AdminCard className="p-5">
           <div className="font-semibold">Dati pagamento</div>
           <div className="mt-3 text-sm text-gray-700 space-y-2">
@@ -386,6 +389,9 @@ export default function AdminOrderDetailPage() {
             </span>
           </div>
         </div>
+        <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+          Totali derivati dai dati ordine salvati. Se mancano, verifica il pagamento Stripe.
+        </p>
       </AdminCard>
     </div>
   );

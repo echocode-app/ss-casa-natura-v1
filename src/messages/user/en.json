@@ -96,8 +96,10 @@
       "title": "Change Password",
       "currentPassword": "Current Password",
       "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
       "currentPasswordLabel": "Current password",
       "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm password",
       "currentPasswordHelp": "Enter your current password",
       "newPasswordHelp": "Choose a strong password with at least 8 characters",
       "updatePassword": "Update Password",
@@ -107,7 +109,12 @@
       "genericError": "An error occurred",
       "logoutMessage": "You will be logged out in 2 seconds",
       "unauthorized": "Unauthorized. Please log in.",
-      "passwordsMustBeDifferent": "New password must be different from the current one"
+      "passwordsMustBeDifferent": "New password must be different from the current one",
+      "resetTitle": "Set a new password",
+      "resetSubtitle": "Enter a new password to regain access to your account.",
+      "resetPassword": "Save new password",
+      "resetSuccess": "Password reset successfully. You can now log in.",
+      "resetInvalidToken": "Reset link is invalid or expired."
     },
     "actions": {
       "logout": "Logout",

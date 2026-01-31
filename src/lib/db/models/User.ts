@@ -8,6 +8,10 @@ const userSchema = new Schema({
   phone: { type: String },
   deliveryAddress: { type: String },
   role: { type: String, enum: ['user', 'admin', 'superadmin', 'developer'], default: 'user' },
+  adminSections: {
+    type: [String],
+    default: [],
+  },
   orders: [{ type: Types.ObjectId, ref: 'Order' }],
   verified: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },

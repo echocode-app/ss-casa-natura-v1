@@ -31,7 +31,7 @@ async function verifyToken(
     const secret = new TextEncoder().encode(JWT_SECRET);
     const { payload } = await jwtVerify(token, secret);
     return payload as { id: string; email: string; role: string };
-  } catch (error) {
+  } catch {
     // console.error(
     //   '[middleware] Token verification failed:',
     //   error instanceof Error ? error.message : 'Unknown error',

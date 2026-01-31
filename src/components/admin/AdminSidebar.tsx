@@ -12,8 +12,9 @@ type Item = {
     | 'hero-banners'
     | 'promotions'
     | 'submissions'
-    | 'mailchimp'
-    | 'settings';
+    | 'emails'
+    | 'docs'
+    | 'access';
   label: string;
   href: string;
 };
@@ -25,8 +26,9 @@ const items: Item[] = [
   { key: 'hero-banners', label: 'Banner Hero', href: '/admin/banners' },
   { key: 'promotions', label: 'Promozioni', href: '/admin/promotions' },
   { key: 'submissions', label: 'Richieste contatto', href: '/admin/submissions' },
-  { key: 'mailchimp', label: 'Mailchimp', href: '/admin/mailchimp' },
-  { key: 'settings', label: 'Impostazioni', href: '/admin/settings' },
+  { key: 'emails', label: 'Email', href: '/admin/emails' },
+  { key: 'docs', label: 'Documentazione', href: '/admin/docs' },
+  { key: 'access', label: 'Gestione accessi', href: '/admin/access' },
 ];
 
 export default function AdminSidebar() {
@@ -35,6 +37,7 @@ export default function AdminSidebar() {
   const { user } = useAuth();
 
   const role = user?.role;
+  const adminSections = user?.adminSections;
 
   const linkBaseClasses = `
     w-full text-center md:text-left
@@ -53,10 +56,10 @@ export default function AdminSidebar() {
   const getNavClasses = (active: boolean) =>
     active ? `${linkBaseClasses} bg-brand-light` : `${linkBaseClasses} bg-transparent`;
 
-  const visible = items.filter((i) => canAccessAdminSection(role, i.key));
+  const visible = items.filter((i) => canAccessAdminSection(role, i.key, adminSections));
 
   return (
-    <aside className="bg-background-sidebar w-full mx-auto md:mx-0 md:max-w-[240px] lg:max-w-[360px] xl:max-w-[460px]">
+    <aside className="bg-background-sidebar w-[240px] lg:w-[320px] xl:w-[380px] shrink-0">
       <div className="pointer-events-none shadow-sidebar-right" />
 
       <div className="px-4 pt-4 md:pt-8 md:px-8">
@@ -77,14 +80,6 @@ export default function AdminSidebar() {
             {item.label}
           </button>
         ))}
-
-        <button
-          onClick={() => router.push('/')}
-          className={`${linkBaseClasses} text-gray-700`}
-          aria-label="Torna al sito"
-        >
-          Torna al sito
-        </button>
       </nav>
     </aside>
   );
