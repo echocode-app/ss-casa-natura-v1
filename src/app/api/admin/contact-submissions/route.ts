@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
-import { requireDeveloperOrSuperadmin } from '@/lib/auth/requireAdmin';
+import { requireAdminSection } from '@/lib/auth/requireAdmin';
 import connectToDB from '@/lib/db/mongo';
 import ContactSubmission from '@/lib/db/models/ContactSubmission';
 
 export const GET = handleApi(async (req: Request) => {
-  const authError = await requireDeveloperOrSuperadmin();
+  const authError = await requireAdminSection('submissions');
   if (authError) return authError;
 
   await connectToDB();

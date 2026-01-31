@@ -20,7 +20,6 @@ export const DEFAULT_PROMO_CODE_TEXT = `Ciao {{name}},
 
 Ecco il tuo codice promozionale:
 {{code}}
-{{expiresIt}}
 
 Inserisci il codice al checkout per ottenere lo sconto.
 
@@ -33,7 +32,6 @@ Hello {{name}},
 
 Here is your promo code:
 {{code}}
-{{expiresEn}}
 
 Enter the code at checkout to get your discount.
 

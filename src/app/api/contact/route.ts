@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { contactSchema } from '@/lib/validation/schemas';
 import connectToDB from '@/lib/db/mongo';
 import ContactSubmission from '@/lib/db/models/ContactSubmission';
+import { sendEmail } from '@/lib/utils/sendEmail';
 
 const legacyContactSchema = z.object({
   name: z.string().min(1),
@@ -53,9 +54,18 @@ export const POST = handleApi(async (req: NextRequest) => {
     await connectToDB();
     await ContactSubmission.create(normalized);
 
-    // TODO: Integrate with email service (SendGrid, Mailchimp, etc.)
-    // await sendContactEmail(normalized);
-    void normalized;
+    const contactTo = process.env.CONTACT_EMAIL || process.env.MAILCHIMP_FROM_EMAIL;
+    if (contactTo) {
+      try {
+        await sendEmail({
+          to: contactTo,
+          subject: `Contatto sito: ${normalized.subject}`,
+          text: `Nuovo messaggio di contatto\n\nNome: ${normalized.name}\nEmail: ${normalized.email}\nTelefono: ${normalized.phone || '-'}\n\nMessaggio:\n${normalized.message}\n`,
+        });
+      } catch {
+        // ignore email errors
+      }
+    }
 
     return NextResponse.json({ success: true });
   }
@@ -85,9 +95,18 @@ export const POST = handleApi(async (req: NextRequest) => {
   await connectToDB();
   await ContactSubmission.create(normalized);
 
-  // TODO: Integrate with email service (SendGrid, Mailchimp, etc.)
-  // await sendContactEmail(normalized);
-  void normalized;
+  const contactTo = process.env.CONTACT_EMAIL || process.env.MAILCHIMP_FROM_EMAIL;
+  if (contactTo) {
+    try {
+      await sendEmail({
+        to: contactTo,
+        subject: `Contatto sito: ${normalized.subject}`,
+        text: `Nuovo messaggio di contatto\n\nNome: ${normalized.name}\nEmail: ${normalized.email}\nTelefono: ${normalized.phone || '-'}\n\nMessaggio:\n${normalized.message}\n`,
+      });
+    } catch {
+      // ignore email errors
+    }
+  }
 
   return NextResponse.json({ success: true });
 });

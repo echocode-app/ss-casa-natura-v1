@@ -28,6 +28,12 @@ function addDays(d: Date, days: number): Date {
   return copy;
 }
 
+function addMonths(d: Date, months: number): Date {
+  const copy = new Date(d.getTime());
+  copy.setMonth(copy.getMonth() + months);
+  return copy;
+}
+
 /**
  * POST /api/promocode/claim
  * Exchanges a (new) marketing subscription for a single-use promo code.
@@ -73,7 +79,6 @@ export const POST = handleApi(async (req: NextRequest) => {
         text: promoCodeEmailTemplate({
           name: '',
           code: existingPromo.code,
-          expiresAt: existingPromo.activeUntil,
           overrideText: overrides.promoCodeText,
         }),
       });
@@ -132,7 +137,7 @@ export const POST = handleApi(async (req: NextRequest) => {
         type: 'percentage',
         value: 10,
         activeFrom: now,
-        activeUntil: addDays(now, 30),
+        activeUntil: addMonths(now, 3),
         usageLimit: 1,
       });
 
@@ -143,7 +148,6 @@ export const POST = handleApi(async (req: NextRequest) => {
           text: promoCodeEmailTemplate({
             name: '',
             code: created.code,
-            expiresAt: created.activeUntil,
             overrideText: overrides.promoCodeText,
           }),
         });

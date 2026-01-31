@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { handleApi } from '@/lib/utils/handleApi';
-import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { requireAdminSection } from '@/lib/auth/requireAdmin';
 import connectToDB from '@/lib/db/mongo';
 import SiteSettings from '@/lib/db/models/SiteSettings';
 import { PRODUCT_CATEGORIES } from '@/config/products/product.categories';
@@ -51,7 +51,7 @@ function getAllowedPromoLinks(): Set<string> {
 }
 
 export const GET = handleApi(async () => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminSection('promotions');
   if (authError) return authError;
 
   await connectToDB();
@@ -71,7 +71,7 @@ export const GET = handleApi(async () => {
 });
 
 export const PUT = handleApi(async (req: Request) => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminSection('promotions');
   if (authError) return authError;
 
   await connectToDB();

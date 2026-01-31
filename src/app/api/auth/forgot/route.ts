@@ -8,6 +8,7 @@ import { sendEmail } from '@/lib/utils/sendEmail';
 import { passwordResetEmailTemplate } from '@/lib/emailTemplates/passwordResetEmail';
 import { getEmailTemplateOverrides } from '@/lib/emailTemplates/getEmailTemplateOverrides';
 import crypto from 'crypto';
+import { checkRateLimit } from '@/lib/security/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -32,6 +33,12 @@ function getBaseUrl(req: NextRequest) {
 }
 
 export const POST = handleApi(async (req: NextRequest) => {
+  if (!checkRateLimit(req, 5, 15 * 60 * 1000)) {
+    return NextResponse.json(
+      { success: false, errorCode: 'RATE_LIMIT', error: 'Rate limit exceeded' },
+      { status: 429 },
+    );
+  }
   let body: unknown;
   try {
     body = await req.json();

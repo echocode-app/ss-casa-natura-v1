@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
-import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { requireAdminSection } from '@/lib/auth/requireAdmin';
 import connectToDB from '@/lib/db/mongo';
 import { applyInventoryToCatalogProducts } from '@/lib/utils/inventory';
 import { generateNextSku } from '@/lib/utils/productHelpers';
@@ -10,7 +10,7 @@ import { generateNextSku } from '@/lib/utils/productHelpers';
  * Returns the next available SKU in format 0001, 0002, etc.
  */
 export const GET = handleApi(async () => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminSection('products');
   if (authError) return authError;
 
   await connectToDB();

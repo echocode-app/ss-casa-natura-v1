@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
-import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { requireAdminSection } from '@/lib/auth/requireAdmin';
 import connectToDB from '@/lib/db/mongo';
 import User from '@/lib/db/models/User';
 import Order from '@/lib/db/models/Order';
@@ -8,7 +8,7 @@ import MarketingEmail from '@/lib/db/models/MarketingEmail';
 import { applyInventoryToCatalogProducts } from '@/lib/utils/inventory';
 
 export const GET = handleApi(async () => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminSection('dashboard');
   if (authError) return authError;
 
   await connectToDB();
@@ -137,9 +137,9 @@ export const GET = handleApi(async () => {
 
   const integrations = {
     MongoDB: {
-      ok: Boolean(process.env.MONGO_URI || process.env.DATABASE_URL),
+      ok: Boolean(process.env.MONGODB_URI),
       url: 'https://cloud.mongodb.com',
-      details: process.env.MONGO_URI ? 'Cluster0' : undefined,
+      details: process.env.MONGODB_URI ? 'Cluster0' : undefined,
       info: 'Database NoSQL - Free tier: 512MB storage',
     },
     Stripe: {

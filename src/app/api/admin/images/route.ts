@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
-import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { requireAdminAnySection } from '@/lib/auth/requireAdmin';
 import { destroyImage, uploadImageBuffer } from '@/lib/cloudinary/server';
 
 export const runtime = 'nodejs';
@@ -17,7 +17,7 @@ function sanitizeFolder(value: string | null): string | undefined {
 }
 
 export const POST = handleApi(async (req: Request) => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminAnySection(['hero-banners', 'products']);
   if (authError) return authError;
 
   const contentType = req.headers.get('content-type') || '';
@@ -70,7 +70,7 @@ export const POST = handleApi(async (req: Request) => {
 });
 
 export const DELETE = handleApi(async (req: Request) => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminAnySection(['hero-banners', 'products']);
   if (authError) return authError;
 
   const body = await req.json().catch(() => null);

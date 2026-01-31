@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { handleApi } from '@/lib/utils/handleApi';
-import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { requireAdminSection } from '@/lib/auth/requireAdmin';
 import connectToDB from '@/lib/db/mongo';
 import SiteSettings from '@/lib/db/models/SiteSettings';
 
@@ -28,7 +28,7 @@ function normalizeText(value?: string | null) {
 }
 
 export const GET = handleApi(async () => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminSection('emails');
   if (authError) return authError;
 
   await connectToDB();
@@ -44,7 +44,7 @@ export const GET = handleApi(async () => {
 });
 
 export const PUT = handleApi(async (req: Request) => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminSection('emails');
   if (authError) return authError;
 
   await connectToDB();

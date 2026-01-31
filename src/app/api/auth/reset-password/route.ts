@@ -7,6 +7,7 @@ import User from '@/lib/db/models/User';
 import { createPasswordSchema } from '@/lib/security/passwordValidation';
 import { hashPassword } from '@/lib/auth/hash';
 import crypto from 'crypto';
+import { checkRateLimit } from '@/lib/security/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -20,6 +21,12 @@ function hashToken(token: string) {
 }
 
 export const POST = handleApi(async (req: NextRequest) => {
+  if (!checkRateLimit(req, 5, 15 * 60 * 1000)) {
+    return NextResponse.json(
+      { success: false, errorCode: 'RATE_LIMIT', error: 'Rate limit exceeded' },
+      { status: 429 },
+    );
+  }
   let body: unknown;
   try {
     body = await req.json();

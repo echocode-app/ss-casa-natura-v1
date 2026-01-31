@@ -17,7 +17,7 @@ import type {
 const seoConfig = seoConfigData as SeoConfigData;
 
 const DEFAULT_IMAGE = '/images/home/hero.jpg';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://casanatura.it';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.deltagreen.it';
 
 /**
  * Truncate text to max length while preserving word boundaries

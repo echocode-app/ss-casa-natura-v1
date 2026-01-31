@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
-import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { requireAdminSection } from '@/lib/auth/requireAdmin';
 import connectToDB from '@/lib/db/mongo';
 import CatalogProduct from '@/lib/db/models/CatalogProduct';
 import { z } from 'zod';
@@ -89,7 +89,7 @@ const patchSchema = z
 
 export const GET = handleApi(
   async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const authError = await requireAdmin();
+    const authError = await requireAdminSection('products');
     if (authError) return authError;
 
     await connectToDB();
@@ -106,7 +106,7 @@ export const GET = handleApi(
 
 export const PUT = handleApi(
   async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const authError = await requireAdmin();
+    const authError = await requireAdminSection('products');
     if (authError) return authError;
 
     await connectToDB();
@@ -159,7 +159,7 @@ export const PUT = handleApi(
 
 export const DELETE = handleApi(
   async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
-    const authError = await requireAdmin();
+    const authError = await requireAdminSection('products');
     if (authError) return authError;
 
     await connectToDB();

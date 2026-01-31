@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { handleApi } from '@/lib/utils/handleApi';
-import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { requireAdminSection } from '@/lib/auth/requireAdmin';
 import connectToDB from '@/lib/db/mongo';
 import HeroBanner from '@/lib/db/models/HeroBanner';
 import { z } from 'zod';
@@ -31,7 +31,7 @@ const bannerSchema = z.object({
 });
 
 export const GET = handleApi(async () => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminSection('hero-banners');
   if (authError) return authError;
 
   await connectToDB();
@@ -41,7 +41,7 @@ export const GET = handleApi(async () => {
 });
 
 export const POST = handleApi(async (req: Request) => {
-  const authError = await requireAdmin();
+  const authError = await requireAdminSection('hero-banners');
   if (authError) return authError;
 
   await connectToDB();

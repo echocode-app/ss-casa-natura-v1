@@ -168,12 +168,8 @@
       "@type": "Organization",
       "name": "Casa Natura",
       "description": "Produttore di detersivi e detergenti ecologici naturali per la casa",
-      "url": "https://casanatura.it",
-      "logo": "https://casanatura.it/logo.png",
-      "sameAs": [
-        "https://www.facebook.com/casanatura",
-        "https://www.instagram.com/casanatura"
-      ],
+      "url": "https://www.deltagreen.it",
+      "logo": "https://www.deltagreen.it/logo.png",
       "contactPoint": {
         "@type": "ContactPoint",
         "telephone": "+39-XXX-XXXXXXX",

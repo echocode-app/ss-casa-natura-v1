@@ -38,7 +38,7 @@ const TEMPLATE_CONFIG = [
     key: 'promoCodeText' as const,
     title: 'Email codice promozionale',
     description: 'Inviata quando viene assegnato un codice sconto.',
-    placeholders: ['{{name}}', '{{code}}', '{{expiresIt}}', '{{expiresEn}}'],
+    placeholders: ['{{name}}', '{{code}}'],
   },
   {
     key: 'passwordResetText' as const,

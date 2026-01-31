@@ -18,8 +18,18 @@ const raleway = Raleway({
 });
 
 export const metadata: Metadata = {
-  title: 'CASA NATURA',
-  description: 'Cosmetics store',
+  title: 'Casa Natura',
+  description:
+    'Prodotti ecologici per la casa: detersivi naturali, detergenti bio e linee profumate.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.deltagreen.it'),
+  openGraph: {
+    title: 'Casa Natura',
+    description:
+      'Prodotti ecologici per la casa: detersivi naturali, detergenti bio e linee profumate.',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.deltagreen.it',
+    siteName: 'Casa Natura',
+    type: 'website',
+  },
 };
 
 export const viewport: Viewport = {

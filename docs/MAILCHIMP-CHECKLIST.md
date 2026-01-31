@@ -10,15 +10,23 @@
  - `SITE_URL` (fallback base URL if needed)
 
 ## 2) Mailchimp Marketing (Audience)
-- Create an Audience for newsletter/marketing emails.
-- Enable double opt‑in if legally required for your region.
-- Add merge field `SOURCE` (text) if you want to track `register / checkout / promocode` sources.
-- Confirm API key has access to the correct account and audience.
+1) Create an Audience for newsletter/marketing emails.
+2) Copy Audience ID:
+   - Audience → Settings → Audience name and defaults → Audience ID (`MAILCHIMP_LIST_ID`)
+3) Enable double opt‑in if legally required for your region.
+4) Add merge field `SOURCE` (Text):
+   - Audience → Settings → Audience fields and *|MERGE|* tags → Add field
+   - Field tag: `SOURCE`
+5) Confirm API key has access to the correct account and audience.
 
 ## 3) Mailchimp Transactional (Mandrill)
-- Activate Mailchimp Transactional and generate the API key.
-- Verify the sending domain and the `MAILCHIMP_FROM_EMAIL` address.
-- Ensure SPF/DKIM records are added for your domain.
+1) Activate Mailchimp Transactional (Mandrill) and generate API key:
+   - Transactional → Settings → API Keys → Create key (`MAILCHIMP_TRANSACTIONAL_API_KEY`)
+2) Verify sending domain and sender address:
+   - Transactional → Domains → Add domain
+   - Transactional → Senders → Verify `MAILCHIMP_FROM_EMAIL`
+3) Add SPF/DKIM DNS records from Mailchimp to your domain.
+4) Send a test email from Transactional → Outbound → Senders to confirm delivery.
 
 ## 4) Transactional emails handled by code
 These are sent directly by the app (no Mailchimp templates needed):
@@ -36,8 +44,8 @@ Note: text of these emails can be edited in **Admin → Email**, but dynamic var
 - The app only subscribes users; marketing content is managed in Mailchimp.
 
 ## 6) Quick smoke test
-- Register a new user and confirm welcome email is delivered.
-- Request promo code and confirm promo email + code is delivered.
-- Use “Forgot password” and confirm reset link works.
-- Complete a test order and confirm order confirmation email is delivered.
- - Confirm admin order notification is delivered to the correct roles.
+1) Register a new user → welcome email delivered.
+2) Request promo code → promo email + code delivered.
+3) Use “Forgot password” → reset email with link delivered.
+4) Complete a test order → order confirmation delivered.
+5) Confirm admin order notification delivered to superadmin + admins with Orders access.
