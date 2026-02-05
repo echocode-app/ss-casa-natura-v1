@@ -9,6 +9,7 @@ import Spinner from '@/components/ui/Spinner/Spinner';
 import { Icon } from '@/components/ui';
 import { searchProducts } from '@/helpers/searchProducts';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
+import { getFirstPurchasableVariant, sortProducts } from '@/lib/utils/sortProducts';
 
 const MIN_QUERY_LENGTH = 3;
 const MAX_RESULTS = 10;
@@ -31,7 +32,12 @@ function ModalProductCard({ product, onClick }) {
         <span className="font-medium text-sm line-clamp-2">{product.title}</span>
         {product.sku && <span className="text-xs text-text-gray">{product.sku}</span>}
         <span className="text-sm font-semibold">
-          € {product.variants?.[0]?.price?.toFixed(2) ?? '0.00'}
+          €{' '}
+          {(
+            getFirstPurchasableVariant(product)?.price ??
+            product.variants?.[0]?.price ??
+            0
+          ).toFixed(2)}
         </span>
       </div>
     </Link>
@@ -58,8 +64,15 @@ export default function SearchModal({ isOpen, onClose }) {
         const res = await fetch('/api/products');
         if (res.ok) {
           const products = await res.json();
-          setAllProducts(products);
-          setTopProducts(products.filter((p) => p.isBestSeller).slice(0, 3));
+          const normalizedProducts = Array.isArray(products) ? products : [];
+          setAllProducts(normalizedProducts);
+          const sorted = sortProducts(normalizedProducts);
+          const bestSeller = sorted.filter((product) =>
+            product.variants?.some((variant) => variant.isBestSeller),
+          );
+          const bestSellerIds = new Set(bestSeller.map((product) => product.id));
+          const rest = sorted.filter((product) => !bestSellerIds.has(product.id));
+          setTopProducts([...bestSeller, ...rest].slice(0, 3));
         }
       } catch {
         // Silently handle product loading error

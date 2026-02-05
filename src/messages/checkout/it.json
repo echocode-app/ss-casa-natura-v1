@@ -30,9 +30,10 @@
     "firstShipment": "Prima spedizione",
     "choose": "Scegli una modalità di spedizione",
     "disabledUntilAddress": "Compila l'indirizzo per visualizzare i metodi di spedizione.",
+    "needsRecalculation": "Indirizzo o carrello aggiornati. Ricalcola la spedizione.",
     "optionOneTime": "Spedizione",
     "optionRecurring": "Spedizioni ricorrenti",
-    "optionRecurringDesc": "Spedizione · 5,90 € ogni 4 settimane"
+    "optionRecurringDesc": "Spedizione · {price} ogni 4 settimane"
   },
   "payment": {
     "title": "Pagamento",
@@ -50,6 +51,7 @@
   },
   "actions": {
     "calculateShipping": "Calcola",
+    "calculateAndChooseShipping": "Calcola e scegli spedizione",
     "continue": "Avanti",
     "pay": "Paga",
     "continueToPayment": "Vai al pagamento",

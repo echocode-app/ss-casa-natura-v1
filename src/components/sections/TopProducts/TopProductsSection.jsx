@@ -32,14 +32,13 @@ export default function TopProductsSection({ products }) {
     );
   }
 
-  const displayProducts = sortProducts(
-    (Array.isArray(products) && products.length > 0 ? products : []).filter((p) => {
-      // Check if product has at least one variant with isBestSeller = true
-      const hasBestSellerVariant = p.variants?.some((v) => v.isBestSeller === true);
-
-      return hasBestSellerVariant;
-    }),
+  const sortedProducts = sortProducts(Array.isArray(products) ? products : []);
+  const bestSellerProducts = sortedProducts.filter((product) =>
+    product.variants?.some((variant) => variant.isBestSeller),
   );
+  const bestSellerIds = new Set(bestSellerProducts.map((product) => product.id));
+  const nonBestSellerProducts = sortedProducts.filter((product) => !bestSellerIds.has(product.id));
+  const displayProducts = [...bestSellerProducts, ...nonBestSellerProducts].slice(0, 8);
 
   if (displayProducts.length === 0) return null;
 

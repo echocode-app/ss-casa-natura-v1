@@ -224,7 +224,6 @@ export default function AdminPromotionsPage() {
           testo ma potrebbero non rendere correttamente.
         </p>
       </AdminCard>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <AdminCard className="p-5">
           <div className="flex items-center justify-between">

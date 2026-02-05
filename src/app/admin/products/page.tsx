@@ -82,12 +82,12 @@ export default function AdminProductsPage() {
   };
 
   const hasLowStock = (product: AdminProduct): boolean => {
-    // Check if any variant has stock < 6
+    // Check if any variant has stock <= 5
     const hasLowVariantStock = product.variants.some(
-      (v) => typeof v.stock === 'number' && v.stock < 6,
+      (v) => typeof v.stock === 'number' && v.stock <= 5,
     );
     // Check product-level stock if exists
-    const hasLowProductStock = typeof product.stock === 'number' && product.stock < 6;
+    const hasLowProductStock = typeof product.stock === 'number' && product.stock <= 5;
     return hasLowVariantStock || hasLowProductStock;
   };
 

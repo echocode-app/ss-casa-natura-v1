@@ -24,6 +24,12 @@ export interface ISiteSettings {
   promoSubscription: {
     enabled: boolean;
   };
+  shipping?: {
+    pricePerGram?: number;
+    pricePerKg?: number;
+    fixedFee: number;
+    recurringFee?: number;
+  };
   emailTemplates?: {
     welcomeText?: string;
     promoCodeText?: string;
@@ -59,6 +65,12 @@ const siteSettingsSchema = new Schema<ISiteSettings>(
     },
     promoSubscription: {
       enabled: { type: Boolean, default: true },
+    },
+    shipping: {
+      pricePerGram: { type: Number, default: 0 },
+      pricePerKg: { type: Number, default: 0 },
+      fixedFee: { type: Number, default: 0 },
+      recurringFee: { type: Number, default: undefined },
     },
     emailTemplates: {
       welcomeText: { type: String },

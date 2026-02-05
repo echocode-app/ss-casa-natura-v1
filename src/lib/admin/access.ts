@@ -6,6 +6,7 @@ export type AdminSection =
   | 'products'
   | 'hero-banners'
   | 'promotions'
+  | 'shipping'
   | 'submissions'
   | 'emails'
   | 'docs'
@@ -39,6 +40,7 @@ export function canAccessAdminSection(
 
   // admin ограничен: только назначенные вкладки (fallback to defaults)
   if (role === 'admin') {
+    if (section === 'shipping') return false;
     if (section === 'access') return false;
     if (section === 'docs') return false;
     if (!Array.isArray(adminSections)) return false;

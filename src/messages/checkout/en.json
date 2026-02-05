@@ -30,9 +30,10 @@
     "firstShipment": "First shipment",
     "choose": "Choose a shipping method",
     "disabledUntilAddress": "Fill in the address to see shipping methods.",
+    "needsRecalculation": "Address or cart updated. Recalculate shipping.",
     "optionOneTime": "Shipping",
     "optionRecurring": "Recurring shipments",
-    "optionRecurringDesc": "Shipping · €5.90 every 4 weeks"
+    "optionRecurringDesc": "Shipping · {price} every 4 weeks"
   },
   "payment": {
     "title": "Payment",
@@ -50,6 +51,7 @@
   },
   "actions": {
     "calculateShipping": "Calculate shipping",
+    "calculateAndChooseShipping": "Calculate and choose shipping",
     "continue": "Continue to payment",
     "pay": "Pay now",
     "continueToPayment": "Continue to payment",

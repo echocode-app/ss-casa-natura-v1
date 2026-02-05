@@ -31,8 +31,8 @@ const Order = mongoose.models.Order || model('Order', orderSchema);
 
 async function checkOrders() {
   try {
-    const MONGO_URI = process.env.MONGO_URI;
-    if (!MONGO_URI) throw new Error('MONGO_URI not found');
+    const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL;
+    if (!MONGO_URI) throw new Error('Mongo URI not found');
 
     console.log('🔗 Connecting to database...\n');
     await mongoose.connect(MONGO_URI);

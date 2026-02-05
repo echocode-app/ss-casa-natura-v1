@@ -22,12 +22,6 @@ function generatePromoCode(): string {
   return `WELCOME-${suffix}`;
 }
 
-function addDays(d: Date, days: number): Date {
-  const copy = new Date(d.getTime());
-  copy.setDate(copy.getDate() + days);
-  return copy;
-}
-
 function addMonths(d: Date, months: number): Date {
   const copy = new Date(d.getTime());
   copy.setMonth(copy.getMonth() + months);

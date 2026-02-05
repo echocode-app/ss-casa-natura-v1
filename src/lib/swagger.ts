@@ -9,12 +9,12 @@ const options = {
       description: 'API per il sistema di e-commerce Casa Natura',
       contact: {
         name: 'Casa Natura',
-        url: 'https://casa-natura.com',
+        url: process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'http://localhost:3000',
       },
     },
     servers: [
       {
-        url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        url: process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'http://localhost:3000',
         description: 'API Server',
       },
     ],

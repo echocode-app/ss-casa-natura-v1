@@ -7,7 +7,7 @@ import { hashPassword } from '@/lib/auth/hash';
 import { signToken } from '@/lib/auth/jwt';
 import { setAuthCookie } from '@/lib/auth/cookies';
 import { getCartSessionId } from '@/lib/utils/cartSession';
-import { checkRateLimit } from '@/lib/utils/rateLimit';
+import { checkRateLimit } from '@/lib/security/rateLimit';
 import { productService } from '@/lib/services/product';
 import { checkItemsInStock } from '@/lib/utils/inventory';
 import { computeGlobalPromotionDiscount } from '@/lib/utils/globalPromotion';

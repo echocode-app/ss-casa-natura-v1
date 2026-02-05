@@ -1,6 +1,7 @@
 'use client';
 
 export default function DocsPage() {
+  const prodUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://casanatura.it';
   return (
     <main className="mx-auto w-full max-w-5xl px-5 py-10 md:px-8">
       <header className="mb-10">
@@ -26,7 +27,7 @@ export default function DocsPage() {
           URL di produzione principali del progetto (sito e pannello admin):
         </p>
         <pre className="rounded-xl bg-black/90 p-4 text-sm text-white overflow-auto">
-          <code>{`https://www.deltagreen.it\nhttps://www.deltagreen.it/admin\nhttps://www.deltagreen.it/docs\nhttps://www.deltagreen.it/api/docs`}</code>
+          <code>{`${prodUrl}\n${prodUrl}/admin\n${prodUrl}/docs\n${prodUrl}/api/docs`}</code>
         </pre>
       </section>
 

@@ -16,6 +16,7 @@ export const GET = handleApi(async () => {
       promoBar: doc.promoBar,
       globalPromotion: doc.globalPromotion,
       promoSubscription: doc.promoSubscription,
+      shipping: doc.shipping,
     },
   });
 });

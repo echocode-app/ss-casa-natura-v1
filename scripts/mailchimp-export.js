@@ -22,12 +22,15 @@
  *   - Production-ready with proper TypeScript types
  */
 
-const https = require('https');
+import https from 'node:https';
+import http from 'node:http';
+import dotenv from 'dotenv';
 
 // Load environment variables from .env.local
-require('dotenv').config({ path: '.env.local' });
+dotenv.config({ path: '.env.local' });
 
-const API_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const API_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'http://localhost:3000';
 const API_SECRET = process.env.API_SECRET_KEY;
 
 // ANSI color codes for console output
@@ -57,7 +60,7 @@ async function makeRequest(path, method = 'GET') {
       },
     };
 
-    const protocol = url.startsWith('https') ? https : require('http');
+    const protocol = url.startsWith('https') ? https : http;
     
     const req = protocol.request(url, options, (res) => {
       let data = '';

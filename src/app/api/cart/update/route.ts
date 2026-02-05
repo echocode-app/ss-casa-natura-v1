@@ -8,9 +8,8 @@ import { UpdateCartItemRequest, CartItemDB } from '@/types/cart';
 import { extendCartExpiration } from '@/lib/constants/cart';
 import { z } from 'zod';
 import { buildCartQuery } from '@/lib/utils/cartQuery';
-import { computePromoDiscount } from '@/lib/utils/promo';
 import { checkItemsInStock } from '@/lib/utils/inventory';
-import { computeGlobalPromotionDiscount } from '@/lib/utils/globalPromotion';
+import { recomputeCartTotals } from '@/lib/utils/cartMaintenance';
 
 const updateCartItemSchema = z.object({
   itemId: z.string().min(1, 'Item ID is required'),
@@ -92,6 +91,53 @@ export const POST = handleApi(async (req: NextRequest) => {
     const issue = stockCheck.issues[0];
     const outOfStock = issue.reason === 'NOT_AVAILABLE' || (issue.available ?? 0) <= 0;
 
+    if (issue.reason === 'NOT_AVAILABLE') {
+      cart.items = cart.items.filter(
+        (item: CartItemDB) =>
+          !(item.productId === current.productId && item.variantId === current.variantId),
+      );
+      await recomputeCartTotals(cart as any);
+      cart.expiresAt = extendCartExpiration(!!cart.userId);
+      await cart.save();
+
+      return NextResponse.json({
+        success: true,
+        cart: {
+          id: cart._id.toString(),
+          userId: cart.userId,
+          sessionId: cart.sessionId,
+          items: cart.items.map((item: CartItemDB) => ({
+            id: item._id?.toString() || item.id,
+            productId: item.productId,
+            variantId: item.variantId,
+            slug: item.slug,
+            title: item.title,
+            imageSrc: item.imageSrc,
+            price: item.price,
+            volume: item.volume,
+            unit: item.unit,
+            quantity: item.quantity,
+            totalPrice: item.totalPrice,
+          })),
+          subtotal: cart.subtotal,
+          discount: cart.discount,
+          promoCode: cart.promoCode,
+          promoDiscount: cart.promoDiscount,
+          total: cart.total,
+          removedItems: [
+            {
+              id: current._id?.toString() || current.id,
+              productId: current.productId,
+              variantId: current.variantId,
+              title: current.title,
+            },
+          ],
+          createdAt: cart.createdAt,
+          updatedAt: cart.updatedAt,
+        },
+      });
+    }
+
     return NextResponse.json(
       {
         success: false,
@@ -113,34 +159,7 @@ export const POST = handleApi(async (req: NextRequest) => {
   cart.items[itemIndex].totalPrice = cart.items[itemIndex].price * quantity;
 
   // Recalculate totals
-  cart.subtotal = cart.items.reduce((sum: number, item: CartItemDB) => sum + item.totalPrice, 0);
-
-  cart.discount = await computeGlobalPromotionDiscount({
-    items: cart.items.map((i: any) => ({
-      productId: String(i.productId),
-      totalPrice: i.totalPrice,
-    })),
-    subtotal: cart.subtotal,
-  });
-
-  if (cart.promoCode) {
-    const promoResult = await computePromoDiscount({
-      promoCode: cart.promoCode,
-      subtotal: cart.subtotal,
-      email: cart.promoEmail,
-    });
-
-    if (promoResult.ok) {
-      cart.promoCode = promoResult.promoCode;
-      cart.promoDiscount = promoResult.promoDiscount;
-    } else {
-      cart.promoCode = undefined;
-      cart.promoEmail = undefined;
-      cart.promoDiscount = 0;
-    }
-  }
-
-  cart.total = cart.subtotal - (cart.discount || 0) - (cart.promoDiscount || 0);
+  await recomputeCartTotals(cart as any);
 
   // Extend expiration on cart activity
   const isAuthenticated = !!cart.userId;

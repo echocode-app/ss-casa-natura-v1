@@ -62,6 +62,22 @@ export async function checkItemsInStock(items: InventoryCheckItem[]): Promise<{
       continue;
     }
 
+    if (
+      Array.isArray((product as any)?.variants) &&
+      (product as any).variants.length > 0 &&
+      !variant
+    ) {
+      issues.push({
+        productId: item.productId,
+        variantId: item.variantId,
+        requested,
+        available: 0,
+        reason: 'NOT_AVAILABLE',
+        title: (product as any)?.title,
+      });
+      continue;
+    }
+
     const isAvailable = inv?.isAvailable ?? variant?.isAvailable ?? product?.isAvailable ?? true;
 
     const stock = inv?.stock ?? variant?.stock ?? (product as any)?.stock;

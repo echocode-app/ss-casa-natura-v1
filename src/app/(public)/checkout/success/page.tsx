@@ -3,8 +3,10 @@ import { headers } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import connectToDB from '@/lib/db/mongo';
 import Order from '@/lib/db/models/Order';
+import CheckoutDraft from '@/lib/db/models/CheckoutDraft';
 import mongoose from 'mongoose';
 import { getStripe } from '@/lib/stripe/server';
+import { finalizePaidOrderOnce } from '@/lib/checkout/finalizePaidOrder';
 import CheckoutSuccessClient from './CheckoutSuccessClient';
 
 export const dynamic = 'force-dynamic';
@@ -58,6 +60,56 @@ async function assertPaidOrderOrNotFound(
   if (pi.status !== 'succeeded') notFound();
 
   if (!order) {
+    const draft = await CheckoutDraft.findOne({
+      $or: [{ orderId: String(orderId) }, { stripePaymentIntentId: String(paymentIntentId) }],
+    }).lean();
+
+    if (draft) {
+      try {
+        await Order.create({
+          _id: new mongoose.Types.ObjectId(String(orderId)),
+          userId: draft.userId,
+          status: 'paid',
+          currency: draft.currency || 'EUR',
+          subtotal: draft.subtotal,
+          shippingPrice: draft.shippingPrice,
+          totalPrice: draft.totalPrice,
+          promoCode: draft.promoCode,
+          promoDiscount: draft.promoDiscount,
+          checkoutId: draft.checkoutId,
+          customerEmail: draft.customerEmail,
+          customerName: draft.customerName,
+          customerSurname: draft.customerSurname,
+          customerPhone: draft.customerPhone,
+          shippingAddress: draft.shippingAddress,
+          shippingMethod: draft.shippingMethod,
+          marketingOptIn: draft.marketingOptIn,
+          stripePaymentIntentId: pi.id,
+          paidAt: new Date(),
+          products: (draft.products || []).map((p: any) => ({
+            productId: p.productId,
+            variantId: p.variantId,
+            slug: p.slug,
+            sku: p.sku,
+            title: p.title,
+            imageSrc: p.imageSrc,
+            price: p.price,
+            quantity: p.quantity,
+            volume: p.volume,
+            unit: p.unit,
+          })),
+        });
+      } catch {
+        // ignore duplicate create
+      }
+
+      const created = await Order.findById(String(orderId)).lean();
+      if (created) {
+        await finalizePaidOrderOnce({ orderId: created._id.toString(), paymentIntent: pi });
+        await CheckoutDraft.deleteOne({ _id: draft._id });
+        return;
+      }
+    }
     return;
   }
 
@@ -72,6 +124,7 @@ async function assertPaidOrderOrNotFound(
         },
       },
     );
+    await finalizePaidOrderOnce({ orderId: order._id.toString(), paymentIntent: pi });
   }
 }
 

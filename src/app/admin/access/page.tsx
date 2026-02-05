@@ -55,6 +55,10 @@ const SECTION_META: Record<
     label: 'Promozioni',
     description: 'PromoBar e promozioni attive.',
   },
+  shipping: {
+    label: 'Spedizione',
+    description: 'Tariffe e impostazioni di spedizione.',
+  },
   submissions: {
     label: 'Richieste contatto',
     description: 'Messaggi ricevuti dal sito.',

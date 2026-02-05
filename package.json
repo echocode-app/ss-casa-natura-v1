@@ -15,6 +15,7 @@
     "check": "npm run lint && npm run typecheck && npm run -s build",
     "check:turbo": "npm run lint && npm run typecheck && next build --turbo",
     "test": "vitest run",
+    "test:auth": "ts-node scripts/testAuth.ts",
     "reinstall": "rm -rf node_modules package-lock.json && npm install --legacy-peer-deps",
     "mailchimp:export": "node scripts/mailchimp-export.js",
     "products:seed": "node scripts/seedProducts.mjs",

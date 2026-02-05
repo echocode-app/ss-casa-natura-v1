@@ -199,6 +199,7 @@ function SuggestionsDropdown({
 
 export type ShippingQuote = {
   shippingPrice: number;
+  recurringPrice?: number;
   subtotal: number;
   promoDiscount: number;
   total: number;
@@ -1002,11 +1003,13 @@ export function CheckoutShippingMethodSection({
   isQuoting,
   quoteError,
   onRetryQuote,
+  isStale,
   shippingMethod,
   setShippingMethod,
   touchField,
   clearShippingMethodError,
   shippingPrice,
+  recurringPrice,
   touched,
   fieldErrors,
 }: {
@@ -1014,17 +1017,20 @@ export function CheckoutShippingMethodSection({
   isQuoting: boolean;
   quoteError: string | null;
   onRetryQuote: () => void;
+  isStale: boolean;
   shippingMethod: ShippingMethod;
   setShippingMethod: (value: ShippingMethod) => void;
   touchField: (field: string) => void;
   clearShippingMethodError: () => void;
   shippingPrice: number;
+  recurringPrice: number;
   touched: Record<string, boolean>;
   fieldErrors: Record<string, string>;
 }) {
   const t = useTranslations('checkout');
+  const formatEuro = (value: number) => value.toFixed(2).replace('.', ',');
 
-  const isDisabled = !isAddressReady || isQuoting;
+  const isDisabled = !isAddressReady || isQuoting || isStale;
 
   return (
     <section className="bg-background-secondary rounded-[20px] p-4 md:p-6">
@@ -1037,6 +1043,18 @@ export function CheckoutShippingMethodSection({
       <div className="space-y-3">
         {!isAddressReady ? (
           <div className="text-sm text-text-muted">{t('shipping.disabledUntilAddress')}</div>
+        ) : isStale ? (
+          <div className="flex items-center justify-between gap-3 text-sm" role="alert">
+            <span className="text-text-muted">{t('shipping.needsRecalculation')}</span>
+            <button
+              type="button"
+              onClick={onRetryQuote}
+              disabled={isQuoting}
+              className="shrink-0 underline text-text-extrablack disabled:opacity-50"
+            >
+              {t('actions.calculateShipping')}
+            </button>
+          </div>
         ) : isQuoting ? (
           <div className="flex items-center gap-2 text-sm text-text-muted" aria-live="polite">
             <Spinner size="sm" />
@@ -1103,9 +1121,13 @@ export function CheckoutShippingMethodSection({
           <div className="flex-1">
             <div className="flex justify-between gap-4">
               <span className="font-medium">{t('shipping.optionRecurring')}</span>
-              <span className="font-semibold">€ {shippingPrice.toFixed(2)}</span>
+              <span className="font-semibold">€ {recurringPrice.toFixed(2)}</span>
             </div>
-            <div className="text-sm text-text-muted">{t('shipping.optionRecurringDesc')}</div>
+            <div className="text-sm text-text-muted">
+              {t('shipping.optionRecurringDesc', {
+                price: `€ ${formatEuro(recurringPrice)}`,
+              })}
+            </div>
           </div>
         </label>
 
@@ -1193,6 +1215,7 @@ export function CheckoutSummaryPanel({
   isQuoting,
   quoteError,
   totalForUi,
+  showShippingLine = true,
 }: {
   isStripeConfigured: boolean;
   subtotal: number;
@@ -1201,6 +1224,7 @@ export function CheckoutSummaryPanel({
   isQuoting: boolean;
   quoteError: string | null;
   totalForUi: number;
+  showShippingLine?: boolean;
 }) {
   const t = useTranslations('checkout');
 
@@ -1225,13 +1249,15 @@ export function CheckoutSummaryPanel({
           <span>{t('summary.promo')}</span>
           <span>€ {(promoDiscount || 0).toFixed(2)}</span>
         </div>
-        <div className="flex justify-between text-text-muted gap-2">
-          <span>{t('summary.shipping')}</span>
-          <span className="flex items-center gap-2">
-            {isQuoting ? <Spinner size="sm" /> : null}
-            <span>€ {shippingPrice.toFixed(2)}</span>
-          </span>
-        </div>
+        {showShippingLine ? (
+          <div className="flex justify-between text-text-muted gap-2">
+            <span>{t('summary.shipping')}</span>
+            <span className="flex items-center gap-2">
+              {isQuoting ? <Spinner size="sm" /> : null}
+              <span>€ {shippingPrice.toFixed(2)}</span>
+            </span>
+          </div>
+        ) : null}
 
         {quoteError ? (
           <div className="text-xs text-red-600" role="alert">

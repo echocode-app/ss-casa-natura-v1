@@ -4,6 +4,7 @@ import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import MarketingEmail from '@/lib/db/models/MarketingEmail';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
+import crypto from 'node:crypto';
 
 // Email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -213,6 +214,5 @@ export const POST = handleApi(async (req: NextRequest): Promise<NextResponse<Exp
  * Generate MD5 hash for email (required by Mailchimp API)
  */
 function getMd5Hash(email: string): string {
-  const crypto = require('crypto');
   return crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
 }

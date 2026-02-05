@@ -5,6 +5,7 @@ import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import Cart from '@/lib/db/models/Cart';
 import CheckoutDraft from '@/lib/db/models/CheckoutDraft';
+import SiteSettings from '@/lib/db/models/SiteSettings';
 import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { calculateShippingQuote } from '@/lib/checkout/shipping';
@@ -208,13 +209,20 @@ export const POST = handleApi(async (req: NextRequest) => {
     }
   }
 
-  const shipping = calculateShippingQuote({
-    subtotal: Math.max(0, subtotal - promoDiscount),
-    totalWeightKg,
-    address: parsed.data.address,
-  });
+  const settingsDoc = await SiteSettings.findOne({ key: 'default' }).lean();
+  const shipping = calculateShippingQuote(
+    {
+      subtotal: Math.max(0, subtotal - promoDiscount),
+      totalWeightKg,
+      address: parsed.data.address,
+    },
+    settingsDoc?.shipping,
+  );
 
-  const total = Math.round((subtotal - promoDiscount + shipping.shippingPrice) * 100) / 100;
+  const shippingMethod = parsed.data.shippingMethod || 'one_time';
+  const effectiveShippingPrice =
+    shippingMethod === 'recurring_4w' ? shipping.recurringPrice : shipping.shippingPrice;
+  const total = Math.round((subtotal - promoDiscount + effectiveShippingPrice) * 100) / 100;
   const amountCents = toCents(total);
 
   const userObjectId =
@@ -247,6 +255,7 @@ export const POST = handleApi(async (req: NextRequest) => {
       productId: String(p.productId),
       variantId: String(p.variantId),
       slug: p.slug,
+      sku: p.sku,
       title: p.title,
       imageSrc: p.imageSrc,
       price: p.price,
@@ -302,7 +311,7 @@ export const POST = handleApi(async (req: NextRequest) => {
           status: 'open',
           currency: 'EUR',
           subtotal,
-          shippingPrice: shipping.shippingPrice,
+          shippingPrice: effectiveShippingPrice,
           totalPrice: total,
           promoCode,
           promoDiscount,
@@ -312,13 +321,14 @@ export const POST = handleApi(async (req: NextRequest) => {
           customerSurname: parsed.data.customer.surname,
           customerPhone: parsed.data.customer.phone,
           shippingAddress: parsed.data.address,
-          shippingMethod: parsed.data.shippingMethod,
+          shippingMethod,
           marketingOptIn: parsed.data.marketingOptIn || false,
 
           products: pricedItems.map((p) => ({
             productId: String(p.productId),
             variantId: String(p.variantId),
             slug: p.slug,
+            sku: p.sku,
             title: p.title,
             imageSrc: p.imageSrc,
             price: p.price,

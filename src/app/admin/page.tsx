@@ -211,7 +211,7 @@ export default function AdminDashboardPage() {
             )}
           </div>
           <p className="mt-4 text-xs text-gray-500 leading-relaxed">
-            Mostra varianti/prodotti disponibili con stock &lt; 6. Se lo stock non è impostato, non
+            Mostra varianti/prodotti disponibili con stock ≤ 5. Se lo stock non è impostato, non
             viene segnalato.
           </p>
         </AdminCard>

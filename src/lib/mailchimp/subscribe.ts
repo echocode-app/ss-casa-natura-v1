@@ -1,10 +1,8 @@
 import mailchimp from '@mailchimp/mailchimp_marketing';
+import crypto from 'node:crypto';
 
 function getMd5Hash(email: string): string {
   // Mailchimp API requires member id = md5(lowercase_email)
-  // Using require here keeps this file simple in CJS/ESM interop.
-
-  const crypto = require('crypto');
   return crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
 }
 

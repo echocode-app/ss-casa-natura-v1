@@ -9,7 +9,7 @@ import MobileMenu from './MobileMenu';
 import { Menu, Search } from '@/components/ui/Buttons';
 import SearchModal from '@/components/ui/Modal/SearchModal';
 import AuthModal from '@/components/ui/Modal/AuthModal';
-import { CartDropdown } from '@/components/ui/Сart';
+import { CartDropdown } from '@/components/ui/Cart';
 
 export default function Header() {
   const t = useTranslations('header.actions');

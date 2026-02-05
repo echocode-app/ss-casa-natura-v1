@@ -3,6 +3,7 @@ import { Product, ProductVariant } from '@/config/products/product.types';
 export interface ProductLookupResult {
   id: string;
   slug: string;
+  sku?: string;
   title: string;
   imageSrc?: string;
   price: number;
@@ -60,6 +61,7 @@ export const productService: ProductService = {
     return {
       id: product.id,
       slug: product.slug,
+      sku: (product as any).sku,
       title: product.title,
       imageSrc: product.images?.[0]?.src,
       price: finalPrice,

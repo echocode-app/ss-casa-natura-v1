@@ -3,6 +3,7 @@
 import AdminCard from '@/components/admin/AdminCard';
 
 export default function AdminDocsPage() {
+  const prodUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://casanatura.it';
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -14,11 +15,11 @@ export default function AdminDocsPage() {
         <h2 className="text-lg font-semibold">Link documentazione progetto</h2>
         <div className="text-sm text-gray-700">Produzione:</div>
         <pre className="rounded-xl bg-black/90 p-4 text-sm text-white overflow-auto">
-          <code>{`https://www.deltagreen.it/docs`}</code>
+          <code>{`${prodUrl}/docs`}</code>
         </pre>
         <div className="text-sm text-gray-700">Swagger API:</div>
         <pre className="rounded-xl bg-black/90 p-4 text-sm text-white overflow-auto">
-          <code>{`https://www.deltagreen.it/api/docs`}</code>
+          <code>{`${prodUrl}/api/docs`}</code>
         </pre>
       </AdminCard>
 
@@ -75,6 +76,35 @@ export default function AdminDocsPage() {
           <li>Email: testi in “Email”, con salvataggio per singolo template.</li>
           <li>Prodotti: catalogo e scorte in “Prodotti”.</li>
         </ul>
+      </AdminCard>
+
+      <AdminCard className="p-6 flex flex-col gap-4">
+        <h2 className="text-lg font-semibold">Spedizione: guida e verifica</h2>
+        <p className="text-gray-700 leading-relaxed">
+          La spedizione è calcolata automaticamente in base al peso totale delle varianti nel
+          carrello e ai parametri configurati in Admin &gt; Spedizione. La formula resta interna e
+          non è mostrata ai clienti.
+        </p>
+        <ul className="list-disc pl-5 text-gray-700 space-y-2">
+          <li>
+            Imposta “Tariffa per grammi (EUR)” per definire il costo per ogni grammo di peso totale.
+          </li>
+          <li>
+            Imposta “Costo fisso (EUR)” per una quota fissa per ordine (attualmente può restare 0).
+          </li>
+          <li>
+            Imposta “Spedizioni ricorrenti (EUR)” per il costo fisso della spedizione ricorrente.
+          </li>
+          <li>
+            Verifica che ogni variante prodotto abbia un peso corretto in grammi: è usato per il
+            calcolo.
+          </li>
+          <li>Salva e ricarica la pagina per confermare che i valori siano persistenti.</li>
+        </ul>
+        <p className="text-gray-700 leading-relaxed">
+          Verifica rapida: aggiungi prodotti al carrello, vai al checkout e controlla che il totale
+          di spedizione cambi in modo coerente al variare del peso complessivo.
+        </p>
       </AdminCard>
 
       <AdminCard className="p-6 flex flex-col gap-4">

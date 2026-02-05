@@ -11,6 +11,7 @@ type Item = {
     | 'products'
     | 'hero-banners'
     | 'promotions'
+    | 'shipping'
     | 'submissions'
     | 'emails'
     | 'docs'
@@ -25,6 +26,7 @@ const items: Item[] = [
   { key: 'products', label: 'Prodotti', href: '/admin/products' },
   { key: 'hero-banners', label: 'Banner Hero', href: '/admin/banners' },
   { key: 'promotions', label: 'Promozioni', href: '/admin/promotions' },
+  { key: 'shipping', label: 'Spedizione', href: '/admin/shipping' },
   { key: 'submissions', label: 'Richieste contatto', href: '/admin/submissions' },
   { key: 'emails', label: 'Email', href: '/admin/emails' },
   { key: 'docs', label: 'Documentazione', href: '/admin/docs' },

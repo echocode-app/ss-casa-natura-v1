@@ -60,9 +60,9 @@ const mockProducts = [
 async function seedProducts() {
   try {
     // Connect to MongoDB
-    const MONGO_URI = process.env.MONGO_URI;
+    const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL;
     if (!MONGO_URI) {
-      throw new Error('MONGO_URI not found in environment variables');
+      throw new Error('Mongo URI not found in environment variables');
     }
 
     console.log('Connecting to database...');

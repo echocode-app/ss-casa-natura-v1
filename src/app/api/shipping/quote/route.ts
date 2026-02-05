@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import Cart from '@/lib/db/models/Cart';
+import SiteSettings from '@/lib/db/models/SiteSettings';
 import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { calculateShippingQuote } from '@/lib/checkout/shipping';
@@ -71,11 +72,14 @@ export const POST = handleApi(async (req: NextRequest) => {
     ? Math.max(0, cart.promoDiscount)
     : Math.min(subtotal, Math.max(0, Number(parsed.data.promoDiscount || 0)));
 
-  const shipping = calculateShippingQuote({
-    subtotal: Math.max(0, subtotal - promoDiscount),
-    totalWeightKg,
-    address: parsed.data.address,
-  });
+  const shipping = calculateShippingQuote(
+    {
+      subtotal: Math.max(0, subtotal - promoDiscount),
+      totalWeightKg,
+      address: parsed.data.address,
+    },
+    (await SiteSettings.findOne({ key: 'default' }).lean())?.shipping,
+  );
 
   const total = Math.round((subtotal - promoDiscount + shipping.shippingPrice) * 100) / 100;
 
@@ -84,6 +88,7 @@ export const POST = handleApi(async (req: NextRequest) => {
     quote: {
       currency: 'EUR',
       shippingPrice: shipping.shippingPrice,
+      recurringPrice: shipping.recurringPrice,
       subtotal,
       promoDiscount,
       total,

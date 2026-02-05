@@ -116,6 +116,6 @@ http://localhost:3000/api/docs
 - Mailchimp Marketing + Transactional keys verified
 
 ### Production URLs
-- https://www.deltagreen.it
-- https://www.deltagreen.it/docs
-- https://www.deltagreen.it/api/docs
+- https://casanatura.it
+- https://casanatura.it/docs
+- https://casanatura.it/api/docs

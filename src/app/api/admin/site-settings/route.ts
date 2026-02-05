@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { handleApi } from '@/lib/utils/handleApi';
-import { requireAdminSection } from '@/lib/auth/requireAdmin';
+import { requireAdminSection, requireDeveloperOrSuperadmin } from '@/lib/auth/requireAdmin';
 import connectToDB from '@/lib/db/mongo';
 import SiteSettings from '@/lib/db/models/SiteSettings';
 import { PRODUCT_CATEGORIES } from '@/config/products/product.categories';
@@ -22,6 +22,15 @@ const promoBarSchema = z
 const bodySchema = z
   .object({
     promoBar: promoBarSchema.optional(),
+    shipping: z
+      .object({
+        pricePerGram: z.number().min(0).max(1000).optional(),
+        pricePerKg: z.number().min(0).max(1000).optional(),
+        fixedFee: z.number().min(0).max(1000).optional(),
+        recurringFee: z.number().min(0).max(1000).optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
@@ -66,6 +75,7 @@ export const GET = handleApi(async () => {
       promoBar: doc.promoBar,
       globalPromotion: doc.globalPromotion,
       promoSubscription: doc.promoSubscription,
+      shipping: doc.shipping,
     },
   });
 });
@@ -125,6 +135,12 @@ export const PUT = handleApi(async (req: Request) => {
     patch.promoBar = promoBar;
   }
 
+  if (parsed.data.shipping) {
+    const shippingAuth = await requireDeveloperOrSuperadmin();
+    if (shippingAuth) return shippingAuth;
+    patch.shipping = nullToUndefined(parsed.data.shipping);
+  }
+
   const updated = await SiteSettings.findOneAndUpdate(
     { key: 'default' },
     { $set: patch, $setOnInsert: { key: 'default' } },
@@ -137,6 +153,7 @@ export const PUT = handleApi(async (req: Request) => {
       promoBar: updated.promoBar,
       globalPromotion: updated.globalPromotion,
       promoSubscription: updated.promoSubscription,
+      shipping: updated.shipping,
     },
   });
 });

@@ -2,7 +2,8 @@ import { Product } from '@/config/products/product.types';
 
 function getServerBaseUrl(): string {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (siteUrl) return siteUrl.replace(/\/$/, '');
+  const isProd = process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL_URL);
+  if (siteUrl && isProd) return siteUrl.replace(/\/$/, '');
 
   const vercelUrl = process.env.VERCEL_URL;
   if (vercelUrl) return `https://${vercelUrl}`;

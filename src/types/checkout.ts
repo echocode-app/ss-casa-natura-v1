@@ -31,6 +31,7 @@ export type ShippingQuoteResponse = {
   quote?: {
     currency: 'EUR';
     shippingPrice: number;
+    recurringPrice?: number;
     subtotal: number;
     promoDiscount: number;
     total: number;

@@ -4,8 +4,10 @@ export interface ICheckoutDraftProduct {
   productId: string;
   variantId: string;
   slug?: string;
+  sku?: string;
   title?: string;
   price?: number;
+  imageSrc?: string;
   quantity: number;
   volume?: number;
   unit?: string;
@@ -57,8 +59,10 @@ const productSchema = new Schema<ICheckoutDraftProduct>(
     productId: { type: String, required: true },
     variantId: { type: String, required: true },
     slug: { type: String },
+    sku: { type: String },
     title: { type: String },
     price: { type: Number },
+    imageSrc: { type: String },
     quantity: { type: Number, required: true },
     volume: { type: Number },
     unit: { type: String },

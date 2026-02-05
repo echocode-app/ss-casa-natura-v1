@@ -188,11 +188,20 @@ export default function CatalogProductForm({
     [draft.categoryIds],
   );
 
+  const isUploading = useMemo(
+    () => Object.values(isUploadingImage).some(Boolean),
+    [isUploadingImage],
+  );
+
   const canSubmit = useMemo(() => {
     return Object.keys(validateDraft(draft)).length === 0;
   }, [draft]);
 
   const save = async () => {
+    if (isUploading) {
+      notify.error("Attendi il completamento dell'upload immagine prima di salvare.");
+      return;
+    }
     const clientErrors = validateDraft(draft);
     setValidationErrors(clientErrors);
     setServerErrors({});
@@ -228,11 +237,14 @@ export default function CatalogProductForm({
           : `/api/admin/catalog-products/${encodeURIComponent(productId)}`;
       const method = mode === 'new' ? 'POST' : 'PUT';
 
+      const requestBody =
+        mode === 'new' ? { ...payload, id: productId } : { ...payload, id: undefined };
+
       const res = await fetch(url, {
         method,
         headers: getCsrfHeaders({ 'Content-Type': 'application/json' }),
         credentials: 'include',
-        body: JSON.stringify({ ...payload, id: productId }),
+        body: JSON.stringify(requestBody),
       });
       const data = await res.json();
       if (!res.ok || !data?.success) {
@@ -345,6 +357,19 @@ export default function CatalogProductForm({
           </div>
         )}
       </div>
+
+      {Object.keys(serverErrors).length > 0 && (
+        <AdminCard className="p-5 border border-red-200 bg-red-50">
+          <div className="font-semibold text-red-900 mb-2">Errori dal server</div>
+          <ul className="text-sm text-red-900 list-disc pl-5 space-y-1">
+            {Object.entries(serverErrors).map(([field, messages]) => (
+              <li key={field}>
+                {field}: {(messages || []).join(', ')}
+              </li>
+            ))}
+          </ul>
+        </AdminCard>
+      )}
 
       <AdminCard className="p-6">
         <div className="font-semibold text-base leading-tight mb-4">Suggerimenti rapidi</div>
@@ -1157,8 +1182,12 @@ export default function CatalogProductForm({
         </p>
       </AdminCard>
 
-      <PrimaryButton className="w-full px-6 py-4 text-base" onClick={save} disabled={isSaving}>
-        {isSaving ? 'Salvataggio…' : 'Salva'}
+      <PrimaryButton
+        className="w-full px-6 py-4 text-base"
+        onClick={save}
+        disabled={isSaving || isUploading}
+      >
+        {isSaving ? 'Salvataggio…' : isUploading ? 'Upload in corso…' : 'Salva'}
       </PrimaryButton>
     </div>
   );

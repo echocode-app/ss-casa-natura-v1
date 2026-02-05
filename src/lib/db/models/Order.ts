@@ -5,6 +5,7 @@ export interface IOrderProduct {
   productId: Types.ObjectId | string | IProduct;
   variantId?: string;
   slug?: string;
+  sku?: string;
   title?: string;
   price?: number;
   imageSrc?: string;
@@ -57,6 +58,7 @@ const orderProductSchema = new Schema<IOrderProduct>(
     productId: { type: Schema.Types.Mixed, required: true },
     variantId: { type: String },
     slug: { type: String },
+    sku: { type: String },
     title: { type: String },
     price: { type: Number },
     imageSrc: { type: String },

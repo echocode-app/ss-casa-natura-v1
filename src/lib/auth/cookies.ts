@@ -6,7 +6,7 @@ export const setAuthCookie = async (token: string) => {
   const ck = await nextCookies();
   ck.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: true, // Always secure, even in dev (use HTTPS locally or accept cookies in dev)
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict', // Strict CSRF protection
     path: '/',
     maxAge: 60 * 60 * 24 * 7, // 7 days

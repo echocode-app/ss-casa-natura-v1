@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Order } from '@/types/user';
-import CartEmpty from '@/components/ui/Сart/CartEmpty';
+import CartEmpty from '@/components/ui/Cart/CartEmpty';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import OrderProductCard from './OrderProductCard';
 import Spinner from '@/components/ui/Spinner/Spinner';

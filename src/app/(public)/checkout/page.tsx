@@ -13,6 +13,9 @@ import { getCsrfHeaders } from '@/lib/utils/csrfClient';
 import { getUserFacingErrorMessage } from '@/lib/utils/userFacingError';
 import { checkoutFormSchema } from '@/lib/validation/schemas';
 import { useDebounce } from '@/hooks/useDebounce';
+import notify from '@/lib/notify';
+import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
+import Spinner from '@/components/ui/Spinner/Spinner';
 
 import {
   CheckoutContactSection,
@@ -118,6 +121,44 @@ export default function CheckoutPage() {
   }, [items]);
 
   const checkoutItems = checkoutItemsInfo.checkoutItems;
+  const [showShippingMethods, setShowShippingMethods] = useState(false);
+  const [shippingStale, setShippingStale] = useState(false);
+  const [shippingVisible, setShippingVisible] = useState(false);
+  const [paymentVisible, setPaymentVisible] = useState(false);
+  const shippingQuoteKey = useMemo(
+    () =>
+      JSON.stringify({
+        items: checkoutItems.map((i) => ({
+          productId: i.productId,
+          variantId: i.variantId,
+          quantity: i.quantity,
+        })),
+        promoCode: promoCode || null,
+        promoDiscount: promoDiscount || 0,
+        address: {
+          country,
+          city,
+          postalCode,
+          address1,
+          address2,
+          province,
+          company,
+        },
+      }),
+    [
+      checkoutItems,
+      promoCode,
+      promoDiscount,
+      address1,
+      address2,
+      city,
+      company,
+      country,
+      postalCode,
+      province,
+    ],
+  );
+  const lastQuotedKeyRef = useRef<string>('');
 
   const checkoutFingerprint = useMemo(() => {
     return JSON.stringify({
@@ -207,8 +248,6 @@ export default function CheckoutPage() {
         // Reloading the page would be heavy; just reset payment state.
         setClientSecret(null);
         setOrderId(null);
-        setQuote(null);
-        setQuoteError(null);
       }
     } catch {
       // ignore
@@ -367,6 +406,7 @@ export default function CheckoutPage() {
     const seq = ++quoteSeqRef.current;
 
     setIsQuoting(true);
+    const quoteStart = Date.now();
     setQuoteError(null);
 
     try {
@@ -396,7 +436,15 @@ export default function CheckoutPage() {
       }
 
       if (quoteSeqRef.current !== seq) return;
+      const elapsed = Date.now() - quoteStart;
+      const remaining = Math.max(0, 450 - elapsed);
+      if (remaining) {
+        await new Promise((r) => setTimeout(r, remaining));
+      }
+      if (quoteSeqRef.current !== seq) return;
       setQuote(data.quote);
+      lastQuotedKeyRef.current = shippingQuoteKey;
+      setShippingStale(false);
     } catch (e: any) {
       if (abortController.signal.aborted) return;
       if (quoteSeqRef.current !== seq) return;
@@ -411,6 +459,7 @@ export default function CheckoutPage() {
 
   const debouncedQuote = useDebounce(() => {
     if (!isAddressReadyForShipping) return;
+    if (!showShippingMethods) return;
     void handleQuote();
   }, 450);
 
@@ -419,6 +468,10 @@ export default function CheckoutPage() {
       setQuote(null);
       setQuoteError(null);
       setShippingMethod('');
+      setShowShippingMethods(false);
+      setShippingStale(false);
+      setShippingVisible(false);
+      setPaymentVisible(false);
       return;
     }
 
@@ -427,10 +480,19 @@ export default function CheckoutPage() {
       setQuote(null);
       setQuoteError(null);
       setShippingMethod('');
+      setShowShippingMethods(false);
+      setShippingStale(false);
+      setShippingVisible(false);
+      setPaymentVisible(false);
       return;
     }
 
-    // Auto-requote when a shippable address changes
+    if (showShippingMethods && lastQuotedKeyRef.current !== shippingQuoteKey) {
+      setShippingMethod('');
+      setShippingStale(true);
+    }
+
+    // Auto-requote when a shippable address changes (only after manual start)
     debouncedQuote();
   }, [
     isAddressReadyForShipping,
@@ -444,6 +506,8 @@ export default function CheckoutPage() {
     subtotal,
     promoCode,
     promoDiscount,
+    shippingQuoteKey,
+    showShippingMethods,
   ]);
 
   useEffect(() => {
@@ -554,9 +618,12 @@ export default function CheckoutPage() {
     }
   };
 
-  const shippingPriceForUi = quote?.shippingPrice ?? 5.9;
+  const shippingPriceForUi = quote?.shippingPrice ?? 0;
+  const recurringPriceForUi = quote?.recurringPrice ?? shippingPriceForUi;
+  const effectiveShippingPriceForUi =
+    shippingMethod === 'recurring_4w' ? recurringPriceForUi : shippingPriceForUi;
   const totalForUi =
-    quote?.total ?? Math.round((subtotal - (promoDiscount || 0) + shippingPriceForUi) * 100) / 100;
+    Math.round((subtotal - (promoDiscount || 0) + effectiveShippingPriceForUi) * 100) / 100;
 
   const clearShippingMethodError = () =>
     setFieldErrors((prev) => {
@@ -564,6 +631,50 @@ export default function CheckoutPage() {
       delete next.shippingMethod;
       return next;
     });
+
+  const startShippingSelection = async () => {
+    setTouched((prev) => ({
+      ...prev,
+      country: true,
+      postalCode: true,
+      city: true,
+      addressLine1: true,
+      phone: true,
+    }));
+
+    const addressOk =
+      validateField('country', country) &&
+      validateField('postalCode', postalCode) &&
+      validateField('city', city) &&
+      validateField('addressLine1', address1) &&
+      validateField('phone', phone);
+
+    if (!addressOk || !isAddressReadyForShipping) {
+      notify.error(t('errors.shippingRequired'));
+      return;
+    }
+
+    setShowShippingMethods(true);
+    setShippingStale(false);
+    await handleQuote();
+  };
+
+  useEffect(() => {
+    if (showShippingMethods) {
+      const id = window.setTimeout(() => setShippingVisible(true), 20);
+      return () => window.clearTimeout(id);
+    }
+    setShippingVisible(false);
+  }, [showShippingMethods]);
+
+  useEffect(() => {
+    const ready = isAddressReadyForShipping && Boolean(shippingMethod);
+    if (ready) {
+      const id = window.setTimeout(() => setPaymentVisible(true), 20);
+      return () => window.clearTimeout(id);
+    }
+    setPaymentVisible(false);
+  }, [isAddressReadyForShipping, shippingMethod]);
 
   return (
     <section className="py-6 md:py-9">
@@ -626,41 +737,100 @@ export default function CheckoutPage() {
               validateField={validateField}
             />
 
-            <CheckoutShippingMethodSection
-              isAddressReady={isAddressReadyForShipping}
-              isQuoting={isQuoting}
-              quoteError={quoteError}
-              onRetryQuote={handleQuote}
-              shippingMethod={shippingMethod}
-              setShippingMethod={setShippingMethod}
-              touchField={touchField}
-              clearShippingMethodError={clearShippingMethodError}
-              shippingPrice={shippingPriceForUi}
-              touched={touched}
-              fieldErrors={fieldErrors}
-            />
+            <div className="relative">
+              <div
+                className={`transition-all duration-300 ${
+                  shippingVisible
+                    ? 'opacity-100 translate-y-0 pointer-events-auto'
+                    : 'opacity-0 -translate-y-1 pointer-events-none max-h-0 overflow-hidden'
+                }`}
+                style={{
+                  maxHeight: shippingVisible ? 900 : 0,
+                }}
+              >
+                <CheckoutShippingMethodSection
+                  isAddressReady={isAddressReadyForShipping}
+                  isQuoting={isQuoting}
+                  quoteError={quoteError}
+                  onRetryQuote={handleQuote}
+                  isStale={shippingStale}
+                  shippingMethod={shippingMethod}
+                  setShippingMethod={setShippingMethod}
+                  touchField={touchField}
+                  clearShippingMethodError={clearShippingMethodError}
+                  shippingPrice={shippingPriceForUi}
+                  recurringPrice={recurringPriceForUi}
+                  touched={touched}
+                  fieldErrors={fieldErrors}
+                />
+              </div>
+              <div
+                className={`transition-all duration-300 ${
+                  shippingVisible
+                    ? 'opacity-0 -translate-y-1 pointer-events-none max-h-0 overflow-hidden'
+                    : 'opacity-100 translate-y-0 pointer-events-auto'
+                }`}
+                style={{
+                  maxHeight: shippingVisible ? 0 : 420,
+                }}
+              >
+                <section className="bg-background-secondary rounded-[20px] p-4 md:p-6">
+                  <h2 className="font-semibold text-[clamp(16px,3vw,22px)] mb-2">
+                    {t('shipping.title')}
+                  </h2>
+                  <div className="text-sm text-text-muted mb-4">{t('shipping.choose')}</div>
+                  <PrimaryButton
+                    onClick={startShippingSelection}
+                    disabled={!isAddressReadyForShipping || isQuoting}
+                    className="w-full py-4"
+                  >
+                    {isQuoting ? (
+                      <Spinner size="sm" colorScheme="light" />
+                    ) : (
+                      t('actions.calculateAndChooseShipping')
+                    )}
+                  </PrimaryButton>
+                  {!isAddressReadyForShipping && (
+                    <div className="text-xs text-text-muted mt-3">
+                      {t('shipping.disabledUntilAddress')}
+                    </div>
+                  )}
+                </section>
+              </div>
+            </div>
 
-            <CheckoutPaymentSection
-              clientSecret={clientSecret}
-              orderId={orderId}
-              stripePromise={stripePromise}
-              canProceed={canProceed}
-              isCreating={isCreating}
-              onCreateIntent={handleCreateIntent}
-              billingDetails={{
-                name: `${name}${surname ? ` ${surname}` : ''}`,
-                email: email,
-                phone: phone || undefined,
-                address: {
-                  line1: address1 || undefined,
-                  line2: address2 || undefined,
-                  city: city || undefined,
-                  state: province || undefined,
-                  postalCode: postalCode || undefined,
-                  country: country || 'IT',
-                },
+            <div
+              className={`transition-all duration-300 ${
+                paymentVisible
+                  ? 'opacity-100 translate-y-0 pointer-events-auto'
+                  : 'opacity-0 -translate-y-1 pointer-events-none max-h-0 overflow-hidden'
+              }`}
+              style={{
+                maxHeight: paymentVisible ? 900 : 0,
               }}
-            />
+            >
+              <CheckoutPaymentSection
+                clientSecret={clientSecret}
+                orderId={orderId}
+                stripePromise={stripePromise}
+                canProceed={canProceed}
+                isCreating={isCreating}
+                onCreateIntent={handleCreateIntent}
+                billingDetails={{
+                  name: `${name}${surname ? ` ${surname}` : ''}`,
+                  email: email,
+                  phone: phone || undefined,
+                  address: {
+                    line1: address1 || undefined,
+                    line2: address2 || undefined,
+                    city: city || undefined,
+                    state: province || undefined,
+                    postalCode: postalCode || undefined,
+                    country: country || 'IT',
+                  },
+                }}
+              />
+            </div>
           </div>
 
           <div className="w-full self-start lg:self-stretch">
@@ -669,10 +839,11 @@ export default function CheckoutPage() {
                 isStripeConfigured={isStripeConfigured}
                 subtotal={subtotal}
                 promoDiscount={promoDiscount || 0}
-                shippingPrice={shippingPriceForUi}
+                shippingPrice={effectiveShippingPriceForUi}
                 isQuoting={isQuoting}
                 quoteError={quoteError}
                 totalForUi={totalForUi}
+                showShippingLine={Boolean(shippingMethod)}
               />
 
               <Link

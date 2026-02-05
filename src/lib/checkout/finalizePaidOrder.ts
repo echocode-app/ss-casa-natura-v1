@@ -10,6 +10,7 @@ import { decrementInventoryForOrderProducts } from '@/lib/utils/inventory';
 import { getEmailTemplateOverrides } from '@/lib/emailTemplates/getEmailTemplateOverrides';
 import User from '@/lib/db/models/User';
 import { newOrderAdminTemplate } from '@/lib/emailTemplates/newOrderAdmin';
+import mongoose from 'mongoose';
 
 export async function finalizePaidOrderOnce({
   orderId,
@@ -70,7 +71,20 @@ export async function finalizePaidOrderOnce({
 
   try {
     if (sessionId) await Cart.findOneAndUpdate({ sessionId }, cartReset);
-    if (userId) await Cart.findOneAndUpdate({ userId }, cartReset);
+
+    const userIdFromOrder = claimed.userId;
+    if (userIdFromOrder) {
+      await Cart.findOneAndUpdate({ userId: userIdFromOrder }, cartReset);
+    }
+
+    if (userId) {
+      const castedUserId = mongoose.Types.ObjectId.isValid(String(userId))
+        ? new mongoose.Types.ObjectId(String(userId))
+        : null;
+      if (castedUserId) {
+        await Cart.findOneAndUpdate({ userId: castedUserId }, cartReset);
+      }
+    }
   } catch (e) {
     logError('[finalizePaidOrderOnce] cart reset failed', e);
   }

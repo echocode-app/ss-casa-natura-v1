@@ -8,6 +8,8 @@ import CheckoutDraft from '@/lib/db/models/CheckoutDraft';
 import mongoose from 'mongoose';
 import { finalizePaidOrderOnce } from '@/lib/checkout/finalizePaidOrder';
 
+export const runtime = 'nodejs';
+
 export const POST = handleApi(async (req: NextRequest) => {
   const signature = req.headers.get('stripe-signature');
   if (!signature) {
@@ -70,7 +72,9 @@ export const POST = handleApi(async (req: NextRequest) => {
               productId: p.productId,
               variantId: p.variantId,
               slug: p.slug,
+              sku: p.sku,
               title: p.title,
+              imageSrc: p.imageSrc,
               price: p.price,
               quantity: p.quantity,
               volume: p.volume,

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import CartItem from '@/components/ui/Сart/CartItem';
+import CartItem from '@/components/ui/Cart/CartItem';
 import AddCart from '@/components/ui/Buttons/AddCart';
 import RemoveCart from '@/components/ui/Buttons/RemoveCart';
 import type { CartItemUI } from '@/types/cart';

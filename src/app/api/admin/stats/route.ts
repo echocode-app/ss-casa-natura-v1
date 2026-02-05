@@ -94,7 +94,7 @@ export const GET = handleApi(async () => {
 
   const products = await applyInventoryToCatalogProducts({ includeArchived: false });
 
-  // Collect products with low stock (< 6) from variants
+  // Collect products with low stock (<= 5) from variants
   const lowStockItems: Array<{
     productId: string;
     title: string;
@@ -109,7 +109,7 @@ export const GET = handleApi(async () => {
     if (p.variants && Array.isArray(p.variants)) {
       for (const v of p.variants) {
         const isAvailable = v.isAvailable !== false;
-        if (isAvailable && typeof v.stock === 'number' && v.stock < 6) {
+        if (isAvailable && typeof v.stock === 'number' && v.stock <= 5) {
           lowStockItems.push({
             productId: p.id,
             title: p.title,
@@ -123,7 +123,7 @@ export const GET = handleApi(async () => {
     }
     // Also check product-level stock if exists
     const productAvailable = p.isAvailable !== false;
-    if (productAvailable && typeof p.stock === 'number' && p.stock < 6) {
+    if (productAvailable && typeof p.stock === 'number' && p.stock <= 5) {
       lowStockItems.push({
         productId: p.id,
         title: p.title,
@@ -187,7 +187,7 @@ export const GET = handleApi(async () => {
     'Aruba Domain': {
       ok: true,
       url: 'https://www.aruba.it/home.aspx',
-      details: 'deltagreen.it',
+      details: process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'localhost',
       info: 'Domain registrar - Annual renewal required',
     },
   };

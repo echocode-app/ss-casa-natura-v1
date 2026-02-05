@@ -16,8 +16,9 @@ import type {
 
 const seoConfig = seoConfigData as SeoConfigData;
 
-const DEFAULT_IMAGE = '/images/home/hero.jpg';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.deltagreen.it';
+const DEFAULT_IMAGE = '/images/home/banner.jpg';
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'http://localhost:3000';
 
 /**
  * Truncate text to max length while preserving word boundaries
@@ -106,7 +107,10 @@ function generateStructuredData(
   const url = options.path ? `${SITE_URL}${options.path}` : SITE_URL;
 
   if (type === 'homepage') {
-    return seoConfig.structured_data.organization;
+    const org = { ...seoConfig.structured_data.organization } as Record<string, any>;
+    org.url = SITE_URL;
+    org.logo = `${SITE_URL}/images/parts/logo.svg`;
+    return org;
   }
 
   // Breadcrumbs structured data

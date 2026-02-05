@@ -27,7 +27,7 @@ export const GET = () => {
       },
       servers: [
         {
-          url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+          url: process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'http://localhost:3000',
           description: 'API Server',
         },
       ],

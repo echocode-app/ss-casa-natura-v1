@@ -21,12 +21,14 @@ export const metadata: Metadata = {
   title: 'Casa Natura',
   description:
     'Prodotti ecologici per la casa: detersivi naturali, detergenti bio e linee profumate.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.deltagreen.it'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'http://localhost:3000',
+  ),
   openGraph: {
     title: 'Casa Natura',
     description:
       'Prodotti ecologici per la casa: detersivi naturali, detergenti bio e linee profumate.',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.deltagreen.it',
+    url: process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'http://localhost:3000',
     siteName: 'Casa Natura',
     type: 'website',
   },

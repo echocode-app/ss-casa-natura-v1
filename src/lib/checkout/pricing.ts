@@ -5,6 +5,7 @@ export type PricedLineItem = {
   productId: string;
   variantId: string;
   slug: string;
+  sku?: string;
   title: string;
   imageSrc?: string;
   price: number;
@@ -19,11 +20,11 @@ function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-function normalizeWeightKg(product: any): number {
-  if (typeof product?.weightGrams === 'number') return product.weightGrams / 1000;
-  if (typeof product?.weight === 'number') {
+function normalizeWeightKg(source: any): number {
+  if (typeof source?.weightGrams === 'number') return source.weightGrams / 1000;
+  if (typeof source?.weight === 'number') {
     // Heuristic: if weight is large, treat it as grams; otherwise assume kg.
-    return product.weight > 50 ? product.weight / 1000 : product.weight;
+    return source.weight > 50 ? source.weight / 1000 : source.weight;
   }
   return 0;
 }
@@ -46,10 +47,13 @@ export async function priceItems(items: CheckoutItemInput[]): Promise<{
     const lookup = await productService.getProductForCart(item.productId, item.variantId);
     const lineTotal = roundMoney(lookup.price * quantity);
 
+    const unitWeightKg = normalizeWeightKg(lookup.variant) || normalizeWeightKg(product) || 0;
+
     pricedItems.push({
       productId: item.productId,
       variantId: item.variantId,
       slug: lookup.slug,
+      sku: lookup.sku,
       title: lookup.title,
       imageSrc: lookup.imageSrc,
       price: lookup.price,
@@ -57,7 +61,7 @@ export async function priceItems(items: CheckoutItemInput[]): Promise<{
       volume: lookup.variant?.volume,
       unit: lookup.variant?.unit,
       lineTotal,
-      weightKg: normalizeWeightKg(product) * quantity,
+      weightKg: unitWeightKg * quantity,
     });
   }
 

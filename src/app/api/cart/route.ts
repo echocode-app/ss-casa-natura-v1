@@ -6,6 +6,7 @@ import { getCartSessionId } from '@/lib/utils/cartSession';
 import { getUserIdFromRequest } from '@/lib/auth/getUser';
 import { CartItemDB } from '@/types/cart';
 import { buildCartQuery } from '@/lib/utils/cartQuery';
+import { removeUnavailableCartItems, recomputeCartTotals } from '@/lib/utils/cartMaintenance';
 
 // GET /api/cart - Get current cart
 export const GET = handleApi(async (req: NextRequest) => {
@@ -49,6 +50,12 @@ export const GET = handleApi(async (req: NextRequest) => {
     });
   }
 
+  const { removed } = await removeUnavailableCartItems(cart as any);
+  if (removed.length) {
+    await recomputeCartTotals(cart as any);
+    await cart.save();
+  }
+
   const total = cart.subtotal - (cart.discount || 0) - (cart.promoDiscount || 0);
 
   return NextResponse.json({
@@ -75,6 +82,12 @@ export const GET = handleApi(async (req: NextRequest) => {
       promoCode: cart.promoCode,
       promoDiscount: cart.promoDiscount,
       total,
+      removedItems: removed.map((item) => ({
+        id: item._id?.toString() || item.id,
+        productId: item.productId,
+        variantId: item.variantId,
+        title: item.title,
+      })),
       createdAt: cart.createdAt,
       updatedAt: cart.updatedAt,
     },

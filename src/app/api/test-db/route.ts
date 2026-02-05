@@ -3,8 +3,12 @@ import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import PromoCode from '@/lib/db/models/PromoCode';
 import mongoose from 'mongoose';
+import { requireDeveloperOrSuperadmin } from '@/lib/auth/requireAdmin';
 
 export const GET = handleApi(async (req: Request) => {
+  const authError = await requireDeveloperOrSuperadmin();
+  if (authError) return authError;
+
   await connectToDB();
 
   const url = new URL(req.url);
