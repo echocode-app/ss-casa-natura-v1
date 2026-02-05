@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -50,9 +51,12 @@ export default function ProductsCategoriesSection() {
             transition-all duration-300 md:group-hover:shadow-header md:group-focus:shadow-header"
           style={{ width: '100%', aspectRatio: '1 / 1' }}
         >
-          <img
+          <Image
             src={category.image || '/images/categories/products.png'}
             alt={label}
+            width={160}
+            height={160}
+            sizes="(max-width: 768px) 96px, (max-width: 1024px) 120px, 160px"
             className="max-w-[80%] max-h-[80%] object-contain"
           />
         </div>

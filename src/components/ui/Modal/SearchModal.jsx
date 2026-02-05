@@ -26,6 +26,8 @@ function ModalProductCard({ product, onClick }) {
       <img
         src={product.images?.[0]?.src || DEFAULT_IMAGE}
         alt={product.title}
+        width={48}
+        height={64}
         className="w-12 h-16 object-contain flex-shrink-0"
       />
       <div className="flex flex-col gap-1">

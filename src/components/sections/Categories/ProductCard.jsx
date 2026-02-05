@@ -31,6 +31,7 @@ export default function ProductCard({ title, href = '/products', onClick }) {
           alt={title}
           width={256}
           height={342}
+          sizes="(max-width: 768px) 180px, (max-width: 1200px) 220px, 256px"
           className="relative z-2 w-[180px] lg:w-[220px] xl:w-[256px] h-auto"
         />
       </div>

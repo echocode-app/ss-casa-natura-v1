@@ -22,6 +22,7 @@ export default function LineBannerSection({ slug, backgroundSrc }) {
         alt={alt}
         loading="eager"
         decoding="async"
+        fetchPriority="high"
         onLoad={() => setImageLoaded(true)}
         className={`
           absolute

@@ -1,60 +1,26 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import { ProductBreadcrumbs, RelatedProductsSection } from '@/components/sections/Products/Product';
 import ProductMain from '@/components/sections/Products/Product/ProductMain';
 import ProductNotFound from '@/components/sections/Products/ProductNotFound';
 import { fetchProduct, fetchProducts } from '@/lib/utils/fetchProducts';
 import { Product } from '@/config/products/product.types';
-import { useParams } from 'next/navigation';
-import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
-import { useSmoothLoading } from '@/hooks/useSmoothLoading';
+type PageProps = {
+  params: { slug: string } | Promise<{ slug: string }>;
+};
 
-export default function ProductPageClient() {
-  const params = useParams();
-  const slug = params.slug as string;
+export default async function ProductPage({ params }: PageProps) {
+  const resolvedParams =
+    params && typeof (params as any).then === 'function' ? await (params as any) : params;
+  const slug = resolvedParams?.slug;
+  if (!slug) return <ProductNotFound />;
 
-  const [product, setProduct] = useState<Product | null>(null);
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
-  const showSpinner = useSmoothLoading(loading, 150, 280);
+  const product = await fetchProduct(slug);
+  if (!product) return <ProductNotFound />;
 
-  useEffect(() => {
-    const loadProduct = async () => {
-      if (!slug) {
-        setNotFound(true);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const prod = await fetchProduct(slug);
-        if (!prod) {
-          setNotFound(true);
-          setLoading(false);
-          return;
-        }
-
-        setProduct(prod);
-
-        const allProducts = await fetchProducts();
-        const categoryId = prod.categoryIds[0];
-        const related = allProducts.filter(
-          (p) => p.categoryIds.includes(categoryId) && p.id !== prod.id,
-        );
-        setRelatedProducts(related);
-      } catch {
-        setNotFound(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProduct();
-  }, [slug]);
-
-  if (showSpinner) return <FullscreenSpinner />;
-  if (notFound || !product) return <ProductNotFound />;
+  const allProducts = await fetchProducts();
+  const categoryId = product.categoryIds?.[0];
+  const relatedProducts = categoryId
+    ? allProducts.filter((p: Product) => p.categoryIds.includes(categoryId) && p.id !== product.id)
+    : [];
 
   return (
     <>

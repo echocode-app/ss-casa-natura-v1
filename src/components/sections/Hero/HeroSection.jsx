@@ -13,7 +13,7 @@ import HeroProgress from './HeroProgress';
 const fallbackSlide = { id: 'fallback', useFallback: true };
 const loadingSlide = { id: 'loading', hideContent: true, useFallback: false };
 
-export default function HeroSection() {
+export default function HeroSection({ initialSlides = [], initialLocale = '' }) {
   const locale = useLocale();
   const prevRef = useRef(null);
   const nextRef = useRef(null);
@@ -22,6 +22,12 @@ export default function HeroSection() {
   const [status, setStatus] = useState('loading');
 
   useEffect(() => {
+    if (initialSlides.length > 0 && initialLocale === locale) {
+      setSlides(initialSlides);
+      setStatus('ready');
+      return;
+    }
+
     let mounted = true;
     fetch('/api/hero-banners')
       .then((r) => r.json())
@@ -64,7 +70,7 @@ export default function HeroSection() {
     return () => {
       mounted = false;
     };
-  }, [locale]);
+  }, [initialSlides, initialLocale, locale]);
 
   const renderSlides =
     status === 'ready' ? slides : status === 'fallback' ? [fallbackSlide] : [loadingSlide];
@@ -84,9 +90,9 @@ export default function HeroSection() {
         onSwiper={(swiperInstance) => setSwiper(swiperInstance)}
         className="relative"
       >
-        {renderSlides.map((slide) => (
+        {renderSlides.map((slide, idx) => (
           <SwiperSlide key={slide.id}>
-            <HeroSlide {...slide} />
+            <HeroSlide {...slide} isPriority={idx === 0} />
           </SwiperSlide>
         ))}
 

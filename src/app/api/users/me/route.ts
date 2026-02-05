@@ -31,7 +31,7 @@ function normalizeRole(role: any): UserResponse['role'] {
 export const GET = handleApi(async (_req: NextRequest) => {
   const user = await getUser();
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ authenticated: false }, { status: 200 });
   }
   await connectToDB();
   const dbUser = await User.findById(user.id).select(

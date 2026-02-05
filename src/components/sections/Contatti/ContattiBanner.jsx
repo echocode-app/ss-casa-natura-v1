@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 export default function ContattiBanner() {
   const t = useTranslations('contatti');
@@ -15,12 +16,13 @@ export default function ContattiBanner() {
     <section className="relative w-screen h-[300px] md:h-[472px] overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
-      <img
+      <Image
         src="/images/pages/contatti-baner.jpg"
         alt="Contatti Banner"
-        loading="eager"
-        decoding="async"
-        onLoad={() => setImageLoaded(true)}
+        fill
+        priority
+        sizes="100vw"
+        onLoadingComplete={() => setImageLoaded(true)}
         className="
           absolute
           top-0 left-0

@@ -10,6 +10,7 @@ import { getFirstPurchasableVariant, sortProducts } from '@/lib/utils/sortProduc
 
 export default function TopProductsSection({ products }) {
   const [loading, setLoading] = useState(true);
+  const [localProducts, setLocalProducts] = useState(Array.isArray(products) ? products : []);
   const t = useTranslations('topProductsSection');
   const { addItem } = useCart();
 
@@ -24,6 +25,28 @@ export default function TopProductsSection({ products }) {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (Array.isArray(products) && products.length > 0) {
+      setLocalProducts(products);
+      return;
+    }
+
+    let mounted = true;
+    fetch('/api/products')
+      .then((r) => r.json())
+      .then((data) => {
+        if (!mounted) return;
+        if (Array.isArray(data) && data.length > 0) {
+          setLocalProducts(data);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      mounted = false;
+    };
+  }, [products]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
@@ -32,7 +55,7 @@ export default function TopProductsSection({ products }) {
     );
   }
 
-  const sortedProducts = sortProducts(Array.isArray(products) ? products : []);
+  const sortedProducts = sortProducts(Array.isArray(localProducts) ? localProducts : []);
   const bestSellerProducts = sortedProducts.filter((product) =>
     product.variants?.some((variant) => variant.isBestSeller),
   );

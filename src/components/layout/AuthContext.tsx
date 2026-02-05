@@ -43,6 +43,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (res.ok) {
         const userData = await res.json();
+        if (userData?.authenticated === false) {
+          setIsAuthenticated(false);
+          setUser(null);
+          return false;
+        }
 
         setUser({
           id: userData.id,

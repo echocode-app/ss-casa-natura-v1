@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 
 export default function HeroSlide({
@@ -12,6 +13,7 @@ export default function HeroSlide({
   href,
   hideContent = false,
   useFallback = true,
+  isPriority = false,
 }) {
   const fallbackImage = '/images/home/banner.jpg';
   const fallbackTitle = 'Freschezza Oceanica\nper la tua casa';
@@ -36,11 +38,13 @@ export default function HeroSlide({
     <div className="relative w-full min-h-[78svh] flex items-center overflow-x-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
       {resolvedImage && (
-        <img
+        <Image
           src={resolvedImage}
           alt=""
-          loading="eager"
-          decoding="async"
+          fill
+          priority={isPriority}
+          sizes="100vw"
+          fetchPriority={isPriority ? 'high' : 'auto'}
           onLoad={() => setImageLoaded(true)}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-out ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
