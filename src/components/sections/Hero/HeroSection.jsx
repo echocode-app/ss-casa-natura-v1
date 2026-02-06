@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -15,6 +15,7 @@ const loadingSlide = { id: 'loading', hideContent: true, useFallback: false };
 
 export default function HeroSection({ initialSlides = [], initialLocale = '' }) {
   const locale = useLocale();
+  const t = useTranslations('hero');
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const [swiper, setSwiper] = useState(null);
@@ -53,10 +54,7 @@ export default function HeroSection({ initialSlides = [], initialLocale = '' }) 
                 ? b.subtitleEn || b.text || b.subtitleIt
                 : b.subtitleIt || b.text || b.subtitleEn,
             href: b.href,
-            cta:
-              locale === 'en'
-                ? b.ctaEn || b.cta || 'Learn more'
-                : b.ctaIt || b.cta || 'Scopri di più',
+            cta: locale === 'en' ? b.ctaEn || b.cta || t('cta') : b.ctaIt || b.cta || t('cta'),
           })),
         );
         setStatus('ready');

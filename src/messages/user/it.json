@@ -58,7 +58,7 @@
       "firstName": "Nome",
       "lastName": "Cognome",
       "email": "Email",
-      "phone": "Telefono",
+      "phone": "Numero di telefono",
       "deliveryAddress": "Indirizzo di consegna",
       "required": "Richiesto",
       "invalidEmail": "Email non valida",
@@ -82,6 +82,9 @@
       "loading": "Caricamento dettagli...",
       "totalWithVat": "TOTALE",
       "totalWithVatSpan": "IVA incl.",
+      "shipping": "Spedizione",
+      "itemsSubtotal": "Subtotale",
+      "promoDiscount": "Sconto promo",
       "statuses": {
         "pending": "In attesa",
         "paid": "Pagato",

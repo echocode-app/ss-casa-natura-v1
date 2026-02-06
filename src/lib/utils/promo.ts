@@ -1,5 +1,6 @@
 import PromoCode from '@/lib/db/models/PromoCode';
 
+// Promo validation and discount computation.
 export type PromoValidationReason =
   | 'invalid'
   | 'used'

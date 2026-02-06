@@ -10,6 +10,7 @@ import { removeUnavailableCartItems, recomputeCartTotals } from '@/lib/utils/car
 
 // GET /api/cart - Get current cart
 export const GET = handleApi(async (req: NextRequest) => {
+  // Returns current cart and prunes items that no longer exist or are unavailable.
   await connectToDB();
 
   const sessionId = await getCartSessionId();

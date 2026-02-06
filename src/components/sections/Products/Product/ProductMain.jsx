@@ -57,7 +57,9 @@ export default function ProductMain({ product }) {
       <div className="flex-1 flex flex-col justify-between lg:justify-normal gap-3">
         <div>
           <h1 className="text-[clamp(22px,4vw,30px)] font-semibold">{product.title}</h1>
-          <p className="text-[clamp(14px,4vw,20px)] mt-3">{product.sku}</p>
+          {product.sku && (
+            <p className="text-[clamp(14px,4vw,20px)] mt-3">{`art.${product.sku}`}</p>
+          )}
 
           {/* Volume selector */}
           {product.variants?.length > 0 && (

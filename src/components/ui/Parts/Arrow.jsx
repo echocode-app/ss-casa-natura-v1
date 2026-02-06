@@ -1,9 +1,9 @@
 import Image from 'next/image';
 
-export default function Arrow({ className = '', ariaLabel = 'Arrow' }) {
+export default function Arrow({ className = '' }) {
   return (
-    <button aria-label={ariaLabel} className={`transition-transform duration-400 ${className}`}>
-      <Image src="/images/parts/arc.svg" alt={ariaLabel} width={200} height={70} />
-    </button>
+    <span aria-hidden="true" className={`transition-transform duration-400 ${className}`}>
+      <Image src="/images/parts/arc.svg" alt="" width={200} height={70} />
+    </span>
   );
 }

@@ -60,6 +60,10 @@
   "marketing": {
     "label": "Inviami email con notizie e offerte"
   },
+  "autocomplete": {
+    "loading": "Caricamento…",
+    "suggestionsAria": "Suggerimenti"
+  },
   "errors": {
     "emptyCart": "Il carrello è vuoto.",
     "shippingRequired": "Compila l'indirizzo per calcolare la spedizione.",

@@ -91,6 +91,11 @@ export default function OrdersSection({ orders }: OrdersSectionProps) {
           const isExpanded = expandedOrders.has(order.id);
           const isLoading = loadingOrders.has(order.id);
           const orderTotal = order.totalPrice || calculateOrderTotal(order);
+          const itemsSubtotal = order.subtotal ?? calculateOrderTotal(order);
+          const shippingPrice = order.shippingPrice ?? 0;
+          const discountAmount =
+            order.discountAmount ?? (order.discount ?? 0) + (order.promoDiscount ?? 0);
+          const showDiscountRow = discountAmount > 0;
 
           return (
             <div key={order.id} className="flex flex-col gap-3">
@@ -133,25 +138,41 @@ export default function OrdersSection({ orders }: OrdersSectionProps) {
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between gap-2 pl-3 lg:pl-6 mt-4 lg:mt-8">
-                      <div className="flex gap-2 items-center justify-center">
-                        <span className="font-semibold text-[clamp(12px,2vw,18px)]">
-                          {t('totalWithVat')}
+                    <div className="flex flex-col gap-2 pl-3 lg:pl-6 mt-4 lg:mt-8">
+                      <div className="flex items-center justify-between gap-2 text-[clamp(10px,2vw,16px)] text-text-soft">
+                        <span>{t('shipping')}</span>
+                        <span className="font-semibold">€ {shippingPrice.toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 text-[clamp(10px,2vw,16px)] text-text-soft">
+                        <span>{t('itemsSubtotal')}</span>
+                        <span className="font-semibold">€ {itemsSubtotal.toFixed(2)}</span>
+                      </div>
+                      {showDiscountRow && (
+                        <div className="flex items-center justify-between gap-2 text-[clamp(10px,2vw,16px)] text-text-soft">
+                          <span>{t('promoDiscount')}</span>
+                          <span className="font-semibold">-€ {discountAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-200">
+                        <div className="flex gap-2 items-center justify-center">
+                          <span className="font-semibold text-[clamp(12px,2vw,18px)]">
+                            {t('totalWithVat')}
+                          </span>
+                          <span className="font-normal text-[clamp(10px,2vw,14px)]">
+                            {t('totalWithVatSpan')}
+                          </span>
+                        </div>
+                        <span className="font-semibold text-[clamp(10px,3vw,18px)] items-center text-center mx-auto">
+                          € {orderTotal.toFixed(2)}
                         </span>
-                        <span className="font-normal text-[clamp(10px,2vw,14px)]">
-                          {t('totalWithVatSpan')}
+                        <span className="text-right ml-auto pr-1 lg:pr-6 ">
+                          {getDiscountBadge(order) && (
+                            <span className="text-[clamp(10px,3vw,18px)] text-text-soft font-semibold">
+                              {getDiscountBadge(order)}
+                            </span>
+                          )}
                         </span>
                       </div>
-                      <span className="font-semibold text-[clamp(10px,3vw,18px)] items-center text-center mx-auto">
-                        € {orderTotal.toFixed(2)}
-                      </span>
-                      <span className="text-right ml-auto pr-1 lg:pr-6 ">
-                        {getDiscountBadge(order) && (
-                          <span className="text-[clamp(10px,3vw,18px)] text-text-soft font-semibold">
-                            {getDiscountBadge(order)}
-                          </span>
-                        )}
-                      </span>
                     </div>
                   </div>
                 </div>

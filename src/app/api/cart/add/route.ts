@@ -21,6 +21,7 @@ const addToCartSchema = z.object({
 
 // POST /api/cart/add - Add item to cart
 export const POST = handleApi(async (req: NextRequest) => {
+  // Validates input, enforces stock constraints, and keeps promo totals consistent.
   await connectToDB();
 
   // Parse and validate request body

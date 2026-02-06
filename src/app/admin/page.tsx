@@ -12,7 +12,8 @@ type StatsResponse = {
   widgets?: {
     users?: { total: number; week: number; month: number };
     promoRequests?: { total: number; week: number; month: number };
-    orders?: { total: number; week: number; month: number };
+    orders?: { total: number; week: number; month: number; pending?: number };
+    contactRequests?: { total: number; new?: number };
   };
   promoEmails?: Array<{ email: string; createdAt?: string }>;
   topSelling?: Array<{ productId: string; title?: string; quantity: number }>;
@@ -82,7 +83,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         <AdminCard className="p-6">
           <div className="text-sm text-gray-600 leading-relaxed mb-3">Utenti registrati</div>
           <div className="text-3xl font-semibold leading-tight">
@@ -117,12 +118,33 @@ export default function AdminDashboardPage() {
           <div className="text-3xl font-semibold leading-tight">
             {loading ? '—' : (widgets?.orders?.total ?? '—')}
           </div>
+          <div className="mt-2 text-sm text-gray-600 leading-relaxed">
+            Nuovi non lavorati: {loading ? '—' : (widgets?.orders?.pending ?? '—')}
+          </div>
           <div className="mt-3 text-sm text-gray-600 leading-relaxed">
             Settimana: {loading ? '—' : (widgets?.orders?.week ?? '—')} · Mese:{' '}
             {loading ? '—' : (widgets?.orders?.month ?? '—')}
           </div>
           <p className="mt-3 text-xs text-gray-500 leading-relaxed">
-            Conteggio ordini pagati/spediti. Se un ordine è in pending, non viene conteggiato.
+            Conteggio totale ordini + nuovi non lavorati (pending). I valori settimanali/mensili
+            sono basati sugli ordini pagati.
+          </p>
+        </AdminCard>
+
+        <AdminCard className="p-6">
+          <div className="text-sm text-gray-600 leading-relaxed mb-3">
+            <Link href="/admin/submissions" className="text-blue-700 hover:underline">
+              Richieste contatto
+            </Link>
+          </div>
+          <div className="text-3xl font-semibold leading-tight">
+            {loading ? '—' : (widgets?.contactRequests?.total ?? '—')}
+          </div>
+          <div className="mt-2 text-sm text-gray-600 leading-relaxed">
+            Nuove non gestite: {loading ? '—' : (widgets?.contactRequests?.new ?? '—')}
+          </div>
+          <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+            Totale richieste dal form contatti e numero di nuove richieste da gestire.
           </p>
         </AdminCard>
       </div>

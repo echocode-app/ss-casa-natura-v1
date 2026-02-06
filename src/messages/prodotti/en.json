@@ -41,5 +41,14 @@
     "addToCart": "Add to cart",
     "outOfStock": "Out of stock",
     "variantUnavailable": "The selected volume is not available. Choose another option."
+  },
+  "error": {
+    "title": "Error loading products",
+    "description": "We couldn’t load the products page. This may be a temporary issue.",
+    "details": "Error details (dev)",
+    "retry": "Try again",
+    "backHome": "Back to home",
+    "contactPrompt": "If the problem persists, contact us via the",
+    "contactLink": "contact page"
   }
 }

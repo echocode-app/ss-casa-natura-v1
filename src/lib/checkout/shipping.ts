@@ -50,6 +50,7 @@ export function calculateShippingQuote(
   { totalWeightKg }: ShippingQuoteInput,
   settings?: Partial<ShippingSettings> | null,
 ): ShippingQuote {
+  // Convert total weight to grams and apply per-gram pricing plus fixed fee.
   const normalized = normalizeShippingSettings(settings);
   const totalWeightGrams = Math.max(0, Number(totalWeightKg || 0)) * 1000;
   const shippingPrice = roundMoney(

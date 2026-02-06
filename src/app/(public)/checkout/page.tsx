@@ -1,5 +1,7 @@
 'use client';
 
+// Checkout page shell that loads data providers and renders the step-based UI.
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -849,8 +851,9 @@ export default function CheckoutPage() {
               <Link
                 href="/cart"
                 className="group text-sm flex items-center justify-center gap-2 py-4 px-6
-                 text-text-extrablack duration-300 transition-all hover:underline
-                  bg-brand-accent text-center rounded-[25px] font-semibold
+                 text-text-extrablack duration-300 transition-all text-center rounded-[25px] font-semibold
+                 bg-transparent border border-input hover:bg-brand-accent focus-visible:bg-brand-accent
+                 focus-visible:outline-none
                  "
               >
                 <Cart className="w-5 h-5 fill-current transition-transform duration-300 group-hover:scale-110" />

@@ -5,6 +5,7 @@ import connectToDB from '@/lib/db/mongo';
 import User from '@/lib/db/models/User';
 import Order from '@/lib/db/models/Order';
 import MarketingEmail from '@/lib/db/models/MarketingEmail';
+import ContactSubmission from '@/lib/db/models/ContactSubmission';
 import { applyInventoryToCatalogProducts } from '@/lib/utils/inventory';
 
 export const GET = handleApi(async () => {
@@ -45,6 +46,9 @@ export const GET = handleApi(async () => {
     ordersTotal,
     ordersWeek,
     ordersMonth,
+    ordersPending,
+    contactTotal,
+    contactNew,
   ] = await Promise.all([
     User.countDocuments({}),
     User.countDocuments({ createdAt: { $gte: weekAgo } }),
@@ -52,9 +56,12 @@ export const GET = handleApi(async () => {
     MarketingEmail.countDocuments({}),
     MarketingEmail.countDocuments({ createdAt: { $gte: weekAgo } }),
     MarketingEmail.countDocuments({ createdAt: { $gte: monthAgo } }),
-    Order.countDocuments(orderStatusFilter),
+    Order.countDocuments({}),
     Order.countDocuments(paidWeekQuery),
     Order.countDocuments(paidMonthQuery),
+    Order.countDocuments({ status: 'pending' }),
+    ContactSubmission.countDocuments({}),
+    ContactSubmission.countDocuments({ status: 'new' }),
   ]);
 
   const promoEmails = await MarketingEmail.find({})
@@ -197,7 +204,8 @@ export const GET = handleApi(async () => {
     widgets: {
       users: { total: totalUsers, week: usersWeek, month: usersMonth },
       promoRequests: { total: promoReqTotal, week: promoReqWeek, month: promoReqMonth },
-      orders: { total: ordersTotal, week: ordersWeek, month: ordersMonth },
+      orders: { total: ordersTotal, week: ordersWeek, month: ordersMonth, pending: ordersPending },
+      contactRequests: { total: contactTotal, new: contactNew },
     },
     promoEmails: promoEmails.map((e: any) => ({
       email: e.email,

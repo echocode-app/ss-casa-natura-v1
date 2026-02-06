@@ -1,0 +1,425 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Casa Natura API",
+    "version": "1.0.0",
+    "description": "Full API documentation for Casa Natura (public + admin endpoints).",
+    "contact": {
+      "name": "Casa Natura",
+      "url": "https://www.deltagreen.it"
+    }
+  },
+  "servers": [
+    { "url": "https://www.deltagreen.it", "description": "Production" },
+    { "url": "http://localhost:3000", "description": "Local" }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Authentication endpoints" },
+    { "name": "Users", "description": "User profile endpoints" },
+    { "name": "Products", "description": "Catalog products" },
+    { "name": "Categories", "description": "Product categories" },
+    { "name": "Cart", "description": "Cart operations" },
+    { "name": "Checkout", "description": "Checkout & payments" },
+    { "name": "Orders", "description": "Order data" },
+    { "name": "Shipping", "description": "Shipping quotes" },
+    { "name": "Promo", "description": "Promo codes" },
+    { "name": "Contact", "description": "Contact form" },
+    { "name": "SiteSettings", "description": "Site settings" },
+    { "name": "HeroBanners", "description": "Hero banners" },
+    { "name": "Mailchimp", "description": "Mailchimp integration" },
+    { "name": "Mapbox", "description": "Mapbox geocoding proxy" },
+    { "name": "Admin", "description": "Admin-only endpoints" },
+    { "name": "Docs", "description": "API documentation" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": { "type": "apiKey", "in": "cookie", "name": "auth_token" }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "errorCode": { "type": "string" },
+          "error": { "type": "string" },
+          "details": { "type": ["object", "array", "string", "null"] }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": { "success": { "type": "boolean" } }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "email": { "type": "string" },
+          "name": { "type": "string" },
+          "surname": { "type": "string" },
+          "phone": { "type": "string" },
+          "deliveryAddress": { "type": ["string", "object", "null"] },
+          "role": { "type": "string", "enum": ["user", "admin", "superadmin", "developer"] },
+          "adminSections": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "ProductImage": {
+        "type": "object",
+        "properties": {
+          "src": { "type": "string" },
+          "alt": { "type": "string" },
+          "publicId": { "type": "string" }
+        }
+      },
+      "CatalogVariant": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "volume": { "type": "number" },
+          "unit": { "type": "string", "enum": ["ml", "l", "kg", "g"] },
+          "price": { "type": "number" },
+          "weightGrams": { "type": "number" },
+          "stock": { "type": "number" },
+          "isAvailable": { "type": "boolean" },
+          "isBestSeller": { "type": "boolean" }
+        }
+      },
+      "CatalogProduct": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "slug": { "type": "string" },
+          "sku": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "shortDescription": { "type": "string" },
+          "categoryIds": { "type": "array", "items": { "type": "string" } },
+          "lineId": { "type": "string" },
+          "images": { "type": "array", "items": { "$ref": "#/components/schemas/ProductImage" } },
+          "variants": { "type": "array", "items": { "$ref": "#/components/schemas/CatalogVariant" } },
+          "currency": { "type": "string" },
+          "discount": { "type": ["object", "null"] },
+          "promoEligible": { "type": "boolean" },
+          "isEco": { "type": "boolean" },
+          "isNewProduct": { "type": "boolean" },
+          "isNew": { "type": "boolean" },
+          "isSeasonal": { "type": "boolean" },
+          "relatedProductIds": { "type": "array", "items": { "type": "string" } },
+          "filters": { "type": "array" },
+          "archived": { "type": "boolean" },
+          "createdAt": { "type": "string" },
+          "updatedAt": { "type": "string" }
+        }
+      },
+      "CartItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "productId": { "type": "string" },
+          "variantId": { "type": "string" },
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "imageSrc": { "type": "string" },
+          "price": { "type": "number" },
+          "volume": { "type": "number" },
+          "unit": { "type": "string" },
+          "quantity": { "type": "number" },
+          "totalPrice": { "type": "number" }
+        }
+      },
+      "Cart": {
+        "type": "object",
+        "properties": {
+          "id": { "type": ["string", "null"] },
+          "userId": { "type": ["string", "null"] },
+          "sessionId": { "type": "string" },
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/CartItem" } },
+          "subtotal": { "type": "number" },
+          "discount": { "type": "number" },
+          "promoCode": { "type": ["string", "null"] },
+          "promoDiscount": { "type": "number" },
+          "total": { "type": "number" },
+          "removedItems": { "type": "array", "items": { "type": "object" } },
+          "createdAt": { "type": "string" },
+          "updatedAt": { "type": "string" }
+        }
+      },
+      "ShippingQuote": {
+        "type": "object",
+        "properties": {
+          "shippingPrice": { "type": "number" },
+          "recurringPrice": { "type": "number" },
+          "subtotal": { "type": "number" },
+          "promoDiscount": { "type": "number" },
+          "total": { "type": "number" }
+        }
+      },
+      "OrderProduct": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" },
+          "variantId": { "type": "string" },
+          "slug": { "type": "string" },
+          "sku": { "type": "string" },
+          "title": { "type": "string" },
+          "imageSrc": { "type": "string" },
+          "price": { "type": "number" },
+          "quantity": { "type": "number" },
+          "volume": { "type": "number" },
+          "unit": { "type": "string" }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string" },
+          "subtotal": { "type": "number" },
+          "shippingPrice": { "type": "number" },
+          "totalPrice": { "type": "number" },
+          "promoCode": { "type": ["string", "null"] },
+          "promoDiscount": { "type": "number" },
+          "createdAt": { "type": "string" },
+          "products": { "type": "array", "items": { "$ref": "#/components/schemas/OrderProduct" } }
+        }
+      },
+      "HeroBanner": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "image": { "type": "string" },
+          "imagePublicId": { "type": "string" },
+          "href": { "type": "string" },
+          "titleIt": { "type": "string" },
+          "subtitleIt": { "type": "string" },
+          "ctaIt": { "type": "string" },
+          "titleEn": { "type": "string" },
+          "subtitleEn": { "type": "string" },
+          "ctaEn": { "type": "string" },
+          "isActive": { "type": "boolean" },
+          "sortOrder": { "type": "number" }
+        }
+      },
+      "SiteSettings": {
+        "type": "object",
+        "properties": {
+          "promoBar": { "type": "object" },
+          "globalPromotion": { "type": "object" },
+          "promoSubscription": { "type": "object" },
+          "shipping": { "type": "object" }
+        }
+      },
+      "ContactSubmission": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "subject": { "type": "string" },
+          "message": { "type": "string" },
+          "status": { "type": "string", "enum": ["new", "resolved", "rejected"] },
+          "createdAt": { "type": "string" },
+          "updatedAt": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/docs": {
+      "get": {
+        "summary": "OpenAPI specification JSON",
+        "tags": ["Docs"],
+        "responses": { "200": { "description": "OpenAPI document" } }
+      }
+    },
+    "/api/site-settings": {
+      "get": {
+        "summary": "Get site settings",
+        "tags": ["SiteSettings"],
+        "responses": { "200": { "description": "Settings", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/api/hero-banners": {
+      "get": {
+        "summary": "Public hero banners",
+        "tags": ["HeroBanners"],
+        "responses": { "200": { "description": "Banners list" } }
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "summary": "Categories",
+        "tags": ["Categories"],
+        "responses": { "200": { "description": "Category list" } }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "summary": "Products list",
+        "tags": ["Products"],
+        "responses": { "200": { "description": "Products" } }
+      }
+    },
+    "/api/products/{slug}": {
+      "get": {
+        "summary": "Product by slug",
+        "tags": ["Products"],
+        "parameters": [ { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "responses": { "200": { "description": "Product" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/api/products/{slug}/related": {
+      "get": {
+        "summary": "Related products",
+        "tags": ["Products"],
+        "parameters": [ { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "responses": { "200": { "description": "Related products" } }
+      }
+    },
+    "/api/products/{slug}/upsell": {
+      "get": {
+        "summary": "Upsell products",
+        "tags": ["Products"],
+        "parameters": [ { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "responses": { "200": { "description": "Upsell products" } }
+      }
+    },
+    "/api/cart": {
+      "get": {
+        "summary": "Get cart",
+        "tags": ["Cart"],
+        "responses": {
+          "200": {
+            "description": "Cart",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "success": {"type":"boolean"}, "cart": { "$ref": "#/components/schemas/Cart" } } } } }
+          },
+          "400": { "description": "Missing cart session", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/cart/add": {
+      "post": {
+        "summary": "Add item to cart",
+        "tags": ["Cart"],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "object", "required": ["productId", "variantId"], "properties": { "productId": {"type": "string"}, "variantId": {"type": "string"}, "quantity": {"type": "number", "default": 1} } } } }
+        },
+        "responses": {
+          "200": { "description": "Updated cart" },
+          "409": { "description": "Out of stock" }
+        }
+      }
+    },
+    "/api/cart/update": {
+      "post": {
+        "summary": "Update cart item quantity",
+        "tags": ["Cart"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["productId", "variantId", "quantity"], "properties": { "productId": {"type": "string"}, "variantId": {"type": "string"}, "quantity": {"type": "number"} } } } } },
+        "responses": { "200": { "description": "Updated cart" }, "409": { "description": "Out of stock" } }
+      }
+    },
+    "/api/cart/remove": {
+      "post": {
+        "summary": "Remove item from cart",
+        "tags": ["Cart"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["productId", "variantId"], "properties": { "productId": {"type": "string"}, "variantId": {"type": "string"} } } } } },
+        "responses": { "200": { "description": "Updated cart" } }
+      }
+    },
+    "/api/cart/clear": {
+      "post": { "summary": "Clear cart", "tags": ["Cart"], "responses": { "200": { "description": "Empty cart" } } }
+    },
+    "/api/cart/promo/apply": {
+      "post": { "summary": "Apply promo code", "tags": ["Promo"], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "promoCode": {"type": "string"} } } } } }, "responses": { "200": { "description": "Updated cart" }, "400": { "description": "Invalid promo" } } }
+    },
+    "/api/cart/promo/remove": {
+      "post": { "summary": "Remove promo code", "tags": ["Promo"], "responses": { "200": { "description": "Updated cart" } } }
+    },
+    "/api/checkout/create": {
+      "post": {
+        "summary": "Create Stripe payment",
+        "tags": ["Checkout"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+        "responses": { "200": { "description": "Stripe clientSecret + orderId" }, "409": { "description": "Out of stock" } }
+      }
+    },
+    "/api/shipping/quote": {
+      "post": {
+        "summary": "Shipping quote",
+        "tags": ["Shipping"],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+        "responses": { "200": { "description": "Quote", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ShippingQuote" } } } } }
+      }
+    },
+    "/api/promocode/validate": {
+      "post": { "summary": "Validate promo code (no cart)", "tags": ["Promo"], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Promo discount" } } }
+    },
+    "/api/promocode/claim": {
+      "post": { "summary": "Claim promo code", "tags": ["Promo"], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Promo claimed" } } }
+    },
+    "/api/contact": {
+      "post": { "summary": "Send contact message", "tags": ["Contact"], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Message saved" } } }
+    },
+    "/api/csrf": {
+      "get": { "summary": "Get CSRF token", "tags": ["Auth"], "responses": { "200": { "description": "Token" } } }
+    },
+    "/api/auth/login": {
+      "post": { "summary": "Login", "tags": ["Auth"], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Logged in" }, "401": { "description": "Invalid credentials" } } }
+    },
+    "/api/auth/logout": {
+      "post": { "summary": "Logout", "tags": ["Auth"], "responses": { "200": { "description": "Logged out" } } }
+    },
+    "/api/auth/register": {
+      "post": { "summary": "Register", "tags": ["Auth"], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Registered" } } }
+    },
+    "/api/auth/forgot": {
+      "post": { "summary": "Request password reset", "tags": ["Auth"], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Reset email sent" } } }
+    },
+    "/api/auth/reset-password": {
+      "post": { "summary": "Reset password", "tags": ["Auth"], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Password reset" } } }
+    },
+    "/api/users/me": {
+      "get": { "summary": "Current user", "tags": ["Users"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "User" }, "401": { "description": "Not authenticated" } } }
+    },
+    "/api/users/me/password": {
+      "post": { "summary": "Change password", "tags": ["Users"], "security": [ { "cookieAuth": [] } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Updated" } } }
+    },
+    "/api/users/me/orders": {
+      "get": { "summary": "My orders", "tags": ["Orders"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "Orders", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Order" } } } } } } }
+    },
+    "/api/admin/access": {
+      "get": { "summary": "Admin access and users", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "Access data" } } },
+      "post": { "summary": "Create/update admin access", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Updated" } } }
+    },
+    "/api/admin/catalog-products": {
+      "get": { "summary": "List catalog products", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "q", "in": "query", "schema": { "type": "string" } }, { "name": "includeArchived", "in": "query", "schema": { "type": "string" } } ], "responses": { "200": { "description": "Catalog products" } } },
+      "post": { "summary": "Create catalog product", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CatalogProduct" } } } }, "responses": { "200": { "description": "Created" }, "400": { "description": "Validation failed" } } }
+    },
+    "/api/admin/catalog-products/{id}": {
+      "get": { "summary": "Get catalog product", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "responses": { "200": { "description": "Product" } } },
+      "put": { "summary": "Update catalog product", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CatalogProduct" } } } }, "responses": { "200": { "description": "Updated" }, "400": { "description": "Validation failed" } } },
+      "delete": { "summary": "Delete/Archive catalog product", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "responses": { "200": { "description": "Deleted" } } }
+    },
+    "/api/admin/catalog-products/next-sku": { "get": { "summary": "Next SKU", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "Next SKU" } } } },
+    "/api/admin/products": { "get": { "summary": "Inventory products", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "Inventory list" } } } },
+    "/api/admin/products/{id}": { "get": { "summary": "Inventory product detail", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "responses": { "200": { "description": "Product" } } }, "put": { "summary": "Update inventory product", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Updated" } } } },
+    "/api/admin/site-settings": { "get": { "summary": "Get admin site settings", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "Settings" } } }, "put": { "summary": "Update admin site settings", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Updated" } } } },
+    "/api/admin/hero-banners": { "get": { "summary": "List hero banners", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "Banners" } } }, "post": { "summary": "Create hero banner", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HeroBanner" } } } }, "responses": { "200": { "description": "Created" } } } },
+    "/api/admin/hero-banners/{id}": { "get": { "summary": "Get hero banner", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "responses": { "200": { "description": "Banner" } } }, "put": { "summary": "Update hero banner", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HeroBanner" } } } }, "responses": { "200": { "description": "Updated" } } }, "delete": { "summary": "Delete hero banner", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "responses": { "200": { "description": "Deleted" } } } },
+    "/api/admin/images": { "post": { "summary": "Upload image", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "requestBody": { "required": true, "content": { "multipart/form-data": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Uploaded" } } } },
+    "/api/admin/orders": { "get": { "summary": "List orders", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "limit", "in": "query", "schema": { "type": "number" } }, { "name": "skip", "in": "query", "schema": { "type": "number" } }, { "name": "status", "in": "query", "schema": { "type": "string" } }, { "name": "q", "in": "query", "schema": { "type": "string" } } ], "responses": { "200": { "description": "Orders" } } } },
+    "/api/admin/orders/{id}": { "get": { "summary": "Order detail", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "responses": { "200": { "description": "Order" } } }, "put": { "summary": "Update order", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "status": {"type": "string"} } } } } }, "responses": { "200": { "description": "Updated" } } } },
+    "/api/admin/contact-submissions": { "get": { "summary": "Contact submissions", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "Submissions" } } } },
+    "/api/admin/contact-submissions/{id}": { "get": { "summary": "Contact submission detail", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "responses": { "200": { "description": "Submission" } } }, "put": { "summary": "Update submission status", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "status": {"type": "string"} } } } } }, "responses": { "200": { "description": "Updated" } } } },
+    "/api/admin/email-templates": { "get": { "summary": "Email templates", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "Templates" } } }, "put": { "summary": "Update email templates", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } }, "responses": { "200": { "description": "Updated" } } } },
+    "/api/admin/stats": { "get": { "summary": "Admin dashboard stats", "tags": ["Admin"], "security": [ { "cookieAuth": [] } ], "responses": { "200": { "description": "Stats" } } } },
+    "/api/mailchimp/stats": { "get": { "summary": "Mailchimp stats", "tags": ["Mailchimp"], "responses": { "200": { "description": "Stats" } } } },
+    "/api/mailchimp/export": { "get": { "summary": "Mailchimp export", "tags": ["Mailchimp"], "responses": { "200": { "description": "Export" } } } },
+    "/api/mapbox/geocode": { "get": { "summary": "Mapbox geocoding proxy", "tags": ["Mapbox"], "parameters": [ { "name": "q", "in": "query", "schema": { "type": "string" } }, { "name": "reverse", "in": "query", "schema": { "type": "string" } }, { "name": "center", "in": "query", "schema": { "type": "string" } }, { "name": "types", "in": "query", "schema": { "type": "string" } }, { "name": "limit", "in": "query", "schema": { "type": "string" } } ], "responses": { "200": { "description": "Mapbox response" } } } },
+    "/api/webhooks/stripe": { "post": { "summary": "Stripe webhook", "tags": ["Checkout"], "responses": { "200": { "description": "Webhook handled" } } } },
+    "/api/orders/webhook": { "post": { "summary": "Stripe webhook alias", "tags": ["Checkout"], "responses": { "200": { "description": "Webhook handled" } } } },
+    "/api/test-db": { "get": { "summary": "Development test endpoint", "tags": ["Admin"], "responses": { "200": { "description": "Test" } } } }
+  }
+}

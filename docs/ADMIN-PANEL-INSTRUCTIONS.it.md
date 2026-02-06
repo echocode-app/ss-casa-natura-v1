@@ -1,62 +1,128 @@
 # Guida Pannello Admin (IT)
 
 ## Panoramica
-Il pannello admin permette ai ruoli autorizzati (developer, superadmin, admin) di gestire contenuti, ordini, prodotti, promozioni e impostazioni di sistema. L’accesso alle sezioni è basato sui ruoli ed è limitabile per ogni admin.
+Il pannello Admin è il centro operativo di Casa Natura. Serve per catalogo, stock, ordini, regole di spedizione, promozioni, banner e richieste contatto.
 
-## Ruoli
-- **Developer**: Accesso completo a tutte le sezioni.
-- **Superadmin**: Accesso completo e gestione dei permessi admin.
-- **Admin**: Accesso solo alle sezioni assegnate dal superadmin.
+## Ruoli & Accesso
+- **Developer**: accesso completo a tutte le sezioni.
+- **Superadmin**: accesso completo + gestione permessi admin.
+- **Admin**: accesso limitato alle sezioni assegnate.
 
-## Sezioni
+Note:
+- Se compare “Accesso non disponibile”, chiedere al Superadmin.
+- Dopo una modifica permessi, ricaricare o rifare login.
 
-### Dashboard
-- Statistiche rapide: utenti, ordini, top prodotti, scorte basse, email newsletter.
-- Link a ordini e prodotti visibili solo se l’accesso è consentito.
+## Dashboard
+Mostra KPI operativi:
+- Utenti (totale + ultimi 7/30 giorni)
+- Ordini (totale + pending; settimana/mese basati su ordini pagati)
+- Richieste contatto (totali + nuove)
+- Richieste promo newsletter
+- Top prodotti (ultimi 30 giorni)
+- Scorte basse (<= 5)
+- Stato integrazioni
 
-### Email
-- Anteprima e modifica **solo testo** delle email transazionali.
-- Ogni template viene salvato separatamente.
-- Usa placeholder come `{{name}}`, `{{orderId}}`, `{{products}}` nel testo.
-- È editabile anche il template della notifica ordine admin.
+## Ordini
+Percorso: **Admin → Ordini**
 
-### Ordini
-- Visualizzazione e gestione ordini.
-- Ricerca per email, nome, checkout ID o payment intent.
-- Dettaglio completo dell’ordine.
+Cosa puoi fare:
+- Cercare per email, nome, checkout ID o payment intent.
+- Filtrare per stato (pending, paid, shipped, canceled).
+- Aprire un ordine per dettagli completi.
+- Aggiornare stato (visibile all’utente).
 
-### Prodotti
-- Creazione e modifica prodotti.
-- Gestione varianti, prezzi e stock.
-- Validazione in tempo reale e al salvataggio.
+Best practice:
+- `pending` → `paid` solo dopo conferma pagamento.
+- `shipped` solo quando il corriere è attivo.
 
-### Banner Hero
-- Gestione dei banner principali del sito.
-- Upload immagini e testo/CTA.
+## Prodotti (Catalogo)
+Percorso: **Admin → Prodotti**
 
-### Promozioni
-- Configurazione PromoBar (testo, colori, link).
-- Il testo italiano è obbligatorio per l’attivazione.
+### Creazione/Modifica
+Obbligatori:
+- Titolo
+- Descrizione
+- Categoria
+- Almeno 1 immagine
+- Almeno 1 variante
 
-### Richieste contatto
-- Lettura dei messaggi inviati dal form contatto.
+Ogni variante richiede:
+- ID (unico per prodotto)
+- Etichetta
+- Volume + unità
+- Prezzo
+- **Peso (grammi)**
+- Stock + disponibilità
 
-### Gestione accessi
-- Solo **superadmin** può assegnare o revocare accessi admin.
+### Best Seller
+- Seleziona almeno una variante come **Best Seller** per mostrare il prodotto in homepage “Top Products”.
+
+### Archivio
+- Eliminare un prodotto lo archivia (non visibile nello shop).
+
+## Inventario & Stock
+Lo stock viene verificato in:
+- Aggiunta al carrello
+- Aggiornamento carrello
+- Checkout
+
+Avvisi scorte basse:
+- Dashboard mostra varianti con stock <= 5.
+- Card prodotto evidenzia in rosso se qualche variante <= 5.
+
+## Spedizione (solo Superadmin/Developer)
+Percorso: **Admin → Spedizione**
+
+### Formula
+- **Tariffa per grammi (EUR)** = prezzo per grammo
+- **Costo fisso (EUR)** = quota fissa per ogni ordine
+- **Spedizioni ricorrenti (EUR)** = quota fissa per spedizione ricorrente
+
+Totale spedizione:
+```
+spedizione = (pesoTotaleGrammi * tariffaPerGrammo) + costoFisso
+```
+La spedizione ricorrente usa la sua quota fissa.
+
+Importante:
+- Se manca il peso in una variante, il calcolo sarà errato.
+- Solo Superadmin/Developer possono modificare le tariffe.
+
+## Banner Hero
+Percorso: **Admin → Banners**
+
+- Gestione fino a 6 banner attivi.
+- Testi Italiano + Inglese.
+- Ordinamento tramite “sort order”.
+
+## Promozioni (Promo Bar)
+Percorso: **Admin → Promozioni**
+
+- Il testo italiano è obbligatorio per attivare la Promo Bar.
+- Il link deve essere interno e tra quelli consentiti.
+
+## Email (Template)
+Percorso: **Admin → Email**
+
+- Modifica **solo testo** dei template (welcome, promo code, reset password, conferma ordine, notifica ordine admin).
+- Campo vuoto = usa testo di default.
+- Mantieni i placeholder: `{{name}}`, `{{orderId}}`, `{{products}}`.
+
+## Richieste Contatto
+Percorso: **Admin → Submissions**
+
+- Visualizza tutti i messaggi da `/contatti`.
+- Filtra per stato: new / resolved / rejected.
+
+## Gestione Accessi (solo Superadmin)
+Percorso: **Admin → Access**
+
+- Assegna sezioni admin a un utente tramite email.
 - Massimo 3 admin.
-- I ruoli developer e superadmin non sono modificabili.
-- I permessi admin sono assegnati selezionando le sezioni consentite.
+- Ruoli Developer/Superadmin non modificabili.
 
-## Notifiche email
-- I clienti ricevono email per registrazione, promo code, reset password e conferma ordine.
-- L’email di notifica ordine admin viene inviata al superadmin e agli admin con accesso alla sezione **Ordini**.
-
-## Modifica template email
-- Apri **Admin → Email** per modificare i template.
-- Clicca sull’anteprima per iniziare a modificare.
-- Se un campo è vuoto viene usato il testo di default.
-- I placeholder devono restare uguali (es. `{{name}}`).
-
-## Note
-- Se un admin vede “Accesso non disponibile”, deve chiedere al superadmin di assegnare le sezioni.
-- Dopo la modifica dei permessi, è necessario ricaricare o rifare login.
+## Problemi Comuni
+- **Spedizione = 0** → pesi mancanti o tariffe non impostate.
+- **Prodotto non visibile** → archivio o non disponibile.
+- **Top Products vuoto** → nessuna variante Best Seller.
+- **Admin senza sezione** → permessi non assegnati.

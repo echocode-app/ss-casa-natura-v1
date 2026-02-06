@@ -1,62 +1,131 @@
 # Admin Panel Guide (EN)
 
 ## Overview
-The admin panel allows authorized roles (developer, superadmin, admin) to manage content, orders, products, promotions, and system settings. Access to each section is role-based and can be restricted per admin.
+The Admin panel is the control center for Casa Natura. It is designed for daily operations: catalog, stock, orders, shipping rules, promotions, banners, and contact requests.
 
-## Roles
-- **Developer**: Full access to all admin sections.
-- **Superadmin**: Full access to all admin sections and can manage admin access rights.
-- **Admin**: Access is limited to the sections assigned by the superadmin.
+## Roles & Access
+- **Developer**: Full access to all sections (same as Superadmin).
+- **Superadmin**: Full access + can manage admin permissions.
+- **Admin**: Access limited to assigned sections.
 
-## Sections
+Notes:
+- If you see “Access not available”, ask the Superadmin to grant access.
+- After permissions change, refresh the page or re‑login.
 
-### Dashboard
-- Quick statistics: users, orders, top products, low stock, newsletter emails.
-- Links to orders and products (visible only if access is granted).
+## Dashboard
+Shows operational KPIs:
+- Users (total + last 7/30 days)
+- Orders (total + pending; week/month based on paid orders)
+- Contact requests (total + new)
+- Newsletter promo requests
+- Top products (last 30 days)
+- Low stock (<= 5)
+- Integrations health
 
-### Emails
-- Preview and edit **text only** for transactional emails.
-- Each template is saved separately.
-- Use placeholders like `{{name}}`, `{{orderId}}`, `{{products}}` in the text.
-- Admin order notification template is also editable here.
+Use this page for quick checks before daily operations.
 
-### Orders
-- View and manage orders.
+## Orders
+Path: **Admin → Orders**
+
+What you can do:
 - Search by email, name, checkout ID, or payment intent.
-- Open a specific order to see full details.
+- Filter by status (pending, paid, shipped, canceled).
+- Open any order to see items, customer data, shipping, totals.
+- Update status (changes appear in user account history).
 
-### Products
-- Create and edit products.
-- Manage variants, prices, and stock.
-- Validation is applied in real-time and on save.
+Best practice:
+- Move from `pending` to `paid` only after payment confirmation.
+- Use `shipped` only when courier tracking is created.
 
-### Hero Banners
-- Manage main hero banners for the website.
-- Upload images and set text/CTA.
+## Products (Catalog)
+Path: **Admin → Products**
 
-### Promotions
-- Configure the PromoBar (text, colors, link).
-- Italian text is mandatory to enable the PromoBar.
+### Create/Edit Product
+Required:
+- Title
+- Description
+- Category
+- At least 1 image
+- At least 1 variant
 
-### Contact Submissions
-- Review contact form messages.
+Each variant requires:
+- ID (unique per product)
+- Label
+- Volume + unit
+- Price
+- **Weight (grams)**
+- Stock + availability
 
-### Access Management
-- Only **superadmin** can add or remove admin access.
-- Maximum 3 admins.
-- Developer and superadmin roles cannot be changed.
-- Admin access is assigned by selecting allowed sections.
+### Best Seller
+- Mark at least one variant as **Best Seller** to show product in homepage “Top Products”.
 
-## Email Notifications
-- Customers receive emails for registration, promo code, password reset, and order confirmation.
-- Admin order notification email is sent to superadmin and admins with access to **Orders**.
+### Archive
+- Deleting a product archives it (it won’t show in the store).
 
-## Email Template Editing
-- Open **Admin → Email** to edit templates.
-- Click the preview to start editing.
-- Leave a field empty to use the default text from code.
-- Placeholders must be kept exactly as shown (e.g. `{{name}}`).
+## Inventory & Stock
+Stock is checked at:
+- Add to cart
+- Cart update
+- Checkout
 
-## Notes
-- If an admin sees “Access not available”, contact superadmin to assign sections.
-- Changes to access permissions require the admin to refresh or re-login.
+Low stock warnings:
+- Dashboard shows variants with stock <= 5.
+- Product card shows red border when any variant <= 5.
+
+## Shipping (Superadmin/Developer only)
+Path: **Admin → Shipping**
+
+### Shipping formula
+- **Tariffa per grammi (EUR)** = price per gram
+- **Costo fisso (EUR)** = fixed fee added to every order
+- **Spedizioni ricorrenti (EUR)** = fixed fee for recurring shipping
+
+Shipping total:
+```
+shipping = (totalWeightGrams * tariffaPerGrammo) + fixedFee
+```
+Recurring shipping uses the recurring fee instead of the standard shipping fee.
+
+Important:
+- If any product variant has missing weight, shipping will be wrong.
+- Only Superadmin/Developer can update shipping values.
+
+## Hero Banners
+Path: **Admin → Banners**
+
+- Manage up to 6 active banners.
+- Each banner supports Italian + English texts.
+- Order is controlled by sort order.
+
+## Promotions (Promo Bar)
+Path: **Admin → Promotions**
+
+- Italian text is required to enable Promo Bar.
+- Link must be one of the allowed internal pages.
+- Use for seasonal offers or campaigns.
+
+## Emails (Templates)
+Path: **Admin → Emails**
+
+- Edit **text-only** templates (welcome, promo code, password reset, order confirmation, admin order notification).
+- Leave a field empty to use default template.
+- Keep placeholders intact: `{{name}}`, `{{orderId}}`, `{{products}}`.
+
+## Contact Submissions
+Path: **Admin → Submissions**
+
+- View all messages from `/contatti`.
+- Filter by status: new / resolved / rejected.
+
+## Access Management (Superadmin only)
+Path: **Admin → Access**
+
+- Assign admin sections to a user by email.
+- Max 3 admins.
+- Developer/Superadmin roles cannot be changed.
+
+## Common Issues
+- **Shipping = 0** → missing weights or shipping settings.
+- **Product not visible** → archived or not available.
+- **Top Products empty** → no variant marked Best Seller.
+- **Admin can’t see section** → access not granted.

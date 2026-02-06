@@ -1,3 +1,14 @@
 {
-  "key": "value"
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "intro": "This page contains the site’s privacy policy. The final text will be published soon.",
+    "contactPrompt": "For any request related to personal data, you can contact us from the",
+    "contactLink": "Contact"
+  },
+  "cookiePolicy": {
+    "title": "Cookie Policy",
+    "intro": "This page describes the use of cookies on this site. The final text will be published soon.",
+    "contactPrompt": "For questions or requests, you can contact us from the",
+    "contactLink": "Contact"
+  }
 }

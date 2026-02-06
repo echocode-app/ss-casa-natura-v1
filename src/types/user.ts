@@ -28,10 +28,12 @@ export interface Order {
   id: string;
   status: string;
   subtotal?: number;
+  shippingPrice?: number;
   totalPrice: number;
   promoCode?: string;
   discount?: number;
   promoDiscount?: number;
+  discountAmount?: number;
   createdAt: string;
   products: OrderProduct[];
 }

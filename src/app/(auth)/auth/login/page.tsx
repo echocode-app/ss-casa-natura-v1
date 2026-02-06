@@ -6,11 +6,13 @@ import { FormEvent, useMemo, useState } from 'react';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/components/layout/AuthContext';
 import { getGuestCartPayload } from '@/lib/utils/guestCartClient';
+import { useTranslations } from 'next-intl';
 
 const ALLOWED_ROLES = ['developer', 'superadmin', 'admin'];
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const t = useTranslations('authLogin');
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -47,7 +49,7 @@ export default function LoginPage() {
           data?.error ||
           data?.details?.password?.[0] ||
           data?.details?.email?.[0] ||
-          'Login fallito';
+          t('errors.loginFailed');
         setError(message);
         return;
       }
@@ -55,32 +57,32 @@ export default function LoginPage() {
       const isLoggedIn = await login();
 
       if (!isLoggedIn) {
-        setError('Errore nel refresh del profilo.');
+        setError(t('errors.profileRefresh'));
         return;
       }
 
-      // 📌 Check admin access rights
+      // Check admin access rights.
       if (redirectTarget.startsWith('/admin')) {
-        // 📌 Allow time for user context update
+        // Allow time for user context update.
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        // 📌 Check role after login (user will be updated)
+        // Check role after login (user will be updated).
         const res = await fetch('/api/users/me', { credentials: 'include' });
         if (res.ok) {
           const userData = await res.json();
           if (!ALLOWED_ROLES.includes(userData.role)) {
-            setSuccess('Accesso eseguito, ma non hai diritti admin. Ti reindirizzo...');
+            setSuccess(t('success.loginRedirectNoAdmin'));
             router.replace('/');
             return;
           }
         }
       }
 
-      setSuccess('Accesso eseguito, ti reindirizzo...');
+      setSuccess(t('success.loginRedirect'));
       await new Promise((resolve) => setTimeout(resolve, 500));
       router.replace(redirectTarget);
     } catch {
-      setError('Errore imprevisto, riprova.');
+      setError(t('errors.unexpected'));
     } finally {
       setSubmitting(false);
     }
@@ -95,32 +97,29 @@ export default function LoginPage() {
             Casa Natura
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
-            Accedi per gestire il pannello
+            {t('title')}
           </h1>
-          <p className="text-slate-200/80 text-base">
-            Inserisci le credenziali del tuo account. Se non hai accesso amministrativo, verrai
-            reindirizzato alla home dopo l&apos;accesso.
-          </p>
+          <p className="text-slate-200/80 text-base">{t('description')}</p>
           <div className="mt-8 flex gap-4 text-sm text-slate-300/80">
             <Link
               href="/"
               className="underline underline-offset-4 decoration-[#FFFC8A]/70 hover:decoration-[#FFFC8A]"
             >
-              Torna al sito
+              {t('backToSite')}
             </Link>
             <Link
               href="/contatti"
               className="underline underline-offset-4 decoration-slate-500 hover:decoration-white"
             >
-              Hai bisogno di aiuto?
+              {t('needHelp')}
             </Link>
           </div>
         </div>
 
         <div className="flex-1 w-full max-w-md bg-white/5 border border-white/10 rounded-2xl shadow-2xl shadow-slate-900/50 backdrop-blur-xl p-8">
           <div className="mb-6">
-            <p className="text-sm text-slate-200/80 mb-1">Accesso sicuro</p>
-            <h2 className="text-2xl font-semibold text-white">Area riservata</h2>
+            <p className="text-sm text-slate-200/80 mb-1">{t('secureAccess')}</p>
+            <h2 className="text-2xl font-semibold text-white">{t('restrictedArea')}</h2>
           </div>
 
           {error && (
@@ -138,7 +137,7 @@ export default function LoginPage() {
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <label className="text-sm text-slate-200" htmlFor="email">
-                Email
+                {t('form.email')}
               </label>
               <input
                 id="email"
@@ -154,7 +153,7 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <label className="text-sm text-slate-200" htmlFor="password">
-                Password
+                {t('form.password')}
               </label>
               <input
                 id="password"
@@ -176,15 +175,15 @@ export default function LoginPage() {
               {submitting ? (
                 <>
                   <Spinner size="sm" colorScheme="muted" className="!border-slate-900" />
-                  <span>Accesso in corso...</span>
+                  <span>{t('actions.loggingIn')}</span>
                 </>
               ) : (
-                <span>Accedi</span>
+                <span>{t('actions.login')}</span>
               )}
             </button>
 
             <p className="text-xs text-slate-300/80 text-center">
-              Dopo l&apos;accesso verrai reindirizzato a {redirectTarget}.
+              {t('redirectNotice', { target: redirectTarget })}
             </p>
           </form>
         </div>

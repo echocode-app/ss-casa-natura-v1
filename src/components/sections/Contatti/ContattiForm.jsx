@@ -83,7 +83,7 @@ export default function ContattiForm() {
     if (normalizedValue !== value) {
       setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
     }
-    // 📌 Always validate on blur, even if empty
+    // Always validate on blur, even if empty.
     validateField(field, normalizedValue);
   };
 
@@ -168,7 +168,6 @@ export default function ContattiForm() {
         </h2>
         <p className="text-[clamp(18px,2vw,24px)] mb-4 lg:mb-8 text-center">{t('formSubtitle')}</p>
 
-        {/* 📌 First name */}
         <div className="flex flex-col">
           <label className="mb-2 lg:mb-4 font-semibold text-[clamp(16px,2vw,22px)]">
             {t('nome')}
@@ -187,7 +186,6 @@ export default function ContattiForm() {
           <FormError message={fieldErrors.nome} />
         </div>
 
-        {/* 📌 Last name */}
         <div className="flex flex-col">
           <label className="mb-2 lg:mb-4 font-semibold text-[clamp(16px,2vw,22px)]">
             {t('cognome')}
@@ -206,7 +204,6 @@ export default function ContattiForm() {
           <FormError message={fieldErrors.cognome} />
         </div>
 
-        {/* 📌 Email */}
         <div className="flex flex-col">
           <label className="mb-2 lg:mb-4 font-semibold text-[clamp(16px,2vw,22px)]">
             {t('email')}
@@ -226,7 +223,6 @@ export default function ContattiForm() {
           <FormError message={fieldErrors.email} />
         </div>
 
-        {/* 📌 Phone */}
         <div className="flex flex-col">
           <label className="mb-2 lg:mb-4 font-semibold text-[clamp(16px,2vw,22px)]">
             {t('telefonoOptional')}
@@ -245,7 +241,6 @@ export default function ContattiForm() {
           <FormError message={fieldErrors.telefono} />
         </div>
 
-        {/* 📌 Message */}
         <div className="flex flex-col">
           <label className="mb-2 lg:mb-4 font-semibold text-[clamp(16px,2vw,22px)]">
             {t('messaggio')}
@@ -263,7 +258,6 @@ export default function ContattiForm() {
           <FormError message={fieldErrors.messaggio} />
         </div>
 
-        {/* 📌 Submit */}
         <div className="mx-auto">
           <PrimaryButton
             type="submit"

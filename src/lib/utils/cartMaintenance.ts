@@ -3,6 +3,7 @@ import { computeGlobalPromotionDiscount } from '@/lib/utils/globalPromotion';
 import { computePromoDiscount } from '@/lib/utils/promo';
 import { CartItemDB } from '@/types/cart';
 
+// Cart cleanup and total recomputation helpers used by API routes.
 type CartLike = {
   items: CartItemDB[];
   subtotal: number;

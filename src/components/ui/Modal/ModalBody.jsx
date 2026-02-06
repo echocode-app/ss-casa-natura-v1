@@ -17,13 +17,13 @@ export default function ModalBody({
 
   const handleChange = (field) => (e) => {
     const value = e.target.value;
-    // 📌 Normalize immediately for name fields (capitalize)
+    // Normalize immediately for name fields (capitalize).
     const normalizedValue = normalizeInputValue(value, field);
     setFormData((prev) => ({ ...prev, [field]: normalizedValue }));
   };
 
   const handleBlur = (field) => (_e) => {
-    // 📌 Trigger validation on blur
+    // Trigger validation on blur.
     if (onInputBlur) {
       onInputBlur(field);
     }

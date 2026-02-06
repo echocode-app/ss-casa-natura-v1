@@ -4,6 +4,7 @@ import connectToDB from '@/lib/db/mongo';
 import User from '@/lib/db/models/User';
 import { AdminSection } from '@/lib/admin/access';
 
+// Access control helpers for API routes and admin pages.
 export async function requireAdmin() {
   const user = await getUser();
 

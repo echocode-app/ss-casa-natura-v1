@@ -7,6 +7,7 @@
   "updateError": "Update failed. Please try again.",
   "cartMergeSuccess": "Cart merged successfully.",
   "cartMergeError": "Error merging cart.",
+  "bannerAlt": "Banner",
   "notFound": {
     "title": "Page not found",
     "description": "The page you are looking for does not exist or has been moved.",
@@ -122,6 +123,7 @@
   "footer": {
     "clientArea": "Client Area",
     "contacts": "Contacts",
+    "address": "Production site – Casalmaiocco (LO)",
     "lines": "Lines",
     "products": "Products",
     "copyrightText": "All rights reserved / VAT 11920720965",
@@ -137,6 +139,11 @@
   },
   "hero": {
     "cta": "Discover products",
+    "fallback": {
+      "title": "Ocean freshness\nfor your home",
+      "subtitle": "Discover the Brezza Marina line: natural detergents that bring sea air into your spaces",
+      "cta": "Discover products"
+    },
     "prevSlide": "Previous slide",
     "nextSlide": "Next slide",
     "slides": {
@@ -288,6 +295,79 @@
     "tooManyAttempts": "Too many attempts. Please try again later.",
     "genericError": "An error occurred. Please try again.",
     "logoutFailed": "Logout failed"
+  },
+  "errorPage": {
+    "title": "Oops!",
+    "subtitle": "Something went wrong",
+    "description": "An error occurred while loading the page. Please try again or return to the home page.",
+    "details": "Error details (dev only)",
+    "retry": "Try again",
+    "backHome": "Back to home"
+  },
+  "authLogin": {
+    "title": "Sign in to manage the panel",
+    "description": "Enter your account credentials. If you don't have admin access, you will be redirected to the home page after login.",
+    "backToSite": "Back to site",
+    "needHelp": "Need help?",
+    "secureAccess": "Secure access",
+    "restrictedArea": "Restricted area",
+    "form": {
+      "email": "Email",
+      "password": "Password"
+    },
+    "actions": {
+      "login": "Sign in",
+      "loggingIn": "Signing in..."
+    },
+    "redirectNotice": "After signing in you will be redirected to {target}.",
+    "errors": {
+      "loginFailed": "Login failed",
+      "profileRefresh": "Error refreshing the profile.",
+      "noAdminAccess": "Signed in, but you don't have admin rights. Redirecting...",
+      "unexpected": "Unexpected error, please try again."
+    },
+    "success": {
+      "loginRedirect": "Signed in, redirecting...",
+      "loginRedirectNoAdmin": "Signed in, but you don't have admin rights. Redirecting..."
+    }
+  },
+  "docs": {
+    "title": "Project documentation",
+    "subtitle": "Quick guide for local startup, production and main environments.",
+    "sections": {
+      "localAccess": {
+        "title": "Local access",
+        "description": "Start the project locally with the correct environment variables and then visit:"
+      },
+      "prodAccess": {
+        "title": "Production access",
+        "description": "Main production URLs for the project (site and admin panel):"
+      },
+      "env": {
+        "title": "Environment and required variables",
+        "description": "Configure these variables to run all main features."
+      },
+      "flows": {
+        "title": "Main flows",
+        "items": {
+          "checkout": "Checkout with Stripe + payment webhook.",
+          "orders": "Orders finalized via webhook and order confirmation email.",
+          "promo": "Promo code for newsletter signup + email with code.",
+          "reset": "Password reset: email with link and new password form on /account.",
+          "admin": "Admin panel with role-based access and assigned sections.",
+          "emailTemplates": "Email templates editable in Admin → Email (text only)."
+        }
+      },
+      "diagnostics": {
+        "title": "Quick diagnostics",
+        "items": {
+          "permissions": "If admin stays on spinner, check assigned permissions and reload session.",
+          "mailchimp": "For missing emails, verify Mailchimp variables and verified sender.",
+          "stripe": "For payments, check Stripe webhooks and server logs.",
+          "templates": "To edit email texts: use Admin → Email and keep placeholders"
+        }
+      }
+    }
   },
   "success": {
     "registrationSuccess": "Registration successful! Logging in...",

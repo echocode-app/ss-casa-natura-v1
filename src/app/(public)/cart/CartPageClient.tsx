@@ -157,7 +157,6 @@ export function CartPageClient() {
           className="mx-auto md:mx-0 items-center
         flex flex-col md:flex-row gap-3 lg:gap-6 md:items-start justify-center"
         >
-          {/* 📌 Cart Items */}
           <CartItemsPanel
             items={items}
             activeItemId={activeItemId}
@@ -169,7 +168,6 @@ export function CartPageClient() {
             onClearCart={handleClearCart}
           />
 
-          {/* 📌 Cart Summary */}
           <CartSummaryPanel
             totalQuantity={totalQuantity}
             subtotal={subtotal}

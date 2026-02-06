@@ -19,7 +19,7 @@ export const GET = () => {
   } catch {
     // Fallback: specifica minima se swagger-jsdoc fallisce
     return NextResponse.json({
-      openapi: '3.1.0',
+      openapi: '3.0.3',
       info: {
         title: 'Casa Natura API',
         version: '1.0.0',

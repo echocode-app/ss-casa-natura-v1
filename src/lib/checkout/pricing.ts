@@ -23,7 +23,7 @@ function roundMoney(value: number): number {
 function normalizeWeightKg(source: any): number {
   if (typeof source?.weightGrams === 'number') return source.weightGrams / 1000;
   if (typeof source?.weight === 'number') {
-    // Heuristic: if weight is large, treat it as grams; otherwise assume kg.
+    // Heuristic: large values are treated as grams, otherwise assume kilograms.
     return source.weight > 50 ? source.weight / 1000 : source.weight;
   }
   return 0;

@@ -72,7 +72,6 @@ export default function CartFooter({ items = [], onProceed }) {
 
   return (
     <div className="flex flex-col gap-2 lg:gap-0 pt-2 lg:pt-4 pb-3 lg:pb-8">
-      {/* 📌 Subtotal */}
       <div className="flex justify-between px-2 md:px-6 xl:px-10">
         <span>
           {totalQuantity} {t('items')}
@@ -80,7 +79,6 @@ export default function CartFooter({ items = [], onProceed }) {
         <span className="font-semibold text-text-extrablack">€ {subtotal.toFixed(2)}</span>
       </div>
 
-      {/* 📌 Shipping */}
       <div className="flex justify-between gap-2 mt-2 lg:mt-4 px-2 md:px-6 xl:px-10 text-text-muted">
         <span>{t('shipping')}</span>
         <span className="font-semibold text-right">{t('calculated')}</span>
@@ -171,7 +169,6 @@ export default function CartFooter({ items = [], onProceed }) {
         )}
       </div>
 
-      {/* 📌 Total */}
       <div className="flex justify-between items-center mt-3 lg:mt-8 px-2 md:px-6 xl:px-10">
         <div className="flex gap-2 items-baseline">
           <span className="font-semibold">{t('total')}</span>
@@ -181,7 +178,6 @@ export default function CartFooter({ items = [], onProceed }) {
         <span className="font-semibold text-text-extrablack">€ {total.toFixed(2)}</span>
       </div>
 
-      {/* 📌 Proceed */}
       <div className="flex justify-end mt-3 lg:mt-6 px-2 lg:px-5 xl:px-8 pb-2">
         <PrimaryButton
           onClick={handleProceed}

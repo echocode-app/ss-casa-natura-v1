@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
+import { useTranslations } from 'next-intl';
 
 export default function HeroSlide({
   image,
@@ -15,11 +16,11 @@ export default function HeroSlide({
   useFallback = true,
   isPriority = false,
 }) {
+  const t = useTranslations('hero');
   const fallbackImage = '/images/home/banner.jpg';
-  const fallbackTitle = 'Freschezza Oceanica\nper la tua casa';
-  const fallbackSubtitle =
-    'Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti';
-  const fallbackCta = 'Scopri i prodotti';
+  const fallbackTitle = t('fallback.title');
+  const fallbackSubtitle = t('fallback.subtitle');
+  const fallbackCta = t('fallback.cta');
   const fallbackHref = '/prodotti';
 
   const resolvedImage = image || (useFallback ? fallbackImage : null);

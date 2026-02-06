@@ -82,6 +82,9 @@
       "loading": "Loading details...",
       "totalWithVat": "TOTAL",
       "totalWithVatSpan": "VAT incl.",
+      "shipping": "Shipping",
+      "itemsSubtotal": "Subtotal",
+      "promoDiscount": "Promo discount",
       "statuses": {
         "pending": "Pending",
         "paid": "Paid",

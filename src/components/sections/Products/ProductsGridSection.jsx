@@ -4,9 +4,11 @@ import ProductCard from '@/components/ui/Products/ProductCard';
 import ProductCardSkeleton from '@/components/ui/Products/ProductCardSkeleton';
 import { useCart } from '@/contexts/CartContext';
 import { getFirstPurchasableVariant } from '@/lib/utils/sortProducts';
+import { useTranslations } from 'next-intl';
 
 export default function ProductsGridSection({ products, isLoading, showSkeleton }) {
   const { addItem } = useCart();
+  const t = useTranslations('prodotti.list');
 
   const handleAddToCart = async (product) => {
     const variant = getFirstPurchasableVariant(product) ?? product.variants?.[0];
@@ -27,7 +29,7 @@ export default function ProductsGridSection({ products, isLoading, showSkeleton 
   if (!products || products.length === 0) {
     return (
       <div className="text-center py-16 text-gray-500">
-        <p className="text-lg">Nessun prodotto trovato</p>
+        <p className="text-lg">{t('noProducts')}</p>
       </div>
     );
   }

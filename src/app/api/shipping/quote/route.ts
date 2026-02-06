@@ -31,6 +31,7 @@ const schema = z.object({
 });
 
 export const POST = handleApi(async (req: NextRequest) => {
+  // Computes shipping quote from cart or request items using current settings.
   await connectToDB();
 
   let body: unknown;

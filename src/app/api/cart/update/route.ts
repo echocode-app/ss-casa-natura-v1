@@ -18,6 +18,7 @@ const updateCartItemSchema = z.object({
 
 // POST /api/cart/update - Update item quantity in cart
 export const POST = handleApi(async (req: NextRequest) => {
+  // Enforces stock limits and removes unavailable items automatically.
   await connectToDB();
 
   // Parse and validate request body

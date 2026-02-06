@@ -3,7 +3,7 @@
 import AdminCard from '@/components/admin/AdminCard';
 
 export default function AdminDocsPage() {
-  const prodUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://casanatura.it';
+  const prodUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.deltagreen.it';
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -20,6 +20,10 @@ export default function AdminDocsPage() {
         <div className="text-sm text-gray-700">Swagger API:</div>
         <pre className="rounded-xl bg-black/90 p-4 text-sm text-white overflow-auto">
           <code>{`${prodUrl}/api/docs`}</code>
+        </pre>
+        <div className="text-sm text-gray-700">Swagger UI:</div>
+        <pre className="rounded-xl bg-black/90 p-4 text-sm text-white overflow-auto">
+          <code>{`${prodUrl}/docs/api`}</code>
         </pre>
       </AdminCard>
 

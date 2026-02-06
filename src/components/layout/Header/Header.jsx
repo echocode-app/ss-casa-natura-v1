@@ -108,7 +108,7 @@ export default function Header() {
   }, [forcedVisible]);
 
   const handleUserClick = () => {
-    // 📌 Modal opens only if not authenticated - logic in HeaderIcons
+    // Modal opens only if not authenticated - logic in HeaderIcons.
     setAuthOpen(true);
   };
 

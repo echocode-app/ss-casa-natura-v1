@@ -1,5 +1,6 @@
 'use client';
 
+// Superadmin-only admin access management UI.
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/components/layout/AuthContext';
 import AdminCard from '@/components/admin/AdminCard';

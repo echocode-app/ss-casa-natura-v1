@@ -6,6 +6,7 @@ import { useAuth } from '@/components/layout/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import AuthModal from '@/components/ui/Modal/AuthModal';
+import { useTranslations } from 'next-intl';
 
 export default function HeaderIcons({
   className = '',
@@ -16,6 +17,7 @@ export default function HeaderIcons({
   const { getItemCount, isInitializing } = useCart();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const t = useTranslations('header.icons');
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const size = isMobile ? 'w-6 h-6' : 'w-5 h-5 md:w-6 md:h-6';
@@ -26,13 +28,13 @@ export default function HeaderIcons({
 
   const itemCount = isInitializing ? 0 : getItemCount();
 
-  // 📌 Handle user button click - redirect or open modal
+  // Handle user button click - redirect or open modal.
   const handleUserButtonClick = () => {
     if (isAuthenticated) {
-      // 📌 Authenticated user - go to account
+      // Authenticated user - go to account.
       router.push('/account');
     } else {
-      // 📌 Not authenticated - open modal
+      // Not authenticated - open modal.
       setShowAuthModal(true);
     }
   };
@@ -41,16 +43,21 @@ export default function HeaderIcons({
     <>
       <div className={`flex items-center ${className}`}>
         {!isMobile && (
-          <button type="button" onClick={onSearchClick} aria-label="Search" className={btn}>
+          <button type="button" onClick={onSearchClick} aria-label={t('search')} className={btn}>
             <Search className={iconClass} />
           </button>
         )}
 
-        <button type="button" onClick={handleUserButtonClick} aria-label="User" className={btn}>
+        <button
+          type="button"
+          onClick={handleUserButtonClick}
+          aria-label={t('user')}
+          className={btn}
+        >
           <User className={iconClass} />
         </button>
 
-        <button type="button" aria-label="Cart" onClick={onCartClick} className={btn}>
+        <button type="button" aria-label={t('cart')} onClick={onCartClick} className={btn}>
           <Cart className={iconClass} />
           {itemCount > 0 && (
             <span className="absolute top-4 right-0 lg:top-5 lg:right-0 bg-background-green text-xs w-5 h-5 rounded-full flex items-center justify-center">

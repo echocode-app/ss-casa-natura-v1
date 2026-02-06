@@ -33,6 +33,7 @@ export async function checkItemsInStock(items: InventoryCheckItem[]): Promise<{
   ok: boolean;
   issues: InventoryIssue[];
 }> {
+  // Validates availability using Inventory overrides, then falls back to catalog data.
   const issues: InventoryIssue[] = [];
 
   for (const item of items) {

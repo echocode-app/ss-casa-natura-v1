@@ -1,5 +1,6 @@
 'use client';
 
+// Central cart state: syncs client actions with server cart API and keeps totals consistent.
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { ApplyPromoCodeRequest, CartItemUI, cartItemToUI } from '@/types/cart';
@@ -87,7 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 📌 Initialize cart state
+  // Initialize cart state.
 
   useEffect(() => {
     if (authLoading) return;
@@ -135,7 +136,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     init();
   }, [authLoading, user]);
 
-  // 📌 Persist guest cart locally
+  // Persist guest cart locally.
   useEffect(() => {
     if (isInitializing) return;
     if (!user) {
@@ -157,7 +158,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
           notify.success(tCart('toasts.added'));
         } else {
-          // 📌 Guest cart: fetch product data from API
+          // Guest cart: fetch product data from API.
           const res = await fetch(`/api/products/${productId}`);
           if (!res.ok) {
             const msg = tCart('toasts.addFailed');

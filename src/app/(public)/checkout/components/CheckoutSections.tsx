@@ -1,5 +1,8 @@
 'use client';
 
+// Orchestrates the checkout steps (address -> shipping -> payment) and keeps UI state in sync
+// with server-side validation and shipping quotes.
+
 async function fetchMapboxReverse(
   center: [number, number],
   {
@@ -152,6 +155,7 @@ function SuggestionsDropdown({
   onPick: (index: number) => void;
   ariaLabel?: string;
 }) {
+  const t = useTranslations('checkout');
   if (!open) return null;
 
   return (
@@ -159,14 +163,14 @@ function SuggestionsDropdown({
       {isLoading ? (
         <div className="px-4 py-3 text-sm text-text-muted flex items-center gap-2">
           <Spinner size="sm" />
-          <span>Caricamento…</span>
+          <span>{t('autocomplete.loading')}</span>
         </div>
       ) : items.length === 0 ? (
         <div className="px-4 py-3 text-sm text-text-muted">{emptyText}</div>
       ) : (
         <ul
           role="listbox"
-          aria-label={ariaLabel || 'Suggestions'}
+          aria-label={ariaLabel || t('autocomplete.suggestionsAria')}
           className="max-h-64 overflow-auto"
         >
           {items.map((it, idx) => {

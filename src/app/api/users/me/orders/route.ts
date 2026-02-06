@@ -3,11 +3,23 @@ import { handleApi } from '@/lib/utils/handleApi';
 import connectToDB from '@/lib/db/mongo';
 import Order from '@/lib/db/models/Order';
 import Product from '@/lib/db/models/Product';
+import CatalogProduct from '@/lib/db/models/CatalogProduct';
 import { getUser } from '@/lib/auth/getUser';
 import mongoose from 'mongoose';
 
 function isValidObjectId(value: unknown): value is string {
   return typeof value === 'string' && mongoose.Types.ObjectId.isValid(value);
+}
+
+async function findCatalogProduct(productId: string | null, slug?: string | null) {
+  const filters: any[] = [];
+  if (productId) {
+    filters.push({ id: productId }, { slug: productId });
+  }
+  if (slug) filters.push({ slug });
+  if (!filters.length) return null;
+
+  return CatalogProduct.findOne({ $or: filters }).lean();
 }
 
 export const GET = handleApi(async (_req: NextRequest) => {
@@ -20,13 +32,7 @@ export const GET = handleApi(async (_req: NextRequest) => {
     // Convert string ID to ObjectId for querying
     const userObjectId = new mongoose.Types.ObjectId(authUser.id);
 
-    const orders = await Order.find({
-      userId: userObjectId,
-      status: { $in: ['paid', 'shipped'] },
-    })
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+    const orders = await Order.find({ userId: userObjectId }).sort({ createdAt: -1 }).lean().exec();
 
     if (orders.length === 0) {
       return NextResponse.json([]);
@@ -48,6 +54,29 @@ export const GET = handleApi(async (_req: NextRequest) => {
               const canFetchFromDb = isValidObjectId(productIdStr);
 
               const product = canFetchFromDb ? await Product.findById(productIdStr).lean() : null;
+              const catalogProduct = !product
+                ? await findCatalogProduct(productIdStr || null, p.slug)
+                : null;
+
+              if (catalogProduct) {
+                const catalogImage =
+                  Array.isArray(catalogProduct.images) && catalogProduct.images.length > 0
+                    ? catalogProduct.images[0]?.src
+                    : null;
+
+                return {
+                  product: {
+                    id: catalogProduct.id || catalogProduct._id?.toString?.() || '',
+                    name: catalogProduct.title || p.title || 'Unknown product',
+                    slug: catalogProduct.slug || p.slug || '',
+                    price: p.price || 0,
+                    images: catalogImage ? [catalogImage] : p.imageSrc ? [p.imageSrc] : [],
+                    volume: p.volume,
+                    unit: p.unit,
+                  },
+                  quantity: p.quantity,
+                };
+              }
 
               if (product) {
                 return {
@@ -89,10 +118,12 @@ export const GET = handleApi(async (_req: NextRequest) => {
           id: order._id.toString(),
           status: order.status,
           subtotal: order.subtotal,
+          shippingPrice: order.shippingPrice,
           totalPrice: order.totalPrice || 0,
           promoCode: order.promoCode,
           discount: order.discount,
           promoDiscount: order.promoDiscount,
+          discountAmount: (order.discount ?? 0) + (order.promoDiscount ?? 0),
           createdAt: order.createdAt,
           products: populatedProducts.filter((p) => p !== null),
         };

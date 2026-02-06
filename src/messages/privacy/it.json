@@ -1,3 +1,14 @@
 {
-  "key": "value"
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "intro": "Questa pagina contiene l’informativa sulla privacy del sito. Il testo definitivo verrà pubblicato a breve.",
+    "contactPrompt": "Per qualsiasi richiesta relativa ai dati personali puoi contattarci dalla pagina",
+    "contactLink": "Contatti"
+  },
+  "cookiePolicy": {
+    "title": "Cookie Policy",
+    "intro": "Questa pagina descrive l’uso dei cookie su questo sito. Il testo definitivo verrà pubblicato a breve.",
+    "contactPrompt": "Per dubbi o richieste puoi contattarci dalla pagina",
+    "contactLink": "Contatti"
+  }
 }

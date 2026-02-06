@@ -1,4 +1,3 @@
-import { Instagram, Facebook } from '@/components/ui/Buttons';
 import { useTranslations } from 'next-intl';
 
 export default function Contacts() {
@@ -8,7 +7,6 @@ export default function Contacts() {
       <h4 className="font-semibold text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] uppercase mb-3 md:mb-4 lg:mb-6">
         {t('contacts')}
       </h4>
-
       <ul className="flex flex-col mb-1 md:mb-6 gap-2">
         <li>
           <a
@@ -16,7 +14,7 @@ export default function Contacts() {
             target="_blank"
             className="font-normal text-[clamp(14px,5vw,18px)] leading-[clamp(20px, 5vw, 30px)] hover:underline"
           >
-            Sede produttiva – Casalmaiocco (LO)
+            {t('address')}
           </a>
         </li>
         <li>
@@ -28,11 +26,6 @@ export default function Contacts() {
           </a>
         </li>
       </ul>
-
-      <div className="flex items-center gap-4 md:gap-6">
-        <Instagram size={35} />
-        <Facebook size={35} />
-      </div>
     </div>
   );
 }

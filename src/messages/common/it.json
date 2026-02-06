@@ -8,6 +8,7 @@
   "cartMergeSuccess": "Carrello unito con successo.",
   "cartMergeError": "Errore durante la fusione del carrello.",
   "loading": "Caricamento...",
+  "bannerAlt": "Banner",
   "save": "Salva",
   "edit": "Modifica",
   "close": "Chiudi",
@@ -126,6 +127,7 @@
   "footer": {
     "clientArea": "Area clienti",
     "contacts": "Contatti",
+    "address": "Sede produttiva – Casalmaiocco (LO)",
     "lines": "Linee",
     "products": "Prodotti",
     "copyrightText": "Tutti i diritti riservati / P.IVA 11920720965",
@@ -141,6 +143,11 @@
   },
   "hero": {
     "cta": "Scopri i prodotti",
+    "fallback": {
+      "title": "Freschezza Oceanica\nper la tua casa",
+      "subtitle": "Scopri la linea Brezza Marina: detergenti naturali che portano l’aria del mare nei tuoi ambienti",
+      "cta": "Scopri i prodotti"
+    },
     "prevSlide": "Slide precedente",
     "nextSlide": "Slide successiva",
     "slides": {
@@ -292,6 +299,79 @@
     "tooManyAttempts": "Troppi tentativi. Riprova più tardi.",
     "genericError": "Si è verificato un errore. Riprova.",
     "logoutFailed": "Disconnessione fallita"
+  },
+  "errorPage": {
+    "title": "Oops!",
+    "subtitle": "Qualcosa è andato storto",
+    "description": "Si è verificato un errore durante il caricamento della pagina. Riprova o torna alla home page.",
+    "details": "Dettagli errore (dev only)",
+    "retry": "Riprova",
+    "backHome": "Torna alla home"
+  },
+  "authLogin": {
+    "title": "Accedi per gestire il pannello",
+    "description": "Inserisci le credenziali del tuo account. Se non hai accesso amministrativo, verrai reindirizzato alla home dopo l’accesso.",
+    "backToSite": "Torna al sito",
+    "needHelp": "Hai bisogno di aiuto?",
+    "secureAccess": "Accesso sicuro",
+    "restrictedArea": "Area riservata",
+    "form": {
+      "email": "Email",
+      "password": "Password"
+    },
+    "actions": {
+      "login": "Accedi",
+      "loggingIn": "Accesso in corso..."
+    },
+    "redirectNotice": "Dopo l’accesso verrai reindirizzato a {target}.",
+    "errors": {
+      "loginFailed": "Login fallito",
+      "profileRefresh": "Errore nel refresh del profilo.",
+      "noAdminAccess": "Accesso eseguito, ma non hai diritti admin. Ti reindirizzo...",
+      "unexpected": "Errore imprevisto, riprova."
+    },
+    "success": {
+      "loginRedirect": "Accesso eseguito, ti reindirizzo...",
+      "loginRedirectNoAdmin": "Accesso eseguito, ma non hai diritti admin. Ti reindirizzo..."
+    }
+  },
+  "docs": {
+    "title": "Documentazione progetto",
+    "subtitle": "Guida rapida per avvio locale, produzione e ambienti principali del progetto.",
+    "sections": {
+      "localAccess": {
+        "title": "Accesso locale",
+        "description": "Avvia il progetto in locale con le variabili d’ambiente corrette e poi visita:"
+      },
+      "prodAccess": {
+        "title": "Accesso produzione",
+        "description": "URL di produzione principali del progetto (sito e pannello admin):"
+      },
+      "env": {
+        "title": "Ambiente e variabili richieste",
+        "description": "Configura queste variabili per far funzionare tutte le feature principali."
+      },
+      "flows": {
+        "title": "Flussi principali",
+        "items": {
+          "checkout": "Checkout con Stripe + webhook di pagamento.",
+          "orders": "Ordini finalizzati via webhook e mail di conferma ordine.",
+          "promo": "Promo code per iscrizione newsletter + mail con codice.",
+          "reset": "Reset password: email con link e form di nuovo password su /account.",
+          "admin": "Admin panel con accesso per ruolo e sezioni assegnate.",
+          "emailTemplates": "Template email modificabili da Admin → Email (solo testo)."
+        }
+      },
+      "diagnostics": {
+        "title": "Diagnostica rapida",
+        "items": {
+          "permissions": "Se l’admin resta su spinner, controlla i permessi assegnati e ricarica sessione.",
+          "mailchimp": "Per email mancanti, verifica le variabili Mailchimp e il sender verificato.",
+          "stripe": "Per pagamenti, controlla i webhook Stripe e i log del server.",
+          "templates": "Per modificare i testi email: usare Admin → Email e mantenere i placeholder"
+        }
+      }
+    }
   },
   "success": {
     "registrationSuccess": "Registrazione completata! Accesso in corso...",

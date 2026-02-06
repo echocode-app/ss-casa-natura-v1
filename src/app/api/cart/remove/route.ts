@@ -17,6 +17,7 @@ const removeFromCartSchema = z.object({
 
 // POST /api/cart/remove - Remove item from cart
 export const POST = handleApi(async (req: NextRequest) => {
+  // Removes a single item and recomputes discounts/totals.
   await connectToDB();
 
   // Parse and validate request body

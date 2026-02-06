@@ -19,6 +19,7 @@ export async function finalizePaidOrderOnce({
   orderId: string;
   paymentIntent: any;
 }): Promise<void> {
+  // Idempotent finalization: claim once, then update inventory, carts, and notifications.
   const claimed = await Order.findOneAndUpdate(
     { _id: orderId, finalizedAt: { $exists: false } },
     { $set: { finalizedAt: new Date() } },

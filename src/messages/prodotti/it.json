@@ -41,5 +41,14 @@
     "addToCart": "Aggiungi",
     "outOfStock": "Non disponibile",
     "variantUnavailable": "Il volume selezionato non è disponibile. Scegli un'altra opzione."
+  },
+  "error": {
+    "title": "Errore nel caricamento dei prodotti",
+    "description": "Non siamo riusciti a caricare la pagina dei prodotti. Questo potrebbe essere un problema temporaneo.",
+    "details": "Dettagli errore (sviluppo)",
+    "retry": "Riprova",
+    "backHome": "Torna alla home",
+    "contactPrompt": "Se il problema persiste, contattaci tramite la",
+    "contactLink": "pagina contatti"
   }
 }

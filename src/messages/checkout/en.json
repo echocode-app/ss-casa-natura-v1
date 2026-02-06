@@ -60,6 +60,10 @@
   "marketing": {
     "label": "I want to receive offers and news via email"
   },
+  "autocomplete": {
+    "loading": "Loading…",
+    "suggestionsAria": "Suggestions"
+  },
   "errors": {
     "emptyCart": "Your cart is empty.",
     "shippingRequired": "Fill the address to calculate shipping.",

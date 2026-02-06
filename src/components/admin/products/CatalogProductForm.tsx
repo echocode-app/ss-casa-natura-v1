@@ -1,5 +1,7 @@
 'use client';
 
+// Admin product editor: validates catalog data, variants, images, and saves via API.
+
 import { useEffect, useMemo, useState } from 'react';
 import AdminCard from '@/components/admin/AdminCard';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';

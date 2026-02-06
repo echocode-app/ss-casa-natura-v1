@@ -1,5 +1,6 @@
 'use client';
 
+// Admin order detail page: reads order data and allows status updates.
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import AdminCard from '@/components/admin/AdminCard';

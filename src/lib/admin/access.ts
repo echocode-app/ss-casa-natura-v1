@@ -38,7 +38,7 @@ export function canAccessAdminSection(
 
   if (role === 'developer' || role === 'superadmin') return true;
 
-  // admin ограничен: только назначенные вкладки (fallback to defaults)
+  // Admins are limited to assigned sections (fallback to defaults).
   if (role === 'admin') {
     if (section === 'shipping') return false;
     if (section === 'access') return false;

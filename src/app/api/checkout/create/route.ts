@@ -85,6 +85,7 @@ function promoError(reason: string): { status: number; errorCode: string; error:
 }
 
 export const POST = handleApi(async (req: NextRequest) => {
+  // Creates a Stripe PaymentIntent and stores a CheckoutDraft snapshot for order finalization.
   await connectToDB();
 
   let stripe;

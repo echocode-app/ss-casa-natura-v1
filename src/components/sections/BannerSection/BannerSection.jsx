@@ -2,8 +2,10 @@
 
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function BannerSection({ title, subtitle, backgroundSrc }) {
+  const t = useTranslations();
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
@@ -15,11 +17,11 @@ export default function BannerSection({ title, subtitle, backgroundSrc }) {
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
       <Image
         src={backgroundSrc}
-        alt="Banner"
+        alt={title || t('bannerAlt')}
         fill
         priority
         sizes="100vw"
-        onLoadingComplete={() => setImageLoaded(true)}
+        onLoad={() => setImageLoaded(true)}
         className={`object-cover w-full h-full transition-opacity duration-700 ease-out ${
           imageLoaded ? 'opacity-100' : 'opacity-0'
         }`}

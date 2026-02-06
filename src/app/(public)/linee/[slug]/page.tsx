@@ -29,8 +29,8 @@ export default async function LinePage({ params }: LinePageProps) {
     image: line.heroImage,
     path: `/linee/${slug}`,
     breadcrumbs: [
-      { label: 'Home', href: '/' },
-      { label: 'Linee', href: '/linee' },
+      { label: t('breadcrumbs.home'), href: '/' },
+      { label: t('breadcrumbs.lines'), href: '/linee' },
       { label: line.title, href: `/linee/${slug}` },
     ],
   });

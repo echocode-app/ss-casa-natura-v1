@@ -9,8 +9,10 @@ import FullscreenSpinner from '@/components/ui/Spinner/FullscreenSpinner';
 import { PRODUCT_FILTERS } from '@/config/products/product.filters';
 import { useSmoothLoading } from '@/hooks/useSmoothLoading';
 import { getSeoMeta, buildBreadcrumbs, JsonLd, ClientSeoHead } from '@/lib/seo';
+import { useTranslations } from 'next-intl';
 
 export default function ProdottiPage() {
+  const t = useTranslations('prodotti');
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -78,7 +80,7 @@ export default function ProdottiPage() {
   if (subcategoryParam) qs.set('subcategory', subcategoryParam);
   const queryString = qs.toString();
 
-  const breadcrumbs = buildBreadcrumbs([{ label: 'Prodotti', href: '/prodotti' }]);
+  const breadcrumbs = buildBreadcrumbs([{ label: t('breadcrumbs.products'), href: '/prodotti' }]);
 
   const seo = getSeoMeta({
     type: seoType,

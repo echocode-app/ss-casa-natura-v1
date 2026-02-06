@@ -5,7 +5,7 @@ import { TopProductsSection } from '@/components/sections/TopProducts';
 import { fetchProducts } from '@/lib/utils/fetchProducts';
 import { getSeoMeta, generateMetadata as generateSeoMetadata, JsonLd } from '@/lib/seo';
 import type { Metadata } from 'next';
-import { getLocale } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import HomeLazySections from '@/components/sections/HomeLazySections';
 
 export const dynamic = 'force-dynamic';
@@ -39,7 +39,7 @@ async function getServerBaseUrl(): Promise<string> {
   return 'http://localhost:3000';
 }
 
-async function fetchHeroSlides(locale: string) {
+async function fetchHeroSlides(locale: string, tHero: (key: string) => string) {
   try {
     const baseUrl = await getServerBaseUrl();
     const res = await fetch(`${baseUrl}/api/hero-banners`, { cache: 'no-store' });
@@ -57,7 +57,7 @@ async function fetchHeroSlides(locale: string) {
           ? b.subtitleEn || b.text || b.subtitleIt
           : b.subtitleIt || b.text || b.subtitleEn,
       href: b.href,
-      cta: locale === 'en' ? b.ctaEn || b.cta || 'Learn more' : b.ctaIt || b.cta || 'Scopri di più',
+      cta: locale === 'en' ? b.ctaEn || b.cta || tHero('cta') : b.ctaIt || b.cta || tHero('cta'),
     }));
   } catch {
     return [];
@@ -72,7 +72,8 @@ export default async function Page() {
 
   const products = await fetchProducts();
   const locale = await getLocale();
-  const heroSlides = await fetchHeroSlides(locale);
+  const tHero = await getTranslations('hero');
+  const heroSlides = await fetchHeroSlides(locale, tHero);
 
   return (
     <>

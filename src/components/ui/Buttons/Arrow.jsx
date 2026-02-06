@@ -3,7 +3,7 @@ import Image from 'next/image';
 export default function Arrow() {
   return (
     <span
-      aria-label="Arrow"
+      aria-hidden="true"
       className="
         inline-flex items-center justify-center
         w-[20px] h-[20px]
@@ -14,7 +14,7 @@ export default function Arrow() {
         md:transition-transform md:duration-400
       "
     >
-      <Image src="/images/parts/arrow.svg" alt="Arrow" width={34} height={34} />
+      <Image src="/images/parts/arrow.svg" alt="" width={34} height={34} />
     </span>
   );
 }

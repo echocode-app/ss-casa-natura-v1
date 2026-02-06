@@ -1,51 +1,70 @@
-# Mailchimp Checklist
+# Mailchimp Checklist (Casa Natura)
 
-## 1) Environment variables
-- `MAILCHIMP_API_KEY` (Marketing API key)
+This checklist covers both Marketing (Audience) and Transactional (Mandrill) setup.
+
+## 1) Environment Variables
+Required in production:
+- `MAILCHIMP_API_KEY` (Marketing)
 - `MAILCHIMP_SERVER_PREFIX` (e.g. `us6`)
 - `MAILCHIMP_LIST_ID` (Audience ID)
-- `MAILCHIMP_TRANSACTIONAL_API_KEY` (Mailchimp Transactional / Mandrill key)
-- `MAILCHIMP_FROM_EMAIL` (verified sender address)
-- `NEXT_PUBLIC_SITE_URL` (base URL used in reset password links)
- - `SITE_URL` (fallback base URL if needed)
+- `MAILCHIMP_TRANSACTIONAL_API_KEY` (Mandrill)
+- `MAILCHIMP_FROM_EMAIL` (verified sender)
+- `NEXT_PUBLIC_SITE_URL` (reset links)
+- `SITE_URL` (fallback)
+- `API_SECRET_KEY` (server-to-server for export + stats)
+
+Optional:
+- `CONTACT_EMAIL` (recipient for contact form emails)
 
 ## 2) Mailchimp Marketing (Audience)
-1) Create an Audience for newsletter/marketing emails.
-2) Copy Audience ID:
-   - Audience → Settings → Audience name and defaults → Audience ID (`MAILCHIMP_LIST_ID`)
-3) Enable double opt‑in if legally required for your region.
-4) Add merge field `SOURCE` (Text):
+1. Create an Audience.
+2. Copy **Audience ID** → `MAILCHIMP_LIST_ID`.
+3. Add Merge Field `SOURCE` (Text):
    - Audience → Settings → Audience fields and *|MERGE|* tags → Add field
    - Field tag: `SOURCE`
-5) Confirm API key has access to the correct account and audience.
+4. Enable Double Opt-In if required in your region.
+5. Ensure API key is linked to the same account.
 
 ## 3) Mailchimp Transactional (Mandrill)
-1) Activate Mailchimp Transactional (Mandrill) and generate API key:
-   - Transactional → Settings → API Keys → Create key (`MAILCHIMP_TRANSACTIONAL_API_KEY`)
-2) Verify sending domain and sender address:
-   - Transactional → Domains → Add domain
-   - Transactional → Senders → Verify `MAILCHIMP_FROM_EMAIL`
-3) Add SPF/DKIM DNS records from Mailchimp to your domain.
-4) Send a test email from Transactional → Outbound → Senders to confirm delivery.
+1. Activate Transactional and generate API key → `MAILCHIMP_TRANSACTIONAL_API_KEY`.
+2. Verify sender domain + email:
+   - Transactional → Domains (add domain)
+   - Transactional → Senders (verify `MAILCHIMP_FROM_EMAIL`)
+3. Add SPF/DKIM DNS records.
+4. Send a test email from Mandrill UI.
 
-## 4) Transactional emails handled by code
-These are sent directly by the app (no Mailchimp templates needed):
-- Welcome email (registration)
-- Promo code email (after promo code issued)
-- Password reset email (forgot password flow)
-- Order confirmation email (after successful checkout)
- - Admin order notification email (superadmin + admins with Orders access)
+## 4) Transactional Emails in the App
+These are sent by the app (not by Mailchimp templates):
+- Welcome email
+- Promo code email
+- Password reset
+- Order confirmation
+- Admin order notification
 
-Note: text of these emails can be edited in **Admin → Email**, but dynamic variables stay in code.
+Text can be overridden in **Admin → Emails**.
 
-## 5) Optional: Marketing automation in Mailchimp
-- Create automations / campaigns inside Mailchimp for newsletters.
-- Filter contacts by the `SOURCE` merge field if needed.
-- The app only subscribes users; marketing content is managed in Mailchimp.
+## 5) Promo Code Workflow (Newsletter)
+1. User requests promo code.
+2. App subscribes to Mailchimp + stores email in DB.
+3. App generates single‑use promo code.
+4. Promo code is consumed after successful payment.
 
-## 6) Quick smoke test
-1) Register a new user → welcome email delivered.
-2) Request promo code → promo email + code delivered.
-3) Use “Forgot password” → reset email with link delivered.
-4) Complete a test order → order confirmation delivered.
-5) Confirm admin order notification delivered to superadmin + admins with Orders access.
+## 6) Export to Mailchimp (Admin)
+Endpoints:
+- `GET /api/mailchimp/stats` (Admin or Bearer `API_SECRET_KEY`)
+- `POST /api/mailchimp/export` (Admin or Bearer `API_SECRET_KEY`)
+
+Use case:
+- Export DB emails to Mailchimp Audience in batch.
+
+## 7) Quick Smoke Test
+- Register → welcome email
+- Request promo → promo email received
+- Forgot password → reset link delivered
+- Complete paid order → order confirmation
+- Admin gets order notification
+
+## 8) Troubleshooting
+- **No emails sent** → check `MAILCHIMP_TRANSACTIONAL_API_KEY` + verified sender.
+- **Export fails** → check `API_SECRET_KEY`, `MAILCHIMP_API_KEY`, `MAILCHIMP_LIST_ID`.
+- **Reset links wrong** → check `NEXT_PUBLIC_SITE_URL` / `SITE_URL`.

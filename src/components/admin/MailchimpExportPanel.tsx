@@ -1,5 +1,7 @@
 'use client';
 
+// Admin panel for exporting marketing emails to Mailchimp and viewing sync stats.
+
 import { useState } from 'react';
 import PrimaryButton from '@/components/ui/Buttons/PrimaryButton';
 import Spinner from '@/components/ui/Spinner/Spinner';
@@ -215,7 +217,7 @@ export default function MailchimpExportPanel() {
           </PrimaryButton>
         </div>
 
-        {/* Visualizzazione Errore */}
+        {/* Error state */}
         {error && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
             <h3 className="font-semibold text-red-800 mb-1">Errore</h3>
@@ -249,7 +251,7 @@ export default function MailchimpExportPanel() {
               </div>
             )}
 
-            {/* Dettagli Errore */}
+            {/* Error details */}
             {exportResult.errors && exportResult.errors.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-semibold mb-2 text-red-800">

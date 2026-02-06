@@ -49,7 +49,8 @@ export default function ProductCard({ title, href = '/products', onClick }) {
         >
           <Image
             src="/images/parts/arrow.svg"
-            alt="Arrow"
+            alt=""
+            aria-hidden="true"
             width={20}
             height={20}
             className="w-[clamp(14px,4vw,18px)] h-[clamp(14px,4vw,18px)] xl:w-[20px] xl:h-[20px]"
